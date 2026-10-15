@@ -134,6 +134,7 @@ export type Action =
   | { type: "unlock"; at: number }
   | { type: "reviewRun"; at: number; runId: string; patch: Partial<RunModerator> }
   | { type: "endEarly"; at: number }
+  | { type: "stopSession"; at: number }
   | { type: "debrief"; at: number; notes: string }
   | { type: "finish"; at: number }
   | { type: "resume"; at: number };
@@ -246,7 +247,7 @@ export function reduce(session: Session, a: Action): Session {
       return s;
     }
     case "rate": {
-      // The task is complete and counted from here: no moderator step sits between it and the next situation.
+      // The task is complete and counted from here: no moderator step sits between it and the next scenario.
       need(s, a, "rating");
       if (!Number.isInteger(a.ease) || a.ease < 1 || a.ease > 7) fail(s, a);
       const run = currentRun(s)!;
@@ -268,6 +269,14 @@ export function reduce(session: Session, a: Action): Session {
       if (!run || run.status !== "completed") fail(s, a);
       Object.assign(run!.moderator, a.patch);
       run!.moderator.reviewed = true;
+      return s;
+    }
+    case "stopSession": {
+      // The participant chooses to stop between tasks (after confirming). Everything rated so far is kept; the device goes
+      // back to the researcher through the usual hand-back screen.
+      need(s, a, "intro");
+      s.status = "ended-early";
+      s.phase = "handBack";
       return s;
     }
     case "endEarly": {

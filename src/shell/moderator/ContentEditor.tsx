@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useApp } from "../state.tsx";
 import { nextContent, validateContent } from "../domain/content.ts";
 import { DEFAULT_CONTENT } from "../domain/tasks.ts";
@@ -25,6 +25,17 @@ export function ContentEditor() {
     setText(JSON.stringify(next, null, 2));
   };
 
+  // Ctrl or Cmd+S saves, even while typing in the editor (the whole point of a save shortcut).
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "s") { e.preventDefault(); saveRef.current(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <main className="m-page m-wide">
       <h1>Content</h1>
@@ -42,7 +53,7 @@ export function ContentEditor() {
         <button type="button" className="btn btn-primary" onClick={save}>Save as version {content.version + 1}</button>
       </div>
       {reset && <Confirm title="Reset to the plan's tasks?" confirmLabel="Reset" onCancel={() => setReset(false)} onConfirm={() => { setReset(false); setText(JSON.stringify(DEFAULT_CONTENT, null, 2)); setSaved("Loaded the plan's tasks into the editor. Save to use them."); setErrors([]); }}>
-        This replaces the text in the editor with the original 12 tasks. Nothing is saved until you press Save.
+        This replaces the text in the editor with the original {DEFAULT_CONTENT.tasks.length} tasks. Nothing is saved until you press Save.
       </Confirm>}
     </main>
   );

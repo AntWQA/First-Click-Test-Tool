@@ -126,6 +126,24 @@ test("ending early from the offer goes to the debrief without calling the sessio
   assert.throws(() => reduce(s, { type: "acceptReserve", at: T0 }), IllegalTransition);
 });
 
+test("a participant can end the session from the between-tasks screen: rated work is kept, and the device goes back via the hand-back screen", () => {
+  let s = reduce(fresh({ id: "st" }), { type: "start", at: T0 });
+  assert.throws(() => reduce(fresh({ id: "sx" }), { type: "stopSession", at: T0 }), IllegalTransition, "not during setup");
+  s = doTask(s); s = doTask(s);
+  assert.equal(s.phase, "intro");
+  const stopped = reduce(s, { type: "stopSession", at: T0 + 1 });
+  assert.equal(stopped.phase, "handBack");
+  assert.equal(surfaceOf(stopped.phase), "participant");
+  assert.equal(stopped.status, "ended-early");
+  assert.equal(countedRuns(stopped).length, 2, "both rated tasks still count");
+  const debrief = reduce(stopped, { type: "unlock", at: T0 + 2 });
+  assert.equal(debrief.phase, "debrief");
+  assert.equal(debrief.status, "ended-early");
+  assert.throws(() => reduce(debrief, { type: "acceptReserve", at: T0 }), IllegalTransition, "no reserves after stopping");
+  const mid = present(s, T0 + 5);
+  assert.throws(() => reduce(mid, { type: "stopSession", at: T0 }), IllegalTransition, "only between tasks, never in the middle of one");
+});
+
 test("illegal moves throw and leave the session untouched", () => {
   const s = fresh();
   assert.throws(() => reduce(s, { type: "present", at: T0, runId: "x" }), IllegalTransition);
@@ -147,7 +165,7 @@ test("ease must be a whole number from 1 to 7", () => {
   s = reduce(s, { type: "end", at: T0 + 5, reason: "gave-up" });
   for (const bad of [0, 8, 3.5, Number.NaN]) assert.throws(() => reduce(s, { type: "rate", at: T0, ease: bad, notes: "" }), IllegalTransition);
   const rated = reduce(s, { type: "rate", at: T0, ease: 7, notes: "" });
-  assert.equal(rated.phase, "intro", "straight on to the next situation");
+  assert.equal(rated.phase, "intro", "straight on to the next scenario");
   assert.equal(rated.cursor, 1);
 });
 

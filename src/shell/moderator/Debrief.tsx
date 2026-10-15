@@ -4,6 +4,7 @@ import { countedRuns, effective } from "../domain/session.ts";
 import type { Session } from "../domain/session.ts";
 import { toJsonBundle, runsToCsv } from "../domain/exports.ts";
 import { download, seconds, stamp, TIER_LABELS } from "../format.ts";
+import { DownloadIcon } from "../brand.tsx";
 import { BREAKPOINTS } from "../../shared/protocol.ts";
 
 export function Debrief({ session, onReview }: { session: Session; onReview: (sessionId: string, runId: string) => void }) {
@@ -46,8 +47,8 @@ export function Debrief({ session, onReview }: { session: Session; onReview: (se
         <textarea rows={5} value={notes} readOnly={ended} onChange={(e) => setNotes(e.target.value)} onBlur={() => { if (!ended) dispatch({ type: "debrief", at: Date.now(), notes }); }} />
       </label>
       <div className="m-actions">
-        <button type="button" className="btn btn-secondary" onClick={saveBackup}>Download this session (JSON)</button>
-        <button type="button" className="btn btn-secondary" onClick={() => download(`${file}.csv`, "text/csv", runsToCsv([session]))}>Download CSV</button>
+        <button type="button" className="btn btn-secondary" onClick={saveBackup}><DownloadIcon />Download this session (JSON)</button>
+        <button type="button" className="btn btn-secondary" onClick={() => download(`${file}.csv`, "text/csv", runsToCsv([session]))}><DownloadIcon />Download CSV</button>
         {ended ? (
           <button type="button" className="btn btn-primary" onClick={closeSession}>Back to sessions</button>
         ) : (

@@ -92,9 +92,24 @@ try {
   await c.goto(file);
   await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000, "the moderator tabs");
   report(true, "the app opens on the moderator Sessions screen from file://");
+  // Shortcut keys: number keys switch tabs, T toggles the theme, ? lists them, Ctrl+S saves in the Content tab.
+  const current = () => c.ev("document.querySelector('.m-tab[aria-current=page]')?.textContent");
+  const headerBox = () => c.ev("JSON.stringify((({ left, width }) => ({ left: Math.round(left), width: Math.round(width) }))(document.querySelector('.top-inner').getBoundingClientRect()))");
+  const headerBoxes = [await headerBox()];
+  for (const [k, name] of [["2", "Ledger"], ["3", "Content"], ["4", "Preview"], ["1", "Sessions"]]) { await c.key(k, "Digit" + k); await sleep(250); report((await current()) === name, `the ${k} key switches to ${name}`, String(await current())); headerBoxes.push(await headerBox()); }
+  report(new Set(headerBoxes).size === 1, "the header keeps the same position and width on Sessions, Ledger, Content and Preview", headerBoxes.join(" "));
+  const theme0 = await c.ev("document.documentElement.getAttribute('data-theme') ?? ''");
+  await c.key("t", "KeyT"); await sleep(200);
+  const theme1 = await c.ev("document.documentElement.getAttribute('data-theme') ?? ''");
+  report(theme1 !== theme0, "the T key toggles light and dark", `${theme0} then ${theme1}`);
+  await c.key("t", "KeyT"); await sleep(200);
   await tab("Content");
   const reduced = { ...DEFAULT_CONTENT, tasks: DEFAULT_CONTENT.tasks.filter((t) => ["T1", "T3", "T9", "R1"].includes(t.id)) };
   await setValue(c, ".m-code", "{ not json");
+  await c.send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "s", code: "KeyS", modifiers: 2, windowsVirtualKeyCode: 83 });
+  await c.send("Input.dispatchKeyEvent", { type: "keyUp", key: "s", code: "KeyS", modifiers: 2, windowsVirtualKeyCode: 83 });
+  await wait("not valid JSON", 4000);
+  report(true, "Ctrl+S in the Content tab runs the save check (here it rejects the invalid text)");
   await clickText(c, "button", "Check");
   report(await has("not valid JSON"), "the Content editor rejects text that is not JSON");
   const bad = JSON.parse(JSON.stringify(reduced)); bad.tasks[0].primary = [{ href: "/not/a/link" }];
@@ -120,7 +135,7 @@ try {
   await wait("Thanks for taking part");
   report(!(await c.ev("!!document.querySelector('.m-header')")) && !(await has("Ledger")), "the participant screen carries no moderator controls");
   report((await active()).startsWith("H1:"), "focus moves to the heading on the intro screen", await active());
-  await clickText(c, "button", "Show me the first situation", { startsWith: true });
+  await clickText(c, "button", "Show me the first scenario", { startsWith: true });
 
   const sc1 = await scenario();
   const briefLabel = await c.ev("document.querySelector('.p-device')?.textContent ?? ''");
@@ -148,10 +163,10 @@ try {
   report((await active()).startsWith("H1:"), "focus moves to the heading on the rating screen", await active());
   report(await c.ev("[...document.querySelectorAll('button')].find(b=>b.textContent==='Done').disabled"), "Done is disabled until an ease rating is chosen");
   await rate(6, "I looked under Shop first");
-  await wait("Situation 2 of 3");
-  report(!(await has("Researcher")) && !(await c.ev("!!document.querySelector('.m-review')")), "after a task the participant goes straight to the next situation: no hand-back, no moderator screen");
-  report((await active()).startsWith("H1:"), "focus moves to the heading on the next situation's intro", await active());
-  await clickText(c, "button", "Show me the next situation", { startsWith: true });
+  await wait("Scenario 2 of 3");
+  report(!(await has("Researcher")) && !(await c.ev("!!document.querySelector('.m-review')")), "after a task the participant goes straight to the next scenario: no hand-back, no moderator screen");
+  report((await active()).startsWith("H1:"), "focus moves to the heading on the next scenario's intro", await active());
+  await clickText(c, "button", "Show me the next scenario", { startsWith: true });
   const sc2 = await scenario();
   await beginTask();
   const p2 = planFor(sc2);
@@ -159,8 +174,8 @@ try {
   report(bp2 === plan[idFor(sc2)], `the next task switches to its own planned breakpoint (${idFor(sc2)} at ${bp2})`);
   await clickPlanned(sc2, true);
   await rate(2, "Not sure it was in the right place");
-  await wait("Situation 3 of 3");
-  await clickText(c, "button", "Show me the next situation", { startsWith: true });
+  await wait("Scenario 3 of 3");
+  await clickText(c, "button", "Show me the next scenario", { startsWith: true });
   await beginTask();
   const bp3 = await frameBp(); seenBps.add(bp3);
   report(bp3 === plan[idFor(await scenario())], `the third task shows its planned breakpoint (${bp3})`);
@@ -174,9 +189,9 @@ try {
   report((await has("No thanks, I'm finished")) && (await has("Yes, show me another")), "declining is as easy as accepting");
   await clickText(c, "button", "Yes, show me another", { startsWith: true });
   await wait("One more");
-  await clickText(c, "button", "Show me the next situation", { startsWith: true });
+  await clickText(c, "button", "Show me the next scenario", { startsWith: true });
   report((await scenario()).startsWith("You've heard doTERRA holds"), "accepting gives the participant the reserve task");
-  report(await has("One more situation"), "it is labelled as an extra situation, not 'Situation 4 of 4'");
+  report(await has("One more scenario"), "it is labelled as an extra scenario, not 'Scenario 4 of 4'");
   await beginTask();
   report((await frameBp()) === "desktop", "the reserve task runs at the breakpoint its content lists (desktop)");
   await c.ev("[...document.querySelectorAll('.p-actions .btn')].find(b=>b.textContent==='I can\\'t find it').click()");
@@ -221,6 +236,7 @@ try {
   // ---------- C: ledger ----------
   await tab("Ledger");
   await wait("Desktop 1440");
+  report(await c.ev("[...document.querySelectorAll('main .m-actions .btn')].filter((b) => /Markdown|CSV|JSON/.test(b.textContent)).length === 3 && [...document.querySelectorAll('main .m-actions .btn')].filter((b) => /Markdown|CSV|JSON/.test(b.textContent)).every((b) => !!b.querySelector('svg'))"), "the Ledger's three download buttons each carry a download icon");
   report((await c.ev("document.querySelectorAll('.m-ledger tbody tr').length")) === 4, "the Ledger has a row per counted task (three core tasks and the reserve), under the breakpoint each ran at");
   report(/Pass|Watch|Fail/.test(await text()) && (await has("never pooled")), "verdicts are words, and the limits are stated");
   report(await c.ev("[...document.querySelectorAll('.m-ledger tbody tr')].some(tr=>tr.textContent.includes('R1') && tr.textContent.includes('0 of 1'))"), "the Ledger shows that nothing has been reviewed yet for the reserve task");
@@ -245,23 +261,33 @@ try {
   await clickText(c, "button", "New session");
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part");
-  await clickText(c, "button", "Show me the first situation", { startsWith: true });
+  await clickText(c, "button", "Show me the first scenario", { startsWith: true });
   await beginTask();
   await c.send("Page.reload"); await sleep(900);
   await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
   report(await has("In progress"), "an interrupted session is listed as In progress");
   await clickText(c, "button", "Open", { startsWith: true });
-  await wait("Ready for the next situation?");
+  await wait("Ready for the next scenario?");
   report(true, "reopening it after a reload re-presents the task instead of resuming dead timers");
-  await clickText(c, "button", "Show me the next situation", { startsWith: true });
+  await clickText(c, "button", "Show me the next scenario", { startsWith: true });
   await beginTask();
   await c.ev("[...document.querySelectorAll('.p-actions .btn')].find(b=>b.textContent==='I can\\'t find it').click()");
   await rate(3, "");
-  await wait("Ready for the next situation?");
-  await c.send("Input.dispatchKeyEvent", { type: "keyDown", key: "M", code: "KeyM", modifiers: 10 });
-  await c.send("Input.dispatchKeyEvent", { type: "keyUp", key: "M", code: "KeyM", modifiers: 10 });
+  await wait("Ready for the next scenario?");
+  // The participant can end the session themselves from this screen, after an "Are you sure?" step.
+  report(await c.ev("document.querySelector('.p-textlink')?.textContent === 'End session' && document.querySelector('.p-textlink').getBoundingClientRect().top > document.querySelector('.p-intro .btn-primary').getBoundingClientRect().bottom"), "a text link, End session, sits below the Show me the next scenario button");
+  await clickText(c, ".p-textlink", "End session");
   await c.waitPage("!!document.querySelector('dialog[open]')");
-  await clickText(c, "dialog button", "End session early");
+  report(await c.ev("document.querySelector('dialog[open]').textContent.includes('Everything you have done so far is kept')"), "it asks for confirmation and says nothing already done is lost");
+  await clickText(c, "dialog button", "Keep going"); await sleep(250);
+  report(!(await c.ev("!!document.querySelector('dialog[open]')")) && (await has("Ready for the next scenario?")), "Keep going closes the question and stays on the same screen");
+  await clickText(c, ".p-textlink", "End session");
+  await c.waitPage("!!document.querySelector('dialog[open]')");
+  await clickText(c, "dialog button", "Yes, end the session");
+  await wait("Thank you for your time");
+  report((await has("hand the device back to the researcher")) && !(await c.ev("!!document.querySelector('.m-header')")), "confirming shows the hand-back screen, with no moderator controls");
+  report(await c.ev("(()=>{const p=document.querySelectorAll('.handoff-party'); const a=document.querySelector('.handoff-arrow svg'); return p[0].textContent.includes('Participant') && p[1].textContent.includes('Researcher') && getComputedStyle(a).transform==='none'})()"), "the hand-back graphic points from the participant to the researcher");
+  await clickText(c, "button", "Researcher: continue");
   await wait("Session ended early");
   report(await c.ev("[...document.querySelectorAll('.m-table tbody tr')].some(tr=>tr.textContent.includes('2') && tr.textContent.includes('completed'))"), "the completed second attempt is kept, and counted, after ending early");
   report(await has("interrupted 1 time"), "the debrief flags the interruption so timings are not over-read");
@@ -276,7 +302,7 @@ try {
   report(await c.ev("[...document.querySelectorAll('.m-plan select')].every(s=>s.value==='mobile')"), "the moderator can put every task at mobile from setup");
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part");
-  await clickText(c, "button", "Show me the first situation", { startsWith: true });
+  await clickText(c, "button", "Show me the first scenario", { startsWith: true });
   const sc3 = await scenario();
   await beginTask();
   report((await c.ev("document.querySelector('.frame-box').dataset.breakpoint")) === "mobile" && (await c.evFrame("innerWidth")) === 402, "the mobile frame is 402 wide");
@@ -305,7 +331,7 @@ try {
   await clickText(c, "button", "New session");
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part");
-  await clickText(c, "button", "Show me the first situation", { startsWith: true });
+  await clickText(c, "button", "Show me the first scenario", { startsWith: true });
   const anim2 = await c.ev(`(async()=>{[...document.querySelectorAll('.p-task-card .btn')].find(b=>b.textContent.trim().startsWith('Begin')).click();await new Promise(r=>setTimeout(r,40));return document.querySelector('.p-task-card').classList.contains('p-task-card')&&document.querySelector('.p-task.is-begun')?document.querySelector('.p-task-card').getAnimations().length:-1})()`);
   report(anim2 === 0, "with reduced motion the task jumps to the top with no animation", String(anim2));
   await waitMsg(c, (m) => m.type === "ready", 20000);

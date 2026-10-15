@@ -19,14 +19,22 @@ export function ModeratorShell({ tab, onTab, children, inSession, wide, theme, o
 }) {
   const { lastSavedAt, saveProblem, notice, clearNotice, skippedOnLoad, contentFellBack } = useApp();
   const [help, setHelp] = useState(false);
+  const TABS: Tab[] = ["sessions", "ledger", "content", "preview"];
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target as HTMLElement | null;
-      if (e.key === "?" && !(t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) && !document.querySelector("dialog[open]")) { e.preventDefault(); setHelp(true); }
+      if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+      if (document.querySelector("dialog[open]")) return;
+      if (e.key === "?") { e.preventDefault(); setHelp(true); return; }
+      if (e.key.toLowerCase() === "t") { e.preventDefault(); onToggleTheme(); return; }
+      // The tabs are hidden while a session or a findings screen is open, so the number keys only work when they are showing.
+      const i = ["1", "2", "3", "4"].indexOf(e.key);
+      if (i >= 0 && !inSession) { e.preventDefault(); onTab(TABS[i]!); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [inSession, onTab, onToggleTheme]);
   const nav = inSession ? null : (
     <nav className="views" aria-label="Sections">
       {(["sessions", "ledger", "content", "preview"] as Tab[]).map((t) => (

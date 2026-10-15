@@ -18,6 +18,8 @@ const DEVICES = {
   mobile: SVG_OPEN + "<rect x=\"7\" y=\"2\" width=\"10\" height=\"20\" rx=\"2\"/><line x1=\"12\" y1=\"18\" x2=\"12.01\" y2=\"18\"/></svg>",
 } as const;
 
+const DOWNLOAD = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"7 10 12 15 17 10\"/><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"/></svg>";
+
 const Svg = ({ html, className }: { html: string; className?: string }): ReactElement => (
   <span className={className} aria-hidden="true" dangerouslySetInnerHTML={{ __html: html }} />
 );
@@ -28,4 +30,5 @@ export const MoonIcon = () => <Svg html={MOON} />;
 export const KeyboardIcon = () => <Svg html={KEYBOARD} />;
 export const PersonIcon = () => <Svg html={PERSON} />;
 export const DeviceIcon = ({ device }: { device: keyof typeof DEVICES }) => <Svg html={DEVICES[device]} />;
+export const DownloadIcon = () => <Svg html={DOWNLOAD} />;
 export const ArrowIcon = () => <Svg html={ARROW} />;

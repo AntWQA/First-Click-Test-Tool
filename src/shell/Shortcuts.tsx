@@ -1,10 +1,19 @@
 import { useEffect, useRef } from "react";
 
-const ROWS: { keys: string[]; desc: string; scope: string }[] = [
-  { keys: ["Ctrl", "Shift", "M"], desc: "Open the moderator menu to end the session early", scope: "On any participant screen, even while the website has focus" },
-  { keys: ["Enter"], desc: "Press the main button", scope: "Hand-over, Begin and Next screens, and findings, when no field is focused" },
+const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || "");
+const MOD = () => (isMac() ? "⌘" : "Ctrl");
+
+const rows = (): { keys: string[]; desc: string; scope: string }[] => [
+  { keys: ["Enter"], desc: "Press the main button", scope: "Hand-over, Begin, Next and findings screens, when no field is focused" },
   { keys: ["Esc"], desc: "Close a dialog", scope: "Anywhere" },
   { keys: ["?"], desc: "Show these shortcuts", scope: "Moderator screens, when no field is focused" },
+  { keys: ["1"], desc: "Switch to Sessions", scope: "Moderator screens with the tabs showing, when no field is focused" },
+  { keys: ["2"], desc: "Switch to Ledger", scope: "Moderator screens with the tabs showing, when no field is focused" },
+  { keys: ["3"], desc: "Switch to Content", scope: "Moderator screens with the tabs showing, when no field is focused" },
+  { keys: ["4"], desc: "Switch to Preview", scope: "Moderator screens with the tabs showing, when no field is focused" },
+  { keys: ["T"], desc: "Toggle light or dark theme", scope: "Moderator screens, when no field is focused" },
+  { keys: [MOD(), "S"], desc: "Save content changes as the next version", scope: "Content tab, even while typing" },
+  { keys: ["Ctrl", "Shift", "M"], desc: "Open the moderator menu to end the session early", scope: "On any participant screen, even while the website has focus" },
 ];
 
 /** The same shortcuts panel the other tools have: a modal list of keys. */
@@ -15,7 +24,7 @@ export function Shortcuts({ onClose }: { onClose: () => void }) {
     <dialog ref={ref} className="shortcuts-panel" onClose={onClose} aria-labelledby="sc-title">
       <h2 id="sc-title">Keyboard shortcuts</h2>
       <ul className="shortcuts-list">
-        {ROWS.map((r) => (
+        {rows().map((r) => (
           <li key={r.desc}>
             <span className="desc">{r.desc}<span className="scope">{r.scope}</span></span>
             <span className="kbd-row">{r.keys.map((k) => <kbd key={k} className="kbd">{k}</kbd>)}</span>

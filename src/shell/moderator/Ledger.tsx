@@ -5,6 +5,7 @@ import { BREAKPOINTS, BREAKPOINT_IDS } from "../../shared/protocol.ts";
 import { countedSessions, ledger, THRESHOLDS } from "../domain/ledger.ts";
 import type { Rate, TaskTally, Verdict } from "../domain/ledger.ts";
 import { ledgerMarkdown, runsToCsv, toJsonBundle } from "../domain/exports.ts";
+import { DownloadIcon } from "../brand.tsx";
 import { download, sectionLabel, seconds, stamp, TIER_LABELS } from "../format.ts";
 
 const VERDICT: Record<Verdict, string> = { pass: "Pass", watch: "Watch", fail: "Fail", "n/a": "No data" };
@@ -35,9 +36,9 @@ export function Ledger({ onReview }: { onReview: (sessionId: string, runId: stri
       <div className="m-titlebar">
         <h1>Ledger</h1>
         <div className="m-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => download(`wayfinding-results-${stamp()}.md`, "text/markdown", ledgerMarkdown(sessions, now()))}>Markdown summary</button>
-          <button type="button" className="btn btn-secondary" onClick={() => download(`wayfinding-runs-${stamp()}.csv`, "text/csv", runsToCsv(sessions))}>CSV, every run</button>
-          <button type="button" className="btn btn-secondary" onClick={() => download(`wayfinding-all-${stamp()}.json`, "application/json", toJsonBundle(sessions, content, now()))}>JSON, everything</button>
+          <button type="button" className="btn btn-secondary" onClick={() => download(`wayfinding-results-${stamp()}.md`, "text/markdown", ledgerMarkdown(sessions, now()))}><DownloadIcon />Markdown summary</button>
+          <button type="button" className="btn btn-secondary" onClick={() => download(`wayfinding-runs-${stamp()}.csv`, "text/csv", runsToCsv(sessions))}><DownloadIcon />CSV, every run</button>
+          <button type="button" className="btn btn-secondary" onClick={() => download(`wayfinding-all-${stamp()}.json`, "application/json", toJsonBundle(sessions, content, now()))}><DownloadIcon />JSON, everything</button>
         </div>
       </div>
       <p className="m-lede">{countedSessions(sessions)} counted participant{countedSessions(sessions) === 1 ? "" : "s"}. Practice sessions and interrupted attempts are not counted; each participant counts once per task, even if their ID was run more than once (the newest session wins).</p>

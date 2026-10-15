@@ -43,7 +43,7 @@ export function Participant({ session, theme, onToggleTheme }: { session: Sessio
       {session.phase === "task" && <Task key={currentRun(session)!.runId} session={session} onModeratorKey={() => setMenu(true)} />}
       {session.phase === "rating" && <Rating />}
       {session.phase === "offer" && <Offer session={session} />}
-      {session.phase === "handBack" && <HandBack />}
+      {session.phase === "handBack" && <HandBack session={session} />}
       {menu && <ModeratorMenu onClose={() => setMenu(false)} />}
     </div>
   );
@@ -51,6 +51,7 @@ export function Participant({ session, theme, onToggleTheme }: { session: Sessio
 
 function Intro({ session }: { session: Session }) {
   const { dispatch } = useApp();
+  const [confirmEnd, setConfirmEnd] = useState(false);
   useEnterPrimary(".p-intro .btn-primary");
   const first = session.runs.length === 0;
   const extra = !first && taskById(session.content, session.order[session.cursor] ?? "")?.reserve === true;
@@ -58,19 +59,21 @@ function Intro({ session }: { session: Session }) {
   return (
     <main className="p-screen p-center phase-enter">
       <div className="p-card p-intro">
-        <p className="p-eyebrow">{first ? "Welcome" : extra ? "One more" : `Situation ${session.cursor + 1} of ${session.order.length}`}</p>
-        <h1 ref={heading} tabIndex={-1}>{first ? "Thanks for taking part" : "Ready for the next situation?"}</h1>
+        <p className="p-eyebrow">{first ? "Welcome" : extra ? "One more" : `Scenario ${session.cursor + 1} of ${session.order.length}`}</p>
+        <h1 ref={heading} tabIndex={-1}>{first ? "Thanks for taking part" : "Ready for the next scenario?"}</h1>
         {first ? (
           <>
-            <p>You will see a short situation, then a website's menu. Show us where you would click first to find what you need.</p>
+            <p>You will see a short scenario, then a website's menu. Show us where you would click first to find what you need.</p>
             <p>There are no right or wrong answers, and you are not being tested: we are looking at how the website works for people. Please say your thoughts out loud as you go.</p>
           </>
         ) : (
-          <p>Take your time. When you are ready, the next situation will appear.</p>
+          <p>Take your time. When you are ready, the next scenario will appear.</p>
         )}
         <button type="button" className="btn btn-primary btn-lg" onClick={() => dispatch({ type: "present", at: Date.now(), runId: makeId("r") })}>
-          {first ? "Show me the first situation" : "Show me the next situation"} <span className="enter-chip" aria-hidden="true">↵</span>
+          {first ? "Show me the first scenario" : "Show me the next scenario"} <span className="enter-chip" aria-hidden="true">↵</span>
         </button>
+        {!first && <button type="button" className="p-textlink" onClick={() => setConfirmEnd(true)}>End session</button>}
+        {confirmEnd && <EndConfirm onCancel={() => setConfirmEnd(false)} onConfirm={() => dispatch({ type: "stopSession", at: Date.now() })} />}
       </div>
     </main>
   );
@@ -135,7 +138,7 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
       <div className="p-task-card" ref={card}>
         <span className="p-banner-logo"><Logo /></span>
         <div className="p-task-text">
-          <p className="p-label">{begun ? "Your task" : task.reserve ? "One more situation" : `Situation ${session.cursor + 1} of ${session.order.length}`}</p>
+          <p className="p-label">{begun ? "Your task" : task.reserve ? "One more scenario" : `Scenario ${session.cursor + 1} of ${session.order.length}`}</p>
           <h1 ref={heading} tabIndex={-1} className="p-scenario">{task.scenario}</h1>
           {!begun && <p className="p-device"><span className="pill"><DeviceIcon device={run.breakpoint} />You'll be viewing: {DEVICE[run.breakpoint]}</span></p>}
         </div>
@@ -193,8 +196,24 @@ function Rating() {
   );
 }
 
+/** "Are you sure?" before a participant ends the session themselves. Stopping is as easy as carrying on: nothing already done is lost. */
+function EndConfirm({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => { ref.current?.showModal(); }, []);
+  return (
+    <dialog ref={ref} className="p-dialog" onClose={onCancel} aria-labelledby="end-title">
+      <h2 id="end-title">End the session?</h2>
+      <p>Everything you have done so far is kept. You will be asked to hand the device back to the researcher.</p>
+      <div className="p-dialog-actions">
+        <button type="button" className="btn btn-secondary" onClick={() => ref.current?.close()}>Keep going</button>
+        <button type="button" className="btn btn-danger" onClick={onConfirm}>Yes, end the session</button>
+      </div>
+    </dialog>
+  );
+}
+
 /**
- * After the last main situation, and after each extra one, the participant decides whether to do another. Nothing is
+ * After the last main scenario, and after each extra one, the participant decides whether to do another. Nothing is
  * assumed: declining is as easy as accepting, and the moderator is not involved.
  */
 function Offer({ session }: { session: Session }) {
@@ -206,9 +225,9 @@ function Offer({ session }: { session: Session }) {
   return (
     <main className="p-screen p-center phase-enter">
       <div className="p-card p-intro p-offer">
-        <p className="p-eyebrow">{first ? "That was the last of the main situations" : "Thank you"}</p>
+        <p className="p-eyebrow">{first ? "That was the last of the main scenarios" : "Thank you"}</p>
         <h1 ref={heading} tabIndex={-1}>{first ? "Would you like to try another?" : "Would you like to try one more?"}</h1>
-        <p>{first ? `There ${left === 1 ? "is one more short situation" : `are ${left} more short situations`}, if you have the time. It is completely your choice, and stopping now is fine.` : "It is completely your choice, and stopping now is fine."}</p>
+        <p>{first ? `There ${left === 1 ? "is one more short scenario" : `are ${left} more short scenarios`}, if you have the time. It is completely your choice, and stopping now is fine.` : "It is completely your choice, and stopping now is fine."}</p>
         <div className="p-offer-actions">
           <button type="button" className="btn btn-secondary btn-lg" onClick={() => dispatch({ type: "declineReserves", at: Date.now() })}>No thanks, I'm finished</button>
           <button type="button" className="btn btn-primary btn-lg" onClick={() => dispatch({ type: "acceptReserve", at: Date.now() })}>Yes, show me another <span className="enter-chip" aria-hidden="true">↵</span></button>
@@ -218,7 +237,7 @@ function Offer({ session }: { session: Session }) {
   );
 }
 
-function HandBack() {
+function HandBack({ session }: { session: Session }) {
   const { dispatch } = useApp();
   const heading = useHeadingFocus("handback");
   return (
@@ -226,10 +245,10 @@ function HandBack() {
       <div className="p-card p-intro">
         <div className="handoff-graphic" aria-hidden="true">
           <div className="handoff-party dim"><div className="handoff-icon"><PersonIcon /></div><span className="handoff-label">Participant</span></div>
-          <span className="handoff-arrow reverse"><ArrowIcon /></span>
+          <span className="handoff-arrow"><ArrowIcon /></span>
           <div className="handoff-party"><div className="handoff-icon"><PersonIcon /></div><span className="handoff-label">Researcher</span></div>
         </div>
-        <h1 ref={heading} tabIndex={-1}>Thank you, that was the last one</h1>
+        <h1 ref={heading} tabIndex={-1}>{session.status === "ended-early" ? "Thank you for your time" : "Thank you, that was the last one"}</h1>
         <p>Please hand the device back to the researcher.</p>
         <button type="button" className="btn btn-quiet" onClick={() => dispatch({ type: "unlock", at: Date.now() })}>Researcher: continue</button>
       </div>

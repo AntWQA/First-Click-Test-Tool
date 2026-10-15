@@ -26,6 +26,8 @@ try {
     await c.ev(`[...document.querySelectorAll('.check-bar button')].find(b=>b.textContent==='${label}').click()`);
     await sleep(900);
     const w = await c.evFrame("innerWidth"), h = await c.evFrame("innerHeight");
+    await c.waitPage(`(document.querySelector('.check-log li')?.textContent ?? '').includes('Menu ready (${width} x ${height})')`, 8000, `the recorder log to start with the ${label} viewport`);
+    report(true, `${label}: the recorder log starts with this breakpoint's own viewport (${width} x ${height})`);
     report(w === width && h === height, `${label}: the frame viewport is ${width} x ${height}`, `${w} x ${h}`);
     const scale = Number(await c.ev("document.querySelector('.frame-box').dataset.scale"));
     // In a 1500 x 1000 window the 1024-tall desktop and tablet frames must be scaled down; the 874-tall mobile frame fits at true size.
@@ -58,6 +60,11 @@ try {
   report(/default-src 'none'/.test(policy), "the page carries a Content-Security-Policy that denies everything except inline code and data:");
   const frameFetch = await c.evFrame("fetch('https://example.com/x').then(()=>'loaded',()=>'blocked')");
   report(frameFetch === "blocked", "the policy is inherited by the prototype frame: its requests to the network are blocked", frameFetch);
+  // Shortcut keys on a moderator screen: ? lists them, and the header stays put when the tab changes.
+  await c.key("?", "Slash"); await c.waitPage("!!document.querySelector('dialog[open]')", 4000, "the shortcuts panel");
+  const panel = await c.ev("document.querySelector('dialog[open]').textContent");
+  report(["Switch to Ledger", "Switch to Preview", "Toggle light or dark theme", "Save content changes"].every((x) => panel.includes(x)), "the ? panel lists the tab, theme and save shortcuts");
+  await c.key("Escape", "Escape"); await sleep(200);
   c.consoleErrors.splice(0, c.consoleErrors.length); // the blocked probes above are expected
   const outside = c.requests.filter((u) => !/^(file:|data:|blob:|about:)/.test(u));
   report(outside.length === 0, "no network requests were made", outside.slice(0, 3).join(", "));

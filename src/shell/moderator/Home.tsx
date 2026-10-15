@@ -4,6 +4,7 @@ import { countedRuns, planCounts } from "../domain/session.ts";
 import type { Phase, Session } from "../domain/session.ts";
 import { parseImport, toJsonBundle } from "../domain/exports.ts";
 import { clock, download, stamp } from "../format.ts";
+import { DownloadIcon } from "../brand.tsx";
 import { Confirm } from "./Confirm.tsx";
 import { nextParticipantId } from "./Setup.tsx";
 
@@ -63,7 +64,7 @@ export function Home() {
         <h2 id="bk-h">Backup and import</h2>
         <p className="m-hint">Sessions live only in this browser. Download a backup after every session; import it on another machine to carry on or to combine results.</p>
         <div className="m-actions">
-          <button type="button" className="btn btn-secondary" disabled={sessions.length === 0} onClick={() => download(`wayfinding-all-${stamp()}.json`, "application/json", toJsonBundle(sessions, content, new Date().toISOString()))}>Download all sessions (JSON)</button>
+          <button type="button" className="btn btn-secondary" disabled={sessions.length === 0} onClick={() => download(`wayfinding-all-${stamp()}.json`, "application/json", toJsonBundle(sessions, content, new Date().toISOString()))}><DownloadIcon />Download all sessions (JSON)</button>
           <button type="button" className="btn btn-secondary" onClick={() => file.current?.click()}>Import sessions (JSON)</button>
           <input ref={file} type="file" accept="application/json,.json" hidden onChange={(e) => void onImport(e.target.files?.[0])} />
         </div>

@@ -68,7 +68,7 @@ try {
   report(labelled, "Setup: every field has a visible label");
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part"); await screen("Participant intro");
-  await clickText(c, "button", "Show me the first situation", { startsWith: true }); await screen("Task before Begin");
+  await clickText(c, "button", "Show me the first scenario", { startsWith: true }); await screen("Task before Begin");
   const firstTab = async () => { await c.ev("document.activeElement.blur()"); await c.key("Tab", "Tab"); return c.ev("document.activeElement.textContent.trim()"); };
   report((await firstTab()).includes("Begin"), "Task: the first thing a keyboard user reaches is Begin");
   const outline = await c.ev("(()=>{const s=getComputedStyle(document.activeElement);return s.outlineStyle+' '+s.outlineWidth})()");
@@ -82,7 +82,7 @@ try {
   await wait("how easy was it"); await screen("Rating");
   report(await c.ev("!!document.querySelector('fieldset legend h1') && document.querySelectorAll('input[type=radio][name=ease]').length===7"), "Rating: seven native radios in a fieldset with a legend");
   await c.ev("document.querySelector('input[name=ease][value=\"5\"]').click()");
-  await clickText(c, "button", "Done"); await wait("Ready for the next situation"); await screen("Next situation");
+  await clickText(c, "button", "Done"); await wait("Ready for the next scenario"); await screen("Next scenario");
   const mkey = async () => { await c.send("Input.dispatchKeyEvent", { type: "keyDown", key: "M", code: "KeyM", modifiers: 10 }); await c.send("Input.dispatchKeyEvent", { type: "keyUp", key: "M", code: "KeyM", modifiers: 10 }); await c.waitPage("!!document.querySelector('dialog[open]')"); };
   await mkey();
   report(await c.ev("document.querySelector('dialog[open]').getAttribute('aria-labelledby') !== null && !!document.getElementById(document.querySelector('dialog[open]').getAttribute('aria-labelledby'))"), "dialogs are labelled by their heading");
