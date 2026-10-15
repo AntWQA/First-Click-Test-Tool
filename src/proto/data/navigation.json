@@ -1,0 +1,356 @@
+{
+  "$schema": "./navigation.schema.json",
+  "version": 1,
+  "source": "Figma Navigation Design, file k1kfn9zuELEYT5znZWMPO7, extracted 5 Oct 2026; revised 15 Oct 2026 to the post-card-sort IA (Arm R) used by the tree test: Learn Resources dissolved, Our Story groups merged, Limited Time Offers out of Shop by Category, New Arrivals renamed New Products",
+  "items": [
+    {
+      "id": "shop",
+      "label": "Shop",
+      "href": "/shop",
+      "type": "megaMenu",
+      "columns": [
+        {
+          "title": "Shop by Category",
+          "links": [
+            {
+              "label": "Essential Oils",
+              "href": "/shop/essential-oils",
+              "children": [
+                {
+                  "label": "Single Oils",
+                  "href": "/shop/essential-oils/single-oils"
+                },
+                {
+                  "label": "Proprietary Blends",
+                  "href": "/shop/essential-oils/proprietary-blends"
+                }
+              ]
+            },
+            {
+              "label": "Personal Care",
+              "href": "/shop/personal-care",
+              "children": [
+                {
+                  "label": "Body & Skin",
+                  "href": "/shop/personal-care/body-and-skin"
+                },
+                {
+                  "label": "Hair Care",
+                  "href": "/shop/personal-care/hair-care"
+                }
+              ]
+            },
+            {
+              "label": "Accessories",
+              "href": "/shop/accessories",
+              "children": [
+                {
+                  "label": "Diffusers",
+                  "href": "/shop/accessories/diffusers"
+                },
+                {
+                  "label": "Storage & Kits",
+                  "href": "/shop/accessories/storage-and-kits"
+                }
+              ]
+            },
+            {
+              "label": "Supplements",
+              "href": "/shop/supplements",
+              "children": [
+                {
+                  "label": "Daily Vitality",
+                  "href": "/shop/supplements/daily-vitality"
+                },
+                {
+                  "label": "Specialized",
+                  "href": "/shop/supplements/specialized"
+                }
+              ]
+            },
+            {
+              "label": "Literature",
+              "href": "/shop/literature"
+            },
+            {
+              "label": "Collections & Enrollment",
+              "href": "/shop/collections-and-enrollment"
+            },
+            {
+              "label": "Created For",
+              "href": "/shop/created-for"
+            },
+            {
+              "label": "New Products",
+              "href": "/shop/new-products"
+            },
+            {
+              "label": "View all products",
+              "href": "/shop",
+              "variant": "viewAll"
+            }
+          ],
+          "span": 3,
+          "mobileOrder": 1,
+          "tabletSide": "left",
+          "tabletOrder": 0
+        },
+        {
+          "title": "Shop by Goal",
+          "links": [
+            {
+              "label": "Sleep Solutions",
+              "href": "/shop/goal/sleep-solutions"
+            },
+            {
+              "label": "Stress Solutions",
+              "href": "/shop/goal/stress-solutions"
+            },
+            {
+              "label": "Pain Solutions",
+              "href": "/shop/goal/pain-solutions"
+            },
+            {
+              "label": "Immunity Solutions",
+              "href": "/shop/goal/immunity-solutions"
+            },
+            {
+              "label": "Digestion Solutions",
+              "href": "/shop/goal/digestion-solutions"
+            },
+            {
+              "label": "Respiratory Solutions",
+              "href": "/shop/goal/respiratory-solutions"
+            },
+            {
+              "label": "Focus Solutions",
+              "href": "/shop/goal/focus-solutions"
+            },
+            {
+              "label": "Detox Solutions",
+              "href": "/shop/goal/detox-solutions"
+            },
+            {
+              "label": "Skin Solutions",
+              "href": "/shop/goal/skin-solutions"
+            },
+            {
+              "label": "Hormone Solutions",
+              "href": "/shop/goal/hormone-solutions"
+            },
+            {
+              "label": "Metabolic Solutions",
+              "href": "/shop/goal/metabolic-solutions"
+            }
+          ],
+          "span": 3,
+          "mobileOrder": 2,
+          "tabletSide": "right",
+          "tabletOrder": 0
+        },
+        {
+          "title": "Highlights",
+          "links": [
+            {
+              "label": "Best Sellers",
+              "href": "/shop/highlights/best-sellers",
+              "icon": "trophy-01"
+            },
+            {
+              "label": "New Products",
+              "href": "/shop/highlights/new-products",
+              "icon": "stars-01"
+            },
+            {
+              "label": "Limited Time Offers",
+              "href": "/shop/highlights/limited-time-offers",
+              "icon": "clock"
+            },
+            {
+              "label": "Exclusive Kits",
+              "href": "/shop/highlights/exclusive-kits",
+              "icon": "package"
+            }
+          ],
+          "span": 3,
+          "mobileOrder": 0,
+          "tabletSide": "left",
+          "tabletOrder": 1
+        }
+      ],
+      "featured": {
+        "title": "Introducing EO Mega+",
+        "link": {
+          "label": "Discover our #1 bestselling immunity blend",
+          "href": "/shop/eo-mega-plus"
+        },
+        "image": null
+      }
+    },
+    {
+      "id": "learn",
+      "label": "Learn",
+      "href": "/learn",
+      "type": "megaMenu",
+      "columns": [
+        {
+          "title": "Essential Oils",
+          "links": [
+            {
+              "label": "Discover Solutions",
+              "href": "/learn/essential-oils/discover-solutions"
+            },
+            {
+              "label": "What Are Essential Oils",
+              "href": "/learn/essential-oils/what-are-essential-oils"
+            },
+            {
+              "label": "How to Use Essential Oils",
+              "href": "/learn/essential-oils/how-to-use-essential-oils"
+            },
+            {
+              "label": "Essential Oil Safety",
+              "href": "/learn/essential-oils/essential-oil-safety"
+            },
+            {
+              "label": "Certified Pure Testing Grade",
+              "href": "/learn/essential-oils/certified-pure-testing-grade"
+            },
+            {
+              "label": "Where to Buy Essential Oils",
+              "href": "/learn/essential-oils/where-to-buy-essential-oils"
+            },
+            {
+              "label": "Product Training",
+              "href": "/learn/essential-oils/product-training"
+            }
+          ]
+        },
+        {
+          "title": "Business",
+          "links": [
+            {
+              "label": "Business Opportunity",
+              "href": "/learn/business/business-opportunity"
+            },
+            {
+              "label": "doTERRA Pro",
+              "href": "/learn/business/doterra-pro"
+            },
+            {
+              "label": "Path to $500",
+              "href": "/learn/business/path-to-500"
+            },
+            {
+              "label": "Business Hub",
+              "href": "/learn/business/business-hub"
+            },
+            {
+              "label": "Business Resources",
+              "href": "/learn/business/business-resources"
+            }
+          ]
+        },
+        {
+          "title": "Blog & Resources",
+          "links": [
+            {
+              "label": "Healthy Living",
+              "href": "/learn/blog/healthy-living"
+            },
+            {
+              "label": "Recipes",
+              "href": "/learn/blog/recipes"
+            },
+            {
+              "label": "doTERRA at Home",
+              "href": "/learn/blog/doterra-at-home"
+            },
+            {
+              "label": "Living Magazine",
+              "href": "/learn/blog/living-magazine"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "our-story",
+      "label": "Our Story",
+      "href": "/our-story",
+      "type": "megaMenu",
+      "columns": [
+        {
+          "title": "About doTERRA",
+          "links": [
+            {
+              "label": "Our Story",
+              "href": "/our-story/about/our-story"
+            },
+            {
+              "label": "Founders",
+              "href": "/our-story/about/founders"
+            },
+            {
+              "label": "Corporate",
+              "href": "/our-story/about/corporate"
+            },
+            {
+              "label": "Chief Field Officers",
+              "href": "/our-story/about/chief-field-officers"
+            },
+            {
+              "label": "Why doTERRA",
+              "href": "/our-story/about/why-doterra"
+            },
+            {
+              "label": "Healing Hands Foundation",
+              "href": "/our-story/about/healing-hands-foundation"
+            },
+            {
+              "label": "Source to You",
+              "href": "/our-story/about/source-to-you"
+            }
+          ]
+        },
+        {
+          "title": "Events",
+          "links": [
+            {
+              "label": "Convention",
+              "href": "/our-story/events/convention"
+            },
+            {
+              "label": "Leadership Retreat",
+              "href": "/our-story/events/leadership-retreat"
+            },
+            {
+              "label": "Incentive Trip",
+              "href": "/our-story/events/incentive-trip"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rewards",
+      "label": "Rewards",
+      "href": "/rewards",
+      "type": "dropdown",
+      "links": [
+        {
+          "label": "Loyalty Rewards Program",
+          "href": "/rewards/loyalty-rewards-program"
+        },
+        {
+          "label": "Enrollment Options",
+          "href": "/rewards/enrollment-options"
+        },
+        {
+          "label": "Wholesale Membership",
+          "href": "/rewards/wholesale-membership"
+        }
+      ]
+    }
+  ]
+}

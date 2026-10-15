@@ -1,0 +1,9 @@
+node_modules
+dist-proto
+dist-shell
+dist-single
+.vite-cache
+.DS_Store
+*.tsbuildinfo
+Live Catalogue Data/
+catalogue.live.json

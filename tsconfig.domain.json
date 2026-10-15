@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "erasableSyntaxOnly": true, "verbatimModuleSyntax": true, "types": ["node"] },
+  "include": ["src/shared", "src/shell/domain", "tests"]
+}

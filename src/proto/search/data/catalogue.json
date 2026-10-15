@@ -1,0 +1,1602 @@
+{
+ "products": [
+  {
+   "id": "p1",
+   "sku": "31000000",
+   "name": "Lavender Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep",
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 38.67,
+   "wholesale": 29.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "calm sleep relax floral",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p2",
+   "sku": "31000137",
+   "name": "Lavender Touch",
+   "category": "Essential Oils",
+   "productType": "Topical / Lotion / Stick",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 28.5,
+   "wholesale": 21.38,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "lavender roller roll-on calm",
+   "image": "pb-restore",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p3",
+   "sku": "31000274",
+   "name": "Lavender Peace",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 34.0,
+   "wholesale": 25.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "New Products"
+   ],
+   "keywords": "lavender peace calming blend",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p4",
+   "sku": "31000411",
+   "name": "Peppermint Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": "Supermint",
+   "goals": [
+    "Energy & Activity",
+    "Digestive Support"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical",
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 28.0,
+   "wholesale": 21.0,
+   "rating": 3,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "mint cooling cool refresh",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p5",
+   "sku": "31000548",
+   "name": "Peppermint Touch",
+   "category": "Essential Oils",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "Supermint",
+   "goals": [
+    "Energy & Activity"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 24.5,
+   "wholesale": 18.38,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "peppermint roller roll-on",
+   "image": "pb-restore",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p6",
+   "sku": "31000685",
+   "name": "Lemon Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Home & Cleaning",
+    "Cooking & Flavour"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Internal / Dietary Supplement",
+    "Surface & Cleaning"
+   ],
+   "retail": 18.0,
+   "wholesale": 13.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "citrus lemons zest cleaning",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p7",
+   "sku": "31000822",
+   "name": "Wild Orange Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Energy & Activity",
+    "Cooking & Flavour"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 16.5,
+   "wholesale": 12.38,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "citrus orange",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p8",
+   "sku": "31000959",
+   "name": "Frankincense Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 89.0,
+   "wholesale": 66.75,
+   "rating": 5,
+   "inStock": false,
+   "status": [
+    "Limited Time Offers"
+   ],
+   "keywords": "boswellia resin",
+   "image": "pb-restore",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p9",
+   "sku": "31001096",
+   "name": "Tea Tree Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Skin & Beauty",
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Topical",
+    "Surface & Cleaning"
+   ],
+   "retail": 24.0,
+   "wholesale": 18.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "melaleuca",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p10",
+   "sku": "31001233",
+   "name": "Eucalyptus Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Immune Support"
+   ],
+   "applications": [
+    "Aromatic / Diffusion"
+   ],
+   "retail": 19.5,
+   "wholesale": 14.62,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "breathe eucalypt",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p11",
+   "sku": "31001370",
+   "name": "Oregano Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Immune Support",
+    "Cooking & Flavour"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement",
+    "Topical"
+   ],
+   "retail": 32.0,
+   "wholesale": 24.0,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "origanum",
+   "image": "pb-restore",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p12",
+   "sku": "31001507",
+   "name": "Rosemary Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Energy & Activity",
+    "Cooking & Flavour"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 21.0,
+   "wholesale": 15.75,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "herb",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p13",
+   "sku": "31001644",
+   "name": "Cedarwood Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep",
+    "Men's Wellness"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 17.0,
+   "wholesale": 12.75,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "woody",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p14",
+   "sku": "31001781",
+   "name": "Bergamot Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 35.0,
+   "wholesale": 26.25,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "citrus",
+   "image": "pb-restore",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p15",
+   "sku": "31001918",
+   "name": "Basil Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Cooking & Flavour"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 27.0,
+   "wholesale": 20.25,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "herb cooking",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p16",
+   "sku": "31002055",
+   "name": "On Guard Protecting Blend",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": "On Guard",
+   "goals": [
+    "Immune Support",
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical",
+    "Internal / Dietary Supplement",
+    "Surface & Cleaning"
+   ],
+   "retail": 49.0,
+   "wholesale": 36.75,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "onguard on-guard protect immune",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p17",
+   "sku": "31002192",
+   "name": "On Guard Softgels",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": "On Guard",
+   "goals": [
+    "Immune Support"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 39.5,
+   "wholesale": 29.62,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "onguard capsules immune",
+   "image": "pb-restore",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p18",
+   "sku": "31002329",
+   "name": "On Guard Foaming Hand Wash",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "On Guard",
+   "goals": [
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 14.0,
+   "wholesale": 10.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "On Promotion"
+   ],
+   "keywords": "onguard soap hand wash",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p19",
+   "sku": "31002466",
+   "name": "On Guard Cleaner Concentrate",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": "On Guard",
+   "goals": [
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Surface & Cleaning"
+   ],
+   "retail": 19.0,
+   "wholesale": 14.25,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "onguard cleaner home cleaning",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p20",
+   "sku": "31002603",
+   "name": "Deep Blue Soothing Blend",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": "Deep Blue",
+   "goals": [
+    "Energy & Activity",
+    "Men's Wellness"
+   ],
+   "applications": [
+    "Topical",
+    "Aromatic / Diffusion"
+   ],
+   "retail": 54.0,
+   "wholesale": 40.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "deepblue deep-blue muscle soothing",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p21",
+   "sku": "31002740",
+   "name": "Deep Blue Rub",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "Deep Blue",
+   "goals": [
+    "Energy & Activity",
+    "Men's Wellness"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 42.0,
+   "wholesale": 31.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "deepblue rub cream",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p22",
+   "sku": "31002877",
+   "name": "Deep Blue Polyphenol Complex",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": "Deep Blue",
+   "goals": [
+    "Energy & Activity"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 56.0,
+   "wholesale": 42.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "deepblue polyphenol capsules",
+   "image": "pb-restore",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p23",
+   "sku": "31003014",
+   "name": "Breathe Respiratory Blend",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": null,
+   "goals": [
+    "Immune Support"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 33.0,
+   "wholesale": 24.75,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "breathe respiratory easy air",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p24",
+   "sku": "31003151",
+   "name": "DigestZen Digestive Blend",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": "ZenGest",
+   "goals": [
+    "Digestive Support"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical",
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 38.0,
+   "wholesale": 28.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "digestzen digestion tummy",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p25",
+   "sku": "31003288",
+   "name": "DigestZen TerraZyme",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": "ZenGest",
+   "goals": [
+    "Digestive Support"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 34.0,
+   "wholesale": 25.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "digestzen enzyme digestive",
+   "image": "pb-restore",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p26",
+   "sku": "31003425",
+   "name": "ZenGest Softgels",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": "ZenGest",
+   "goals": [
+    "Digestive Support"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 32.0,
+   "wholesale": 24.0,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "New Products"
+   ],
+   "keywords": "zengest capsules",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p27",
+   "sku": "31003562",
+   "name": "Serenity Restful Blend",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": "Serenity",
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 38.0,
+   "wholesale": 28.5,
+   "rating": 3,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "serenity sleep restful calm",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p28",
+   "sku": "31003699",
+   "name": "Serenity Softgels",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": "Serenity",
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 36.0,
+   "wholesale": 27.0,
+   "rating": 3,
+   "inStock": true,
+   "status": [],
+   "keywords": "serenity capsules sleep",
+   "image": "pb-restore",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p29",
+   "sku": "31003836",
+   "name": "Balance Grounding Blend",
+   "category": "Essential Oils",
+   "productType": "Proprietary Blend",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 26.0,
+   "wholesale": 19.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "grounding stress calm",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p30",
+   "sku": "31003973",
+   "name": "Past Tense Tension Blend",
+   "category": "Essential Oils",
+   "productType": "Topical / Lotion / Stick",
+   "collection": null,
+   "goals": [
+    "Energy & Activity"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 28.0,
+   "wholesale": 21.0,
+   "rating": 5,
+   "inStock": false,
+   "status": [],
+   "keywords": "headache tension roll-on",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p31",
+   "sku": "31004110",
+   "name": "PB Restore",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": "MetaPWR",
+   "goals": [
+    "Digestive Support",
+    "Energy & Activity"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 44.0,
+   "wholesale": 33.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "New Products"
+   ],
+   "keywords": "probiotic gut restore",
+   "image": "pb-restore",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p32",
+   "sku": "31004247",
+   "name": "EO Mega+",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": null,
+   "goals": [
+    "Energy & Activity",
+    "Immune Support"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 33.33,
+   "wholesale": 25.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "omega fish oil mega",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p33",
+   "sku": "31004384",
+   "name": "VMG+",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": null,
+   "goals": [
+    "Immune Support",
+    "Energy & Activity"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 33.33,
+   "wholesale": 25.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "vitamin mineral greens",
+   "image": "eo-mega",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p34",
+   "sku": "31004521",
+   "name": "MetaPWR Advantage",
+   "category": "Supplements & Nutrition",
+   "productType": "Drink Mix / Powder",
+   "collection": "MetaPWR",
+   "goals": [
+    "Energy & Activity"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 59.0,
+   "wholesale": 44.25,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "metapwr metabolic powder",
+   "image": "pb-restore",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p35",
+   "sku": "31004658",
+   "name": "MetaPWR Assist",
+   "category": "Supplements & Nutrition",
+   "productType": "Softgels / Capsules",
+   "collection": "MetaPWR",
+   "goals": [
+    "Energy & Activity"
+   ],
+   "applications": [
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 46.0,
+   "wholesale": 34.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "On Promotion"
+   ],
+   "keywords": "metapwr appetite",
+   "image": "vmg-plus",
+   "suggestionLabel": "In Supplements & Nutrition"
+  },
+  {
+   "id": "p36",
+   "sku": "31004795",
+   "name": "Fractionated Coconut Oil",
+   "category": "Personal Care",
+   "productType": "Carrier Oil",
+   "collection": null,
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 21.0,
+   "wholesale": 15.75,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "carrier oil dilute coconut",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p37",
+   "sku": "31004932",
+   "name": "Verage Cleanser",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "Verage",
+   "goals": [
+    "Skin & Beauty",
+    "Women's Wellness"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 34.0,
+   "wholesale": 25.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "verage skin cleanser face",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p38",
+   "sku": "31005069",
+   "name": "Verage Moisturiser",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "Verage",
+   "goals": [
+    "Skin & Beauty",
+    "Women's Wellness"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 48.0,
+   "wholesale": 36.0,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "New Products"
+   ],
+   "keywords": "verage skin lotion face",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p39",
+   "sku": "31005206",
+   "name": "HD Clean Shampoo",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "HD Clean",
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 22.0,
+   "wholesale": 16.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "hdclean hd-clean hair shampoo",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p40",
+   "sku": "31005343",
+   "name": "HD Clean Conditioner",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "HD Clean",
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 22.0,
+   "wholesale": 16.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "hdclean hair conditioner",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p41",
+   "sku": "31005480",
+   "name": "Salon Essentials Hair Treatment",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": null,
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 27.0,
+   "wholesale": 20.25,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "hair treatment",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p42",
+   "sku": "31005617",
+   "name": "Spa Hand and Body Lotion",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": null,
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 23.0,
+   "wholesale": 17.25,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "lotion moisturiser body",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p43",
+   "sku": "31005754",
+   "name": "Abode Laundry Detergent",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "abode",
+   "goals": [
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Surface & Cleaning"
+   ],
+   "retail": 26.0,
+   "wholesale": 19.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "On Promotion"
+   ],
+   "keywords": "abode laundry detergent cleaning",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p44",
+   "sku": "31005891",
+   "name": "Abode Multi-Purpose Cleaner",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "abode",
+   "goals": [
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Surface & Cleaning"
+   ],
+   "retail": 18.0,
+   "wholesale": 13.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "abode cleaner spray home",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p45",
+   "sku": "31006028",
+   "name": "Sun Lotion SPF 30",
+   "category": "Personal Care",
+   "productType": "Topical / Lotion / Stick",
+   "collection": "doTERRA sun",
+   "goals": [
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Topical"
+   ],
+   "retail": 25.0,
+   "wholesale": 18.75,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Limited Time Offers"
+   ],
+   "keywords": "sun sunscreen spf lotion",
+   "image": "abode",
+   "suggestionLabel": "In Personal Care"
+  },
+  {
+   "id": "p46",
+   "sku": "31006165",
+   "name": "Petal Diffuser",
+   "category": "Accessories",
+   "productType": "Accessory / Diffuser",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion"
+   ],
+   "retail": 55.0,
+   "wholesale": 41.25,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "diffuser ultrasonic petal",
+   "image": "shelf",
+   "suggestionLabel": "In Accessories"
+  },
+  {
+   "id": "p47",
+   "sku": "31006302",
+   "name": "Pebble Diffuser",
+   "category": "Accessories",
+   "productType": "Accessory / Diffuser",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion"
+   ],
+   "retail": 65.0,
+   "wholesale": 48.75,
+   "rating": 3,
+   "inStock": false,
+   "status": [],
+   "keywords": "diffuser pebble ultrasonic",
+   "image": "shelf",
+   "suggestionLabel": "In Accessories"
+  },
+  {
+   "id": "p48",
+   "sku": "31006439",
+   "name": "Laluz Diffuser",
+   "category": "Accessories",
+   "productType": "Accessory / Diffuser",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion"
+   ],
+   "retail": 95.0,
+   "wholesale": 71.25,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "New Products"
+   ],
+   "keywords": "diffuser laluz",
+   "image": "shelf",
+   "suggestionLabel": "In Accessories"
+  },
+  {
+   "id": "p49",
+   "sku": "31006576",
+   "name": "Essential Oil Storage Case",
+   "category": "Accessories",
+   "productType": "Accessory / Diffuser",
+   "collection": null,
+   "goals": [
+    "Home & Cleaning"
+   ],
+   "applications": [],
+   "retail": 45.0,
+   "wholesale": 33.75,
+   "rating": 5,
+   "inStock": true,
+   "status": [],
+   "keywords": "case storage box wooden",
+   "image": "shelf",
+   "suggestionLabel": "In Accessories"
+  },
+  {
+   "id": "p50",
+   "sku": "31006713",
+   "name": "Roll-On Bottles 10 mL",
+   "category": "Accessories",
+   "productType": "Accessory / Diffuser",
+   "collection": null,
+   "goals": [
+    "Home & Cleaning"
+   ],
+   "applications": [],
+   "retail": 12.0,
+   "wholesale": 9.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [],
+   "keywords": "bottles roller empty diy",
+   "image": "shelf",
+   "suggestionLabel": "In Accessories"
+  },
+  {
+   "id": "p51",
+   "sku": "31006850",
+   "name": "Home Essentials Kit",
+   "category": "Bundles & Collections",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep",
+    "Immune Support",
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 150.0,
+   "wholesale": 112.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Limited Time Offers"
+   ],
+   "keywords": "starter kit enrol enroll bundle",
+   "image": "capsules",
+   "suggestionLabel": "In Bundles & Collections"
+  },
+  {
+   "id": "p52",
+   "sku": "31006987",
+   "name": "Family Essentials Kit",
+   "category": "Bundles & Collections",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Immune Support",
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 125.0,
+   "wholesale": 93.75,
+   "rating": 3,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "starter kit family bundle",
+   "image": "capsules",
+   "suggestionLabel": "In Bundles & Collections"
+  },
+  {
+   "id": "p53",
+   "sku": "31007124",
+   "name": "Sleep Collection",
+   "category": "Bundles & Collections",
+   "productType": "Proprietary Blend",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 98.0,
+   "wholesale": 73.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "New Products"
+   ],
+   "keywords": "sleep bundle collection lavender serenity",
+   "image": "capsules",
+   "suggestionLabel": "In Bundles & Collections"
+  },
+  {
+   "id": "p54",
+   "sku": "31007261",
+   "name": "Immunity Collection",
+   "category": "Bundles & Collections",
+   "productType": "Proprietary Blend",
+   "collection": "On Guard",
+   "goals": [
+    "Immune Support"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical",
+    "Internal / Dietary Supplement"
+   ],
+   "retail": 118.0,
+   "wholesale": 88.5,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "On Promotion"
+   ],
+   "keywords": "immune bundle collection onguard",
+   "image": "capsules",
+   "suggestionLabel": "In Bundles & Collections"
+  },
+  {
+   "id": "p55",
+   "sku": "31007398",
+   "name": "Diffuser Starter Kit",
+   "category": "Bundles & Collections",
+   "productType": "Accessory / Diffuser",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep"
+   ],
+   "applications": [
+    "Aromatic / Diffusion"
+   ],
+   "retail": 110.0,
+   "wholesale": 82.5,
+   "rating": 5,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "diffuser starter kit essential oil gift set",
+   "image": "capsules",
+   "suggestionLabel": "In Bundles & Collections"
+  },
+  {
+   "id": "p56",
+   "sku": "31007535",
+   "name": "Essential Oil Gift Set",
+   "category": "Bundles & Collections",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep",
+    "Home & Cleaning"
+   ],
+   "applications": [
+    "Aromatic / Diffusion"
+   ],
+   "retail": 85.0,
+   "wholesale": 63.75,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Limited Time Offers"
+   ],
+   "keywords": "gift set present holiday",
+   "image": "capsules",
+   "suggestionLabel": "In Bundles & Collections"
+  }
+ ],
+ "articles": [
+  {
+   "id": "a1",
+   "kind": "blog",
+   "title": "10 ways to use lavender at home",
+   "excerpt": "Simple everyday ideas for adding lavender to your evening routine, from diffusing to DIY projects.",
+   "type": "Article",
+   "category": "Wellness",
+   "date": "2026-03-12",
+   "image": "shelf",
+   "keywords": "lavender",
+   "href": "/learn/10-ways-to-use-lavender-at-home"
+  },
+  {
+   "id": "a2",
+   "kind": "blog",
+   "title": "Creating a calming evening routine",
+   "excerpt": "A practical guide to winding down at the end of the day with aromatic habits.",
+   "type": "Article",
+   "category": "Wellness",
+   "date": "2026-04-02",
+   "image": "capsules",
+   "keywords": "sleep calm serenity lavender",
+   "href": "/learn/creating-a-calming-evening-routine"
+  },
+  {
+   "id": "a3",
+   "kind": "blog",
+   "title": "Cuticle cream with lavender",
+   "excerpt": "This easy DIY recipe uses lavender essential oil in a simple, nourishing cream.",
+   "type": "Recipe",
+   "category": "DIY",
+   "date": "2026-02-18",
+   "image": "abode",
+   "keywords": "lavender diy recipe",
+   "href": "/learn/cuticle-cream-with-lavender"
+  },
+  {
+   "id": "a4",
+   "kind": "blog",
+   "title": "Peppermint and lemon refresher spray",
+   "excerpt": "A quick DIY room spray to freshen up shared spaces.",
+   "type": "Recipe",
+   "category": "DIY",
+   "date": "2026-05-09",
+   "image": "abode",
+   "keywords": "peppermint lemon diy spray",
+   "href": "/learn/peppermint-and-lemon-refresher-spray"
+  },
+  {
+   "id": "a5",
+   "kind": "blog",
+   "title": "What is an essential oil?",
+   "excerpt": "A beginner's guide to how essential oils are sourced, tested and used.",
+   "type": "Article",
+   "category": "Education",
+   "date": "2026-01-21",
+   "image": "eo-mega",
+   "keywords": "essential oil basics beginner",
+   "href": "/learn/what-is-an-essential-oil?"
+  },
+  {
+   "id": "a6",
+   "kind": "blog",
+   "title": "How to choose a diffuser",
+   "excerpt": "Compare diffuser types and find the one that suits your space.",
+   "type": "Article",
+   "category": "Education",
+   "date": "2026-06-15",
+   "image": "shelf",
+   "keywords": "diffuser guide",
+   "href": "/learn/how-to-choose-a-diffuser"
+  },
+  {
+   "id": "a7",
+   "kind": "blog",
+   "title": "Citrus oils in the kitchen",
+   "excerpt": "Cooking with citrus essential oils: how much to use and when.",
+   "type": "Recipe",
+   "category": "Cooking",
+   "date": "2026-07-04",
+   "image": "eo-mega",
+   "keywords": "lemon orange cooking recipe",
+   "href": "/learn/citrus-oils-in-the-kitchen"
+  },
+  {
+   "id": "a8",
+   "kind": "blog",
+   "title": "Cleaning with On Guard",
+   "excerpt": "Four home cleaning blends built around On Guard.",
+   "type": "Article",
+   "category": "Home",
+   "date": "2026-03-30",
+   "image": "abode",
+   "keywords": "onguard cleaning home",
+   "href": "/learn/cleaning-with-on-guard"
+  },
+  {
+   "id": "a9",
+   "kind": "blog",
+   "title": "Supporting your daily routine with supplements",
+   "excerpt": "An overview of the daily supplement range and how to build a routine.",
+   "type": "Article",
+   "category": "Wellness",
+   "date": "2026-05-22",
+   "image": "vmg-plus",
+   "keywords": "supplements vitamins routine",
+   "href": "/learn/supporting-your-daily-routine-with-supplements"
+  },
+  {
+   "id": "a10",
+   "kind": "blog",
+   "title": "Peppermint for focus time",
+   "excerpt": "Ideas for keeping a workspace fresh and energising.",
+   "type": "Article",
+   "category": "Wellness",
+   "date": "2026-08-11",
+   "image": "pb-restore",
+   "keywords": "peppermint focus energy",
+   "href": "/learn/peppermint-for-focus-time"
+  },
+  {
+   "id": "a11",
+   "kind": "blog",
+   "title": "Frankincense: ancient resin, modern routine",
+   "excerpt": "Where frankincense comes from and how it is used in skin care.",
+   "type": "Article",
+   "category": "Education",
+   "date": "2026-02-06",
+   "image": "pb-restore",
+   "keywords": "frankincense resin",
+   "href": "/learn/frankincense-ancient-resin-modern-routine"
+  },
+  {
+   "id": "a12",
+   "kind": "blog",
+   "title": "Seasonal gift ideas",
+   "excerpt": "Gift sets and starter kits for friends and family.",
+   "type": "Article",
+   "category": "Gifting",
+   "date": "2026-09-01",
+   "image": "capsules",
+   "keywords": "gift set kit holiday",
+   "href": "/learn/seasonal-gift-ideas"
+  },
+  {
+   "id": "a13",
+   "kind": "other",
+   "title": "Loyalty Rewards Program",
+   "excerpt": "How points are earned, redeemed and when they expire.",
+   "type": "Page",
+   "category": "Rewards",
+   "date": null,
+   "image": null,
+   "keywords": "loyalty rewards points",
+   "href": "/rewards/loyalty-rewards-program"
+  },
+  {
+   "id": "a14",
+   "kind": "other",
+   "title": "Enrolment options",
+   "excerpt": "Compare wholesale membership and enrolment kits.",
+   "type": "Page",
+   "category": "Rewards",
+   "date": null,
+   "image": null,
+   "keywords": "enroll enrol membership wholesale kit",
+   "href": "/rewards/enrolment-options"
+  },
+  {
+   "id": "a15",
+   "kind": "other",
+   "title": "Wholesale membership FAQ",
+   "excerpt": "Answers to common questions about membership.",
+   "type": "Support",
+   "category": "Support",
+   "date": null,
+   "image": null,
+   "keywords": "wholesale membership faq",
+   "href": "/support/wholesale-membership-faq"
+  },
+  {
+   "id": "a16",
+   "kind": "other",
+   "title": "Shipping and delivery",
+   "excerpt": "Delivery times, costs and tracking.",
+   "type": "Support",
+   "category": "Support",
+   "date": null,
+   "image": null,
+   "keywords": "shipping delivery tracking",
+   "href": "/support/shipping-and-delivery"
+  },
+  {
+   "id": "a17",
+   "kind": "other",
+   "title": "Returns and refunds",
+   "excerpt": "How to return an order and how refunds are processed.",
+   "type": "Support",
+   "category": "Support",
+   "date": null,
+   "image": null,
+   "keywords": "returns refund",
+   "href": "/support/returns-and-refunds"
+  },
+  {
+   "id": "a18",
+   "kind": "other",
+   "title": "Product safety and usage guidance",
+   "excerpt": "General guidance for using essential oils safely.",
+   "type": "Support",
+   "category": "Support",
+   "date": null,
+   "image": null,
+   "keywords": "safety usage guidance",
+   "href": "/support/product-safety-and-usage-guidance"
+  },
+  {
+   "id": "a19",
+   "kind": "other",
+   "title": "Source to You",
+   "excerpt": "Learn about sourcing and testing.",
+   "type": "Page",
+   "category": "About",
+   "date": null,
+   "image": null,
+   "keywords": "sourcing testing cpTG quality",
+   "href": "/about/source-to-you"
+  },
+  {
+   "id": "a20",
+   "kind": "other",
+   "title": "Healing Hands Foundation",
+   "excerpt": "Our giving programme and community projects.",
+   "type": "Page",
+   "category": "About",
+   "date": null,
+   "image": null,
+   "keywords": "foundation giving charity",
+   "href": "/about/healing-hands-foundation"
+  },
+  {
+   "id": "a21",
+   "kind": "other",
+   "title": "Privacy policy",
+   "excerpt": "How personal data is handled.",
+   "type": "Legal",
+   "category": "Legal",
+   "date": null,
+   "image": null,
+   "keywords": "privacy data policy",
+   "href": "/support/privacy-policy"
+  },
+  {
+   "id": "a22",
+   "kind": "other",
+   "title": "Terms of use",
+   "excerpt": "Terms for using this site.",
+   "type": "Legal",
+   "category": "Legal",
+   "date": null,
+   "image": null,
+   "keywords": "terms conditions legal",
+   "href": "/support/terms-of-use"
+  }
+ ]
+}

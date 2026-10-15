@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Navigation",
+  "type": "object",
+  "required": [
+    "version",
+    "items"
+  ],
+  "definitions": {
+    "link": {
+      "type": "object",
+      "required": [
+        "label",
+        "href"
+      ],
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "href": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Pure Icon name"
+        },
+        "variant": {
+          "enum": [
+            "default",
+            "viewAll"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "description": "Nested sub categories, shown on mobile and tablet only",
+          "items": {
+            "$ref": "#/definitions/link"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "column": {
+      "type": "object",
+      "required": [
+        "title",
+        "links"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/link"
+          }
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "description": "Desktop grid span (12 columns). Omit for an even split."
+        },
+        "mobileOrder": {
+          "type": "integer",
+          "description": "Order of this column on mobile (and tablet without tabletSide). Omit to keep document order."
+        },
+        "tabletSide": {
+          "enum": [
+            "left",
+            "right"
+          ],
+          "description": "Tablet two-column layout side. Set on every column of a menu to enable it."
+        },
+        "tabletOrder": {
+          "type": "integer",
+          "description": "Order within the tablet side."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "const": 1
+    },
+    "source": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "label",
+              "href",
+              "type",
+              "columns"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "href": {
+                "type": "string"
+              },
+              "type": {
+                "const": "megaMenu"
+              },
+              "columns": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/column"
+                }
+              },
+              "featured": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "link"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "$ref": "#/definitions/link"
+                  },
+                  "image": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "src": {
+                        "type": "string"
+                      },
+                      "alt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "label",
+              "href",
+              "type",
+              "links"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "href": {
+                "type": "string"
+              },
+              "type": {
+                "const": "dropdown"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/link"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
