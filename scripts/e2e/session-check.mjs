@@ -75,6 +75,10 @@ async function rate(ease, note) {
   if (note) await setValue(c, "#ease-notes", note);
   await clickText(c, "button", "Done");
 }
+/** The onboarding tour shows on the first scenario only; most checks just skip it. */
+async function skipTour() {
+  try { await c.waitPage("!!document.querySelector('.tour-tip')", 4000, "the tour"); await clickText(c, ".tour-tip button", "Skip"); await sleep(150); } catch { /* not shown */ }
+}
 /** After the last task: the one hand-back to the researcher, which opens the debrief. */
 async function handBackAtEnd() {
   await wait("that was the last one");
@@ -136,6 +140,17 @@ try {
   report(!(await c.ev("!!document.querySelector('.m-header')")) && !(await has("Ledger")), "the participant screen carries no moderator controls");
   report((await active()).startsWith("H1:"), "focus moves to the heading on the intro screen", await active());
   await clickText(c, "button", "Show me the first scenario", { startsWith: true });
+  // Onboarding: two steps on the first scenario, then the participant presses Begin themselves.
+  await c.waitPage("!!document.querySelector('.tour-tip')", 5000, "the onboarding tour");
+  report(/step 1 of 2/i.test(await c.ev("document.querySelector('.tour-step').textContent")) && (await c.ev("document.querySelector('.tour-title').textContent")) === "Your scenario", "the first scenario opens with a two-step tour, starting with the scenario");
+  report(await c.ev("document.activeElement === document.querySelector('.tour-tip') && document.querySelector('.tour-tip').getAttribute('role') === 'dialog'"), "focus moves into the tour, which is a labelled dialog");
+  await clickText(c, ".tour-tip button", "Next", { startsWith: true }); await sleep(250);
+  report((await c.ev("document.querySelector('.tour-title').textContent")).startsWith("Press Begin") && /step 2 of 2/i.test(await c.ev("document.querySelector('.tour-step').textContent")), "step 2 points at Begin");
+  await clickText(c, ".tour-tip button", "Back"); await sleep(250);
+  report((await c.ev("document.querySelector('.tour-title').textContent")) === "Your scenario", "Back returns to step 1");
+  await clickText(c, ".tour-tip button", "Next", { startsWith: true }); await sleep(250);
+  await clickText(c, ".tour-tip button", "Got it"); await sleep(250);
+  report(!(await c.ev("!!document.querySelector('.tour-tip')")) && (await c.ev("document.activeElement?.textContent.trim().startsWith('Begin')")), "Got it closes the tour and puts focus on Begin");
 
   const sc1 = await scenario();
   const briefLabel = await c.ev("document.querySelector('.p-device')?.textContent ?? ''");
@@ -262,6 +277,7 @@ try {
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part");
   await clickText(c, "button", "Show me the first scenario", { startsWith: true });
+  await skipTour();
   await beginTask();
   await c.send("Page.reload"); await sleep(900);
   await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
@@ -303,6 +319,7 @@ try {
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part");
   await clickText(c, "button", "Show me the first scenario", { startsWith: true });
+  await skipTour();
   const sc3 = await scenario();
   await beginTask();
   report((await c.ev("document.querySelector('.frame-box').dataset.breakpoint")) === "mobile" && (await c.evFrame("innerWidth")) === 402, "the mobile frame is 402 wide");
@@ -332,6 +349,7 @@ try {
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part");
   await clickText(c, "button", "Show me the first scenario", { startsWith: true });
+  await skipTour();
   const anim2 = await c.ev(`(async()=>{[...document.querySelectorAll('.p-task-card .btn')].find(b=>b.textContent.trim().startsWith('Begin')).click();await new Promise(r=>setTimeout(r,40));return document.querySelector('.p-task-card').classList.contains('p-task-card')&&document.querySelector('.p-task.is-begun')?document.querySelector('.p-task-card').getAnimations().length:-1})()`);
   report(anim2 === 0, "with reduced motion the task jumps to the top with no animation", String(anim2));
   await waitMsg(c, (m) => m.type === "ready", 20000);

@@ -1,5 +1,4 @@
-import { Component, useState } from "react";
-import type { ReactNode } from "react";
+import { useState } from "react";
 import { AppProvider, useApp } from "./state.tsx";
 import { surfaceOf } from "./domain/session.ts";
 import { Participant } from "./participant/Participant.tsx";
@@ -13,6 +12,7 @@ import { Ledger } from "./moderator/Ledger.tsx";
 import { ContentEditor } from "./moderator/ContentEditor.tsx";
 import { Preview } from "./moderator/Preview.tsx";
 import { useTheme } from "./theme.tsx";
+import { Boundary } from "./Boundary.tsx";
 
 /**
  * One state-driven app with two surfaces, moderator and participant, chosen by the session's phase. The surface lives in
@@ -43,22 +43,6 @@ function Root() {
       ) : tab === "sessions" ? <Home /> : tab === "ledger" ? <Ledger onReview={openReview} /> : tab === "content" ? <ContentEditor /> : <Preview />}
     </ModeratorShell>
   );
-}
-
-/** A record that cannot be drawn must never leave a blank page: say so, and offer the way back. Saved data is untouched. */
-class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() { return { failed: true }; }
-  render() {
-    if (!this.state.failed) return this.props.children;
-    return (
-      <main className="m-page">
-        <h1>Something went wrong on this screen</h1>
-        <p className="m-lede">Your sessions are saved and nothing has been lost. Reload the page to carry on. If it happens again on the same session, download a backup from the Sessions list and report it.</p>
-        <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>Reload</button>
-      </main>
-    );
-  }
 }
 
 export function App() {

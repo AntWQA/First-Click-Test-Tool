@@ -204,3 +204,17 @@ test("the CSV records each run's own breakpoint and its place in the session", (
   assert.equal(cells[cols.indexOf("breakpoint")], "desktop");
   assert.equal(cells[cols.indexOf("position")], "1");
 });
+
+test("the self-run flag survives export and import, and appears in the CSV, so a moderator can tell the sessions apart", () => {
+  const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  assert.equal(sanitiseSession(raw)!.selfRun, false);
+  raw.selfRun = true;
+  assert.equal(sanitiseSession(raw)!.selfRun, true);
+  raw.selfRun = "yes";
+  assert.equal(sanitiseSession(raw)!.selfRun, false, "only a real true counts");
+  const s = { ...finished("b"), selfRun: true };
+  const rows = parseCsv(runsToCsv([s]));
+  const col = rows[0]!.indexOf("self_run");
+  assert.ok(col > 0);
+  assert.equal(rows[1]![col], "true");
+});

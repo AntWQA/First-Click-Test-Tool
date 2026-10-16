@@ -257,6 +257,33 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 .p-task-card { width: min(860px, 100%); background: var(--paper-raised); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 36px 40px; display: flex; flex-direction: column; gap: 24px; align-items: flex-start; }
 .p-task .p-scenario { font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1.25; margin: 0; color: var(--ink); outline: none; text-wrap: balance; }
 .p-label { margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+/* ---------- participant edition: setup and finish screens ---------- */
+.p-setup, .p-finish { width: min(560px, 100%); text-align: left; align-items: stretch; }
+.p-setup h1, .p-finish h1 { font-size: 26px; }
+.p-setup p, .p-finish p { max-width: none; }
+.p-setup-facts { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 14px; }
+.p-setup-field { display: flex; flex-direction: column; gap: 6px; }
+.p-setup-field small { font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.p-setup .btn-lg { align-self: flex-start; }
+/* A neutral panel with ink text (the card's default paragraph colour is the muted grey, which is too faint on a tint). */
+.p-note, .p-card .p-note { background: var(--paper); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.p-error:empty { display: none; }
+.p-card .p-send-note { border: 2px solid var(--accent); }
+.p-finish-steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+.p-finish .p-offer-actions { justify-content: flex-start; }
+.p-finish-status:empty { display: none; }
+.p-finish .p-textlink { align-self: flex-start; }
+/* ---------- onboarding tour (same look as the Tree Testing and Card Sort tools) ---------- */
+.tour-spotlight { position: fixed; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(30, 34, 38, 0.4), 0 0 0 2px var(--accent-glow), 0 0 0 5px var(--accent-glow); pointer-events: none; z-index: 600; transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease; }
+.tour-tip { position: fixed; z-index: 601; background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: var(--shadow); padding: 14px 16px; color: var(--ink); outline: none; }
+.tour-step { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.tour-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.tour-text { font-size: 13px; color: var(--muted); line-height: 1.4; margin-bottom: 12px; }
+.tour-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.tour-nav { display: flex; gap: 8px; }
+.tour-skip { background: none; border: 0; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; padding: 0 6px; min-height: 40px; text-decoration: underline; text-underline-offset: 3px; }
+.tour-skip:hover { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .tour-spotlight { transition: none; } }
 .p-textlink { background: none; border: 0; padding: 0 12px; min-height: 40px; display: inline-flex; align-items: center; margin-top: 4px; font: inherit; font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .p-textlink:hover { color: var(--ink); }
 .p-device { margin: 14px 0 0; }

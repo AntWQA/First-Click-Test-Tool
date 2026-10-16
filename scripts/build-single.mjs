@@ -1,4 +1,7 @@
 // Builds the prototype copy and the shell, then folds everything into ONE html file: dist-single/wayfinding-check.html.
+// `node scripts/build-single.mjs participant` builds the participant edition instead (set up and run by the participant
+// alone, no moderator screens): dist-single/wayfinding-check-participant.html. WC_SEND_TO=name@example.com bakes the address
+// the participant is told to send their results to into that file.
 // It fails the build rather than ship something that would reach for the network, carry live data, or blow the size budget.
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
@@ -6,12 +9,15 @@ import { fileURLToPath } from "node:url";
 import { build } from "vite";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const edition = process.argv[2] === "participant" ? "participant" : "moderator";
+const shellConfig = edition === "participant" ? "vite.participant.config.ts" : "vite.shell.config.ts";
+const shellOut = edition === "participant" ? "dist-participant" : "dist-shell";
 const BUDGET_BYTES = 4 * 1024 * 1024;
 const fail = (msg) => { console.error("BUILD FAILED: " + msg); process.exit(1); };
 const MB = (n) => (n / 1048576).toFixed(2) + " MB";
 
 await build({ root, configFile: path.join(root, "vite.proto.config.ts"), logLevel: "warn" });
-await build({ root, configFile: path.join(root, "vite.shell.config.ts"), logLevel: "warn" });
+await build({ root, configFile: path.join(root, shellConfig), logLevel: "warn" });
 
 function parts(dir) {
   const html = readFileSync(path.join(dir, readdirSync(dir).find((f) => f.endsWith(".html"))), "utf8");
@@ -41,7 +47,10 @@ const protoDoc = p.html
   .replace("</body>", () => `<script type="module">${escScript(p.js)}</script></body>`);
 
 // ---- shell document, with the prototype embedded as a string the shell hands to the sandboxed iframe
-const s = parts(path.join(root, "dist-shell"));
+const s = parts(path.join(root, shellOut));
+const sendTo = (process.env.WC_SEND_TO ?? "").trim();
+if (sendTo && !/^[^\s<>"']+@[^\s<>"']+$/.test(sendTo)) fail(`WC_SEND_TO is not an email address: ${sendTo}`);
+const sendToScript = edition === "participant" ? `<script>window.__WC_SEND_TO__=${JSON.stringify(sendTo)};</script>` : "";
 const embedded = JSON.stringify(protoDoc).replace(/<\/script/gi, "<\\/script").replace(/<!--/g, "<\\!--").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 // A Content-Security-Policy makes "no network at runtime" something the browser enforces, not just something checked in the
 // markup: nothing may load or connect except inline code and data URIs. The prototype frame (about:srcdoc) inherits it.
@@ -51,7 +60,7 @@ const shellDoc = s.html
   .replace(/<link rel="stylesheet"[^>]*>/, "")
   .replace(/<script type="module"[^>]*><\/script>/, "")
   .replace("</head>", () => `<style>${s.css.replace(/<\/style/gi, "<\\/style")}</style></head>`)
-  .replace("</body>", () => `<script>window.__PROTO_HTML__=${embedded};</script><script type="module">${escScript(s.js)}</script></body>`);
+  .replace("</body>", () => `${sendToScript}<script>window.__PROTO_HTML__=${embedded};</script><script type="module">${escScript(s.js)}</script></body>`);
 
 // ---- safeguards
 const checks = [];
@@ -75,10 +84,14 @@ const cssUrls = [...(protoCss + s.css).matchAll(/url\(([^)]*)\)/g)].map((m) => m
 check(cssUrls.every((u) => u.startsWith("data:")), "a stylesheet references a file by URL: " + cssUrls.find((u) => !u.startsWith("data:")));
 check(!/RalewayDoTERRA[^;}]*\.(woff2?|ttf)/.test(protoCss), "a Raleway font file survived pruning");
 check(!/Live Catalogue Data|catalogue\.live/.test(shellDoc), "a reference to the live catalogue folder is in the build");
+if (edition === "participant") {
+  // The participant edition must carry none of the moderator screens or guidance.
+  for (const phrase of ["Add or edit findings", "Hand over to participant", "Researcher: continue", "Backup and import", "What the recorder sees", "Moderator options", "Reset to the plan"]) check(!shellDoc.includes(phrase), `the participant edition contains moderator text: ${phrase}`);
+}
 check(!/liveCatalogue\s*=\s*\{\s*"?products/.test(shellDoc), "live catalogue data is in the build");
 
 mkdirSync(path.join(root, "dist-single"), { recursive: true });
-const outFile = path.join(root, "dist-single", "wayfinding-check.html");
+const outFile = path.join(root, "dist-single", edition === "participant" ? "wayfinding-check-participant.html" : "wayfinding-check.html");
 writeFileSync(outFile, shellDoc);
 console.log(`built ${path.relative(root, outFile)}  ${MB(size)}  (prototype document ${MB(Buffer.byteLength(protoDoc))}, shell ${MB(size - Buffer.byteLength(protoDoc))})`);
 console.log(`${checks.length} safeguards passed`);

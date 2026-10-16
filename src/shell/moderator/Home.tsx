@@ -48,7 +48,7 @@ export function Home() {
           <tbody>
             {ordered.map((s) => (
               <tr key={s.id}>
-                <td><strong>{s.participantId || "(no ID)"}</strong>{s.practice ? " (practice)" : ""}</td>
+                <td><strong>{s.participantId || "(no ID)"}</strong>{s.practice ? " (practice)" : ""}{s.selfRun ? " (self-run)" : ""}</td>
                 <td>{breakpoints(s)}</td><td>{s.group || "n/a"}</td><td>{statusOf(s)}</td>
                 <td>{countedRuns(s).length} of {s.order.length}</td><td>{clock(s.updatedAt)}</td>
                 <td className="m-row-actions">

@@ -1,6 +1,7 @@
 node_modules
 dist-proto
 dist-shell
+dist-participant
 dist-single
 .vite-cache
 .DS_Store

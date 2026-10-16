@@ -28,7 +28,7 @@ export function csvEscape(value: string | number | boolean | null | undefined): 
 }
 
 export const CSV_COLUMNS = [
-  "session_id", "participant_id", "group", "breakpoint", "input", "practice", "task_id", "position", "attempt", "status", "content_version",
+  "session_id", "participant_id", "group", "breakpoint", "input", "practice", "self_run", "task_id", "position", "attempt", "status", "content_version",
   "reading_ms", "first_interaction_ms", "duration_ms", "end_reason", "first_open_section", "level1_section", "sections_opened",
   "final_kind", "final_href", "final_section", "final_column", "via_footer", "suggested_tier", "tier", "suggested_code", "code",
   "level1", "level2", "ease", "menu_unaided_or_prompt", "scale", "window_resized", "participant_notes", "observed", "interpretation",
@@ -41,7 +41,7 @@ export function runsToCsv(sessions: Session[]): string {
   for (const s of sessions) for (const r of s.runs) {
     const e = effective(r), g = r.suggestion;
     rows.push([
-      s.id, s.participantId, s.group, r.breakpoint, BREAKPOINTS[r.breakpoint].input, s.practice, r.taskId, r.position + 1, r.attempt, r.status, s.content.version,
+      s.id, s.participantId, s.group, r.breakpoint, BREAKPOINTS[r.breakpoint].input, s.practice, s.selfRun, r.taskId, r.position + 1, r.attempt, r.status, s.content.version,
       r.readingMs, g?.firstInteractionMs, r.durationMs, r.end, g?.firstOpenSection, g?.levelOneSection, g?.sectionsOpened.join(" > "),
       g?.finalKind, g?.finalHref, g?.finalSection, g?.finalColumn, g?.viaFooter, g?.tier, e.tier, g?.code, e.code,
       e.level1, e.level2, r.ease, e.menu, r.scale, r.windowResized, r.participantNotes, r.moderator.observed, r.moderator.interpretation,
@@ -144,7 +144,7 @@ export function sanitiseSession(raw: unknown): Session | null {
   else if (legacyReview) phase = at >= order.length ? "debrief" : "intro";
   return {
     schemaVersion: 1, id: raw.id, createdAt: Math.min(createdAt, ceiling), updatedAt: Math.min(updatedAt, ceiling), participantId, group: GROUPS.find((g) => g === raw.group) ?? "",
-    practice: raw.practice === true, plan, planOverrides: overrides,
+    practice: raw.practice === true, selfRun: raw.selfRun === true, plan, planOverrides: overrides,
     content: c.content, order, cursor: at, phase: phase!,
     status: raw.status === "ended" || raw.status === "ended-early" ? raw.status : "active", runs,
     retakeOf: typeof raw.retakeOf === "string" && ID.test(raw.retakeOf) ? raw.retakeOf : null,

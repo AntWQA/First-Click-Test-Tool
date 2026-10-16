@@ -68,8 +68,14 @@ try {
   report(labelled, "Setup: every field has a visible label");
   await clickText(c, "button[type=submit]", "Hand over to participant", { startsWith: true });
   await wait("Thanks for taking part"); await screen("Participant intro");
-  await clickText(c, "button", "Show me the first scenario", { startsWith: true }); await screen("Task before Begin");
-  const firstTab = async () => { await c.ev("document.activeElement.blur()"); await c.key("Tab", "Tab"); return c.ev("document.activeElement.textContent.trim()"); };
+  await clickText(c, "button", "Show me the first scenario", { startsWith: true });
+  await c.waitPage("!!document.querySelector('.tour-tip')", 5000, "the onboarding tour"); await screen("Onboarding tour");
+  report(await c.ev("[...document.querySelectorAll('.tour-tip button')].every((b) => b.getBoundingClientRect().height >= 40)"), "Tour: every control is at least 40px tall");
+  await c.key("Escape", "Escape"); await sleep(250);
+  report(!(await c.ev("!!document.querySelector('.tour-tip')")), "Esc closes the tour");
+  await screen("Task before Begin");
+  // Tab starts from where focus last was, so start from the heading, as a participant who has just read the scenario would.
+  const firstTab = async () => { await c.ev("(document.querySelector('.p-scenario') ?? document.body).focus(); document.activeElement.blur()"); await c.key("Tab", "Tab"); return c.ev("document.activeElement.textContent.trim()"); };
   report((await firstTab()).includes("Begin"), "Task: the first thing a keyboard user reaches is Begin");
   const outline = await c.ev("(()=>{const s=getComputedStyle(document.activeElement);return s.outlineStyle+' '+s.outlineWidth})()");
   report(!/^none/.test(outline) && !/ 0px/.test(outline), "keyboard focus has a visible outline", outline);

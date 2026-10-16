@@ -9,6 +9,9 @@ import type { Breakpoint, ProtoMessage } from "../../shared/protocol.ts";
 import { AppHeader } from "../AppHeader.tsx";
 import { ArrowIcon, DeviceIcon, Logo, PersonIcon } from "../brand.tsx";
 import { useEnterPrimary } from "../Shortcuts.tsx";
+import { SELF_RUN } from "../edition.ts";
+import { Tour } from "./Tour.tsx";
+import type { TourStep } from "./Tour.tsx";
 
 /**
  * Everything the participant sees. The name on screen is "Wayfinding Check", which keeps the method out of view, and
@@ -27,9 +30,10 @@ function useHeadingFocus(key: unknown) {
   return ref;
 }
 
-export function Participant({ session, theme, onToggleTheme }: { session: Session; theme: "light" | "dark"; onToggleTheme: () => void }) {
+export function Participant({ session, theme, onToggleTheme }: { session: Session; theme: "light" | "dark"; onToggleTheme?: () => void }) {
   const [menu, setMenu] = useState(false);
   useEffect(() => {
+    if (SELF_RUN) return undefined; // no moderator in the participant edition, so no moderator menu
     const onKey = (e: KeyboardEvent) => { if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "m") { e.preventDefault(); setMenu(true); } };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -43,8 +47,8 @@ export function Participant({ session, theme, onToggleTheme }: { session: Sessio
       {session.phase === "task" && <Task key={currentRun(session)!.runId} session={session} onModeratorKey={() => setMenu(true)} />}
       {session.phase === "rating" && <Rating />}
       {session.phase === "offer" && <Offer session={session} />}
-      {session.phase === "handBack" && <HandBack session={session} />}
-      {menu && <ModeratorMenu onClose={() => setMenu(false)} />}
+      {session.phase === "handBack" && !SELF_RUN && <HandBack session={session} />}
+      {menu && !SELF_RUN && <ModeratorMenu onClose={() => setMenu(false)} />}
     </div>
   );
 }
@@ -87,7 +91,15 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
   const card = useRef<HTMLDivElement>(null);
   const before = useRef<DOMRect | null>(null);
   const heading = useHeadingFocus(`${run.runId}:${begun}`);
-  useEnterPrimary(".p-task-card .btn-primary", !begun);
+  // Onboarding: two steps on the very first scenario's brief screen (not on a retry, not on any later scenario).
+  const [tourOn, setTourOn] = useState(session.cursor === 0 && run.attempt === 1 && !begun);
+  const tourMs = useRef(0);
+  const addTourMs = useCallback((ms: number) => { tourMs.current += ms; }, []);
+  const tourSteps = useRef<TourStep[]>([
+    { target: () => document.querySelector<HTMLElement>(".p-task-text"), title: "Your scenario", text: "Imagine you really are looking for this. The label shows which screen size you will see." },
+    { target: () => document.querySelector<HTMLElement>(".p-task-card .btn-primary"), title: "Press Begin when you're ready", text: "The website appears below. Click where you would look first, or press I can't find it." },
+  ]);
+  useEnterPrimary(".p-task-card .btn-primary", !begun && !tourOn);
   // The end buttons wait for the website to be ready (plus a beat), so a double-click on Begin cannot land on "I can't find
   // it" as the buttons swap in. If the frame never reports, they unlock after 5 s; a moderator can always press Ctrl+Shift+M.
   const [canEnd, setCanEnd] = useState(false);
@@ -95,7 +107,7 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
 
   const begin = () => {
     before.current = card.current?.getBoundingClientRect() ?? null;
-    dispatch({ type: "begin", at: Date.now(), scale: 1 });
+    dispatch({ type: "begin", at: Date.now(), scale: 1, tourMs: tourMs.current });
   };
 
   useEffect(() => {
@@ -151,6 +163,7 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
           </div>
         )}
       </div>
+      {tourOn && !begun && <Tour steps={tourSteps.current} onClose={() => setTourOn(false)} onVisibleMs={addTourMs} returnFocus={() => document.querySelector<HTMLElement>(".p-task-card .btn-primary")} />}
       {!begun && <p className="p-hint">When you press Begin, the website's menu will appear below, as it looks on a {DEVICE[run.breakpoint].toLowerCase()} screen.</p>}
       {begun && (
         <div className="p-stage">
@@ -203,7 +216,7 @@ function EndConfirm({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: 
   return (
     <dialog ref={ref} className="p-dialog" onClose={onCancel} aria-labelledby="end-title">
       <h2 id="end-title">End the session?</h2>
-      <p>Everything you have done so far is kept. You will be asked to hand the device back to the researcher.</p>
+      <p>{SELF_RUN ? "Everything you have done so far is kept. You will be taken to the page where you can send your results." : "Everything you have done so far is kept. You will be asked to hand the device back to the researcher."}</p>
       <div className="p-dialog-actions">
         <button type="button" className="btn btn-secondary" onClick={() => ref.current?.close()}>Keep going</button>
         <button type="button" className="btn btn-danger" onClick={onConfirm}>Yes, end the session</button>

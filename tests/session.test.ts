@@ -144,6 +144,32 @@ test("a participant can end the session from the between-tasks screen: rated wor
   assert.throws(() => reduce(mid, { type: "stopSession", at: T0 }), IllegalTransition, "only between tasks, never in the middle of one");
 });
 
+test("time the onboarding tour was on screen is left out of the reading time, and never makes it negative", () => {
+  const started = present(reduce(fresh(), { type: "start", at: T0 }), T0);
+  assert.equal(currentRun(reduce(started, { type: "begin", at: T0 + 20000, scale: 1 }))!.readingMs, 20000, "no tour: the whole wait counts");
+  assert.equal(currentRun(reduce(started, { type: "begin", at: T0 + 20000, scale: 1, tourMs: 12000 }))!.readingMs, 8000);
+  assert.equal(currentRun(reduce(started, { type: "begin", at: T0 + 5000, scale: 1, tourMs: 99000 }))!.readingMs, 0);
+});
+
+test("a self-run session is closed in one step from the hand-back screen, keeping the participant's note and any early end", () => {
+  let s = reduce(fresh({ id: "sr", selfRun: true }), { type: "start", at: T0 });
+  assert.equal(s.selfRun, true);
+  assert.throws(() => reduce(s, { type: "complete", at: T0, notes: "x" }), IllegalTransition, "not before the scenarios are done");
+  s = doTask(s);
+  const early = reduce(reduce(s, { type: "stopSession", at: T0 }), { type: "complete", at: T0 + 5, notes: "  the menu was confusing  " });
+  assert.equal(early.phase, "ended");
+  assert.equal(early.status, "ended-early", "ending early stays marked as early");
+  assert.equal(early.debriefNotes, "  the menu was confusing  ");
+  assert.equal(countedRuns(early).length, 1);
+  assert.throws(() => reduce(early, { type: "complete", at: T0, notes: "again" }), IllegalTransition, "closed once");
+  let all = reduce({ ...fresh({ id: "sa", content: noReserves(), selfRun: true }), order: ["T1"] }, { type: "start", at: T0 });
+  all = doTask(all);
+  assert.equal(all.phase, "handBack");
+  const finished = reduce(all, { type: "complete", at: T0, notes: "" });
+  assert.equal(finished.status, "ended", "finishing every scenario is a normal end");
+  assert.equal(reduce(fresh(), { type: "start", at: T0 }).selfRun, false, "the moderator's sessions are not self-run");
+});
+
 test("illegal moves throw and leave the session untouched", () => {
   const s = fresh();
   assert.throws(() => reduce(s, { type: "present", at: T0, runId: "x" }), IllegalTransition);

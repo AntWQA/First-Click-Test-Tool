@@ -8,7 +8,7 @@ import { ThemeToggle } from "./theme.tsx";
  * theme button, so nothing about the method or the moderator's tools is on their screen.
  */
 export function AppHeader({ moderator, nav, status, theme, onToggleTheme, onShortcuts }: {
-  moderator: boolean; nav?: ReactNode; status?: ReactNode; theme: "light" | "dark"; onToggleTheme: () => void; onShortcuts?: () => void;
+  moderator: boolean; nav?: ReactNode; status?: ReactNode; theme: "light" | "dark"; onToggleTheme?: () => void; onShortcuts?: () => void;
 }) {
   return (
     <header className={`top${moderator ? " m-header" : ""}`}>
@@ -21,7 +21,7 @@ export function AppHeader({ moderator, nav, status, theme, onToggleTheme, onShor
           {status}
           {nav}
           {onShortcuts && <button type="button" className="icon-btn" aria-label="Keyboard shortcuts" onClick={onShortcuts}><KeyboardIcon /></button>}
-          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+          {onToggleTheme && <ThemeToggle theme={theme} onToggle={onToggleTheme} />}
         </div>
       </div>
     </header>

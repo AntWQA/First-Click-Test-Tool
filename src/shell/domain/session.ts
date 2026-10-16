@@ -71,6 +71,8 @@ export interface Session {
   participantId: string;
   group: Group;
   practice: boolean;
+  /** Set up and run by the participant alone (the participant edition), with no moderator present. */
+  selfRun: boolean;
   /** The breakpoint for each task in this session, counterbalanced across participants. Fixed with the order when the session starts. */
   plan: Record<string, Breakpoint>;
   /** Breakpoints the moderator chose by hand at setup; they win over the rotation where the task allows them. */
@@ -97,6 +99,7 @@ export interface NewSessionParams {
   participantId: string;
   group?: Group;
   practice?: boolean;
+  selfRun?: boolean;
   planOverrides?: Record<string, Breakpoint>;
   content: Content;
 }
@@ -110,7 +113,7 @@ function arrange(s: Session): void {
 export function createSession(p: NewSessionParams): Session {
   const s: Session = {
     schemaVersion: 1, id: p.id, createdAt: p.now, updatedAt: p.now,
-    participantId: p.participantId.trim(), group: p.group ?? "", practice: p.practice ?? false,
+    participantId: p.participantId.trim(), group: p.group ?? "", practice: p.practice ?? false, selfRun: p.selfRun ?? false,
     plan: {}, planOverrides: p.planOverrides ?? {},
     content: structuredClone(p.content), order: [], cursor: 0, phase: "setup", status: "active", runs: [], retakeOf: null, interruptions: 0, debriefNotes: "",
   };
@@ -126,7 +129,8 @@ export type Action =
   | { type: "acceptReserve"; at: number }
   | { type: "declineReserves"; at: number }
   | { type: "present"; at: number; runId: string }
-  | { type: "begin"; at: number; scale: number }
+  /** tourMs: time the onboarding tour was on screen before Begin, left out of the reading time. */
+  | { type: "begin"; at: number; scale: number; tourMs?: number }
   | { type: "event"; event: CapturedEvent }
   | { type: "scale"; scale: number }
   | { type: "end"; at: number; reason: EndReason; frameAt?: number }
@@ -135,6 +139,7 @@ export type Action =
   | { type: "reviewRun"; at: number; runId: string; patch: Partial<RunModerator> }
   | { type: "endEarly"; at: number }
   | { type: "stopSession"; at: number }
+  | { type: "complete"; at: number; notes: string }
   | { type: "debrief"; at: number; notes: string }
   | { type: "finish"; at: number }
   | { type: "resume"; at: number };
@@ -212,7 +217,7 @@ export function reduce(session: Session, a: Action): Session {
       need(s, a, "task");
       const run = currentRun(s)!;
       if (run.status !== "presented") fail(s, a);
-      run.status = "active"; run.beginAt = a.at; run.scale = a.scale; run.readingMs = a.at - run.presentedAt;
+      run.status = "active"; run.beginAt = a.at; run.scale = a.scale; run.readingMs = Math.max(0, a.at - run.presentedAt - Math.max(0, a.tourMs ?? 0));
       return s;
     }
     case "event": {
@@ -277,6 +282,15 @@ export function reduce(session: Session, a: Action): Session {
       need(s, a, "intro");
       s.status = "ended-early";
       s.phase = "handBack";
+      return s;
+    }
+    case "complete": {
+      // The participant edition has no moderator debrief: from the hand-back screen the participant adds an optional note
+      // and the session is closed in one step, ready to export. A session already stopped early stays marked as such.
+      need(s, a, "handBack", "debrief");
+      s.debriefNotes = a.notes.slice(0, 4000);
+      s.phase = "ended";
+      if (s.status === "active") s.status = "ended";
       return s;
     }
     case "endEarly": {
