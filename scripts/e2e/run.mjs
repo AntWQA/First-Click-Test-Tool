@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 let failed = 0;
 // selfrun-check needs the participant edition built first: npm run build:participant
-for (const name of ["frame-check", "recorder-check", "session-check", "a11y-check", "selfrun-check"]) {
+for (const name of ["frame-check", "recorder-check", "session-check", "a11y-check", "import-check", "selfrun-check"]) {
   console.log(`\n=== ${name}`);
   const r = spawnSync(process.execPath, [path.join(here, `${name}.mjs`)], { stdio: "inherit", env: process.env });
   if (r.status !== 0) failed += 1;

@@ -4,8 +4,8 @@ import { AppProvider, makeId, useApp } from "../state.tsx";
 import { Boundary } from "../Boundary.tsx";
 import { AppHeader } from "../AppHeader.tsx";
 import { DownloadIcon } from "../brand.tsx";
-import { useTheme } from "../theme.tsx";
-import { SEND_TO } from "../edition.ts";
+import { useFollowedTheme } from "../theme.tsx";
+import { NOTICE, SEND_TO } from "../edition.ts";
 import { Participant } from "./Participant.tsx";
 import { reduce, countedRuns } from "../domain/session.ts";
 import type { Group, Session } from "../domain/session.ts";
@@ -25,7 +25,7 @@ export function SelfRunApp() {
 
 function SelfRunRoot() {
   const { sessions, active, openSession } = useApp();
-  const [theme] = useTheme();
+  const [theme, toggleTheme] = useFollowedTheme();
   const [booted, setBooted] = useState(false);
   // Carry on where this person left off if they closed the window part-way through (or came back to download again).
   useEffect(() => {
@@ -34,16 +34,16 @@ function SelfRunRoot() {
     setBooted(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   if (!booted) return null;
-  if (!active) return <Frame theme={theme}><SelfSetup /></Frame>;
-  if (active.phase === "handBack" || active.phase === "debrief" || active.phase === "ended") return <Frame theme={theme}><Finished session={active} /></Frame>;
-  if (active.phase === "setup") return <Frame theme={theme}><SelfSetup /></Frame>;
-  return <Participant session={active} theme={theme} />;
+  if (!active) return <Frame theme={theme} onToggleTheme={toggleTheme}><SelfSetup /></Frame>;
+  if (active.phase === "handBack" || active.phase === "debrief" || active.phase === "ended") return <Frame theme={theme} onToggleTheme={toggleTheme}><Finished session={active} /></Frame>;
+  if (active.phase === "setup") return <Frame theme={theme} onToggleTheme={toggleTheme}><SelfSetup /></Frame>;
+  return <Participant session={active} theme={theme} onToggleTheme={toggleTheme} />;
 }
 
-function Frame({ theme, children }: { theme: "light" | "dark"; children: React.ReactNode }) {
+function Frame({ theme, onToggleTheme, children }: { theme: "light" | "dark"; onToggleTheme: () => void; children: React.ReactNode }) {
   return (
     <div className="p-root">
-      <AppHeader moderator={false} theme={theme} />
+      <AppHeader moderator={false} theme={theme} onToggleTheme={onToggleTheme} />
       {children}
     </div>
   );
@@ -56,6 +56,7 @@ function SelfSetup() {
   const { start, dispatch } = useApp();
   const [id, setId] = useState("");
   const [group, setGroup] = useState<Group>("");
+  const [adult, setAdult] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [narrow, setNarrow] = useState(window.innerWidth < 1000);
   useEffect(() => {
@@ -71,6 +72,7 @@ function SelfSetup() {
     const pid = id.trim();
     if (!ID_OK.test(pid)) { setError("Enter the code you were given, using letters and numbers only (for example P7)."); return; }
     if (group === "") { setError("Please choose one of the answers about membership."); return; }
+    if (!adult) { setError("This study is for adults. Please confirm that you are 18 or over."); return; }
     start({ participantId: pid, group, selfRun: true });
     dispatch({ type: "start", at: Date.now() });
     dispatch({ type: "present", at: Date.now(), runId: makeId("r") });
@@ -86,6 +88,14 @@ function SelfSetup() {
           <li>Use a laptop or desktop computer, with this window as large as you can.</li>
           <li>Nothing is sent anywhere. At the end you save a file and send it to us.</li>
         </ul>
+        <section className="p-notice" aria-labelledby="notice-h">
+          <h2 id="notice-h">How your results are used</h2>
+          <p>This study is run by <strong>{NOTICE.controller || "[organization not set]"}</strong>, who decides how your results are used.</p>
+          <p>We record your code, whether you are a member, where you click, how long each step takes, the size of your browser window, and anything you type in the search box or the notes. We do not ask for your name. Nothing leaves your computer until you email us your results file, so we will also see the email address you send it from.</p>
+          <p>We use it to find out how easy the website's menus are to use, and we report results together, not about individuals.</p>
+          <p>We keep your results for <strong>{NOTICE.retention || "[retention not set]"}</strong>. You can stop at any time. To see or delete your results, email <strong>{SEND_TO || "the researcher who gave you this tool"}</strong>.</p>
+          <p>Please do not put your name, contact details or anything about your health in the search box or the notes.</p>
+        </section>
         <label className="p-field p-setup-field" htmlFor="pid">Your code
           <input id="pid" value={id} onChange={(e) => { setId(e.target.value); setError(null); }} maxLength={40} autoComplete="off" aria-describedby="pid-hint pid-error" />
           <small id="pid-hint">The code the researcher gave you. Please do not use your name.</small>
@@ -98,9 +108,14 @@ function SelfSetup() {
             <option value="WA">Yes, a Wellness Advocate</option>
           </select>
         </label>
+        <label className="p-check" htmlFor="adult">
+          <input id="adult" type="checkbox" checked={adult} onChange={(e) => { setAdult(e.target.checked); setError(null); }} />
+          <span>I am 18 or over.</span>
+        </label>
         <p id="pid-error" className="p-error" role="alert">{error}</p>
         {narrow && <p className="p-note" role="status">This window is quite small, so the websites will be shown scaled down. If you can, make it larger before you start.</p>}
         <button type="submit" className="btn btn-primary btn-lg">Start <span className="enter-chip" aria-hidden="true">↵</span></button>
+        <p className="p-fine">By pressing Start you agree to your results being used in this way.</p>
       </form>
     </main>
   );

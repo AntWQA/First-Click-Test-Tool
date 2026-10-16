@@ -1,6 +1,6 @@
 import type { Breakpoint } from "../../shared/protocol.ts";
 import { BREAKPOINT_IDS } from "../../shared/protocol.ts";
-import { countedRuns, effective } from "./session.ts";
+import { countedRuns, effective, normaliseCode, recency } from "./session.ts";
 import type { Run, Session } from "./session.ts";
 
 /** Proposed thresholds (decision D4): Pass 80 percent or more, Watch 60 to 79, Fail under 60. */
@@ -77,24 +77,32 @@ interface Counted { session: Session; run: Run }
  * landed on a different breakpoint never puts one person in two cells. A breakpoint comes from each run, because a
  * participant now does different tasks at different breakpoints.
  */
-function countedFor(sessions: Session[], taskId: string, breakpoint: Breakpoint): Counted[] {
-  const latest = new Map<string, Counted>();
+/** The one run that counts for each participant on each task, across every non-practice session (the newest session wins). */
+function indexCounted(sessions: Session[]): Map<string, Counted[]> {
+  const perTask = new Map<string, Map<string, Counted>>();
   for (const s of sessions) {
     if (s.practice) continue;
-    const key = s.participantId || s.id;
+    const key = normaliseCode(s.participantId) || s.id;
     for (const r of countedRuns(s)) {
-      if (r.taskId !== taskId) continue;
-      const have = latest.get(key);
-      if (!have || s.createdAt > have.session.createdAt) latest.set(key, { session: s, run: r });
+      let m = perTask.get(r.taskId);
+      if (!m) { m = new Map(); perTask.set(r.taskId, m); }
+      const have = m.get(key);
+      if (!have || recency(s) > recency(have.session)) m.set(key, { session: s, run: r });
     }
   }
-  return [...latest.values()].filter((c) => c.run.breakpoint === breakpoint);
+  return new Map([...perTask].map(([id, m]) => [id, [...m.values()]]));
 }
+
+const countedFor = (index: Map<string, Counted[]>, taskId: string, breakpoint: Breakpoint): Counted[] =>
+  (index.get(taskId) ?? []).filter((c) => c.run.breakpoint === breakpoint);
 
 /** One task at one breakpoint, across every non-practice session. Titles and risk come from the sessions' own task snapshots. */
 export function tallyTask(sessions: Session[], taskId: string, breakpoint: Breakpoint): TaskTally {
-  const rows = countedFor(sessions, taskId, breakpoint);
-  const newest = rows.slice().sort((a, b) => b.session.createdAt - a.session.createdAt)[0];
+  return tallyFrom(countedFor(indexCounted(sessions), taskId, breakpoint), taskId, breakpoint);
+}
+
+function tallyFrom(rows: Counted[], taskId: string, breakpoint: Breakpoint): TaskTally {
+  const newest = rows.slice().sort((a, b) => recency(b.session) - recency(a.session))[0];
   const task = newest?.session.content.tasks.find((x) => x.id === taskId);
   const t: TaskTally = {
     taskId, title: task?.title ?? taskId, breakpoint, highRisk: task?.highRisk ?? false, n: 0, contentVersions: [], meanPosition: null,
@@ -144,17 +152,20 @@ export function tallyTask(sessions: Session[], taskId: string, breakpoint: Break
  * Order follows the newest session's task list, then any older tasks.
  */
 export function ledger(sessions: Session[]): TaskTally[] {
-  const byNewest = sessions.slice().sort((a, b) => b.createdAt - a.createdAt);
+  const byNewest = sessions.slice().sort((a, b) => recency(b) - recency(a));
+  const seen = new Set<string>();
   const ids: string[] = [];
-  for (const s of byNewest) for (const t of s.content.tasks) if (!ids.includes(t.id)) ids.push(t.id);
+  for (const s of byNewest) for (const t of s.content.tasks) if (!seen.has(t.id)) { seen.add(t.id); ids.push(t.id); }
+  const index = indexCounted(sessions);   // built once, so a big file cannot make this slow
   const out: TaskTally[] = [];
   for (const id of ids) for (const bp of BREAKPOINT_IDS) {
-    const t = tallyTask(sessions, id, bp);
-    if (t.n > 0) out.push(t);
+    const rows = countedFor(index, id, bp);
+    if (rows.length === 0) continue;
+    out.push(tallyFrom(rows, id, bp));
   }
   return out;
 }
 
 /** Distinct participants with at least one counted run. */
 export const countedSessions = (sessions: Session[]): number =>
-  new Set(sessions.filter((s) => !s.practice && countedRuns(s).length > 0).map((s) => s.participantId || s.id)).size;
+  new Set(sessions.filter((s) => !s.practice && countedRuns(s).length > 0).map((s) => normaliseCode(s.participantId) || s.id)).size;

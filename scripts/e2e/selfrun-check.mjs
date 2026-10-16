@@ -13,6 +13,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const file = pathToFileURL(process.env.WC_FILE ?? path.join(root, "dist-single", "wayfinding-check-participant.html")).href;
 // Set WC_SEND_TO to the address the file was built with; leave it unset to check the file built without one.
 const SEND_TO = process.env.WC_SEND_TO ?? "";
+const CONTROLLER = process.env.WC_CONTROLLER ?? "";
+const RETENTION = process.env.WC_RETENTION ?? "";
 const downloads = fs.mkdtempSync(path.join(os.tmpdir(), "wc-sr-"));
 
 const c = await launch({ width: 1500, height: 1000 });
@@ -40,28 +42,65 @@ try {
   await c.goto(file);
   await wait("Thanks for taking part", 20000);
   report(true, "the participant edition opens straight on a welcome and setup screen");
-  report(await c.ev("document.querySelectorAll('header button, header a, .m-tab').length === 0"), "the header carries only the brand: no tabs, no shortcuts button, no theme toggle");
+  const headerOnlyTheme = "document.querySelectorAll('header button').length === 1 && /mode/i.test(document.querySelector('header button').getAttribute('aria-label') ?? '') && document.querySelectorAll('header a, .m-tab').length === 0";
+  report(await c.ev(headerOnlyTheme), "the header carries the brand and one light/dark button: no tabs, no shortcuts button");
   report(!(await has("Ledger")) && !(await has("Content")) && !(await has("Preview")) && !(await has("moderator")), "no moderator wording or screens are anywhere on it");
   report(await has("12 short scenarios"), "it says how many scenarios there are");
   report(await c.ev(basics), "setup: one h1, every field has a visible label, every control is at least 40px tall");
 
+  // The light/dark button makes a choice that is remembered across a reload.
+  const themeAttr = () => c.ev("document.documentElement.getAttribute('data-theme')");
+  const t0 = await themeAttr();
+  await c.ev("document.querySelector('header button').click()"); await sleep(250);
+  const t1 = await themeAttr();
+  report(!!t0 && !!t1 && t0 !== t1, "the header button switches between light and dark", `${t0} then ${t1}`);
+  await c.send("Page.reload"); await sleep(900); await wait("Thanks for taking part", 20000);
+  report((await themeAttr()) === t1, "the participant's choice is remembered after a reload");
+  // Without the button, it also follows the host's explicit light or dark choice, else the computer's setting, live.
+  const bg = () => c.ev("getComputedStyle(document.body).backgroundColor");
+  const lum = (rgb) => { const m = rgb.match(/\d+/g).map(Number); return (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) / 255; };
+  await c.ev("document.documentElement.setAttribute('data-theme', 'dark')"); await sleep(250);
+  const dark = lum(await bg());
+  await c.ev("document.documentElement.setAttribute('data-theme', 'light')"); await sleep(250);
+  const light = lum(await bg());
+  report(dark < 0.3 && light > 0.7, "it follows the host's explicit dark or light choice as it changes", `dark ${dark.toFixed(2)}, light ${light.toFixed(2)}`);
+  await c.ev("document.documentElement.removeAttribute('data-theme')");
+  await c.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] }); await sleep(350);
+  const sysDark = lum(await bg());
+  await c.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] }); await sleep(350);
+  const sysLight = lum(await bg());
+  report(sysDark < 0.3 && sysLight > 0.7, "with no host choice it follows the computer's light or dark setting, live", `dark ${sysDark.toFixed(2)}, light ${sysLight.toFixed(2)}`);
   await clickText(c, "button[type=submit]", "Start", { startsWith: true });
   await sleep(200);
   report(await has("Enter the code you were given"), "starting without a code is refused with a plain message");
   await setField("#pid", "P 7"); await clickText(c, "button[type=submit]", "Start", { startsWith: true });
   report(await has("letters and numbers only"), "a code with a space is refused");
   await setField("#pid", "SR1");
+  report(await has("How your results are used") && (CONTROLLER ? await has(CONTROLLER) : await has("[organization not set]")) && (RETENTION ? await has(RETENTION) : await has("[retention not set]")), "setup shows a privacy notice naming who runs the study and how long results are kept", `${CONTROLLER} / ${RETENTION}`);
+  report((SEND_TO ? await has(SEND_TO) : await has("the researcher who gave you this tool")) && (await has("do not put your name")), "the notice says where to send or ask for deletion, and warns against names and health details");
+  report(await c.ev("document.querySelector('#adult')?.type === 'checkbox' && !document.querySelector('#adult').checked"), "there is an unticked age statement, I am 18 or over");
+  // On a short laptop screen the setup card is taller than the window: its top must still be reachable, and so must Start.
+  await c.resize(1100, 640);
+  const topOk = await c.ev("(()=>{const e=document.querySelector('.p-setup .p-eyebrow').getBoundingClientRect(); const h=document.querySelector('header').getBoundingClientRect(); return e.top >= h.bottom - 1})()");
+  await c.ev("document.querySelector('.p-setup button[type=submit]').scrollIntoView()"); await sleep(200);
+  const startOk = await c.ev("(()=>{const b=document.querySelector('.p-setup button[type=submit]').getBoundingClientRect(); return b.bottom <= innerHeight + 1 && b.top >= 0})()");
+  await c.ev("document.querySelector('.p-screen').scrollTop = 0; document.querySelector('.p-setup').scrollIntoView({block:'start'})");
+  report(topOk && startOk, "on a short screen the top of the setup card is visible and Start can be scrolled to", `top ${topOk}, start ${startOk}`);
+  await c.resize(1500, 1000);
   report(!(await c.ev("[...document.querySelectorAll('#grp option')].some((o) => /prefer not/i.test(o.textContent))")), "the membership question has no Prefer not to say answer");
   await clickText(c, "button[type=submit]", "Start", { startsWith: true });
   report(await has("choose one of the answers about membership"), "starting without answering the membership question is refused");
   await setField("#grp", "WC");
+  await clickText(c, "button[type=submit]", "Start", { startsWith: true });
+  report(await has("confirm that you are 18 or over"), "starting without the age statement is refused");
+  await c.ev("document.querySelector('#adult').click()");
   await clickText(c, "button[type=submit]", "Start", { startsWith: true });
 
   await c.waitPage("!!document.querySelector('.p-task-card')", 8000, "the first scenario");
   report(await has("You'll be viewing"), "starting goes straight to the first scenario, with the breakpoint label (no second welcome screen)");
   await c.waitPage("!!document.querySelector('.tour-tip')", 5000, "the onboarding tour");
   report(true, "the first scenario carries the two-step onboarding tour");
-  report(!(await c.ev("!!document.querySelector('header button')")), "no header options on the scenario screens either");
+  report(await c.ev(headerOnlyTheme), "the scenario screens have the same single light/dark button and nothing else");
   await clickText(c, ".tour-tip button", "Skip"); await sleep(200);
   await doScenario(3);
   await wait("Ready for the next scenario?");
@@ -90,7 +129,7 @@ try {
   report(await has("You finished 2 scenarios"), "it says how many scenarios were finished");
   report(await c.ev(basics), "results page: one h1, every field has a visible label, every control is at least 40px tall");
   report(SEND_TO ? await has(SEND_TO) : await has("Send it to the researcher who gave you this tool"), "it tells the participant where to send the file", SEND_TO || "no address built in");
-  report(await c.ev("document.querySelectorAll('header button').length === 0"), "the results page has no header options either");
+  report(await c.ev(headerOnlyTheme), "the results page has the same single light/dark button and nothing else");
 
   await setField("#fin-notes", "The Learn menu was not what I expected.");
   await clickText(c, "button", "Save my results", { startsWith: true });

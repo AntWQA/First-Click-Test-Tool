@@ -48,9 +48,19 @@ const protoDoc = p.html
 
 // ---- shell document, with the prototype embedded as a string the shell hands to the sandboxed iframe
 const s = parts(path.join(root, shellOut));
-const sendTo = (process.env.WC_SEND_TO ?? "").trim();
-if (sendTo && !/^[^\s<>"']+@[^\s<>"']+$/.test(sendTo)) fail(`WC_SEND_TO is not an email address: ${sendTo}`);
-const sendToScript = edition === "participant" ? `<script>window.__WC_SEND_TO__=${JSON.stringify(sendTo)};</script>` : "";
+// The participant edition tells people who is running the study, how long results are kept and where to send the file.
+// A public file must carry all three: the build refuses without them unless WC_ALLOW_MISSING=1 (local testing only).
+const clean = (v) => (v ?? "").trim();
+const BAD_CHARS = /[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff<>"`]/;
+const sendTo = clean(process.env.WC_SEND_TO), controller = clean(process.env.WC_CONTROLLER), retention = clean(process.env.WC_RETENTION);
+if (sendTo && (sendTo.length > 120 || BAD_CHARS.test(sendTo) || !/^[^\s@']+@[^\s@']+\.[^\s@']+$/.test(sendTo))) fail(`WC_SEND_TO is not a plain email address: ${sendTo}`);
+for (const [name, v] of [["WC_CONTROLLER", controller], ["WC_RETENTION", retention]]) if (v && (v.length > 160 || BAD_CHARS.test(v))) fail(`${name} must be plain text of at most 160 characters`);
+if (edition === "participant" && process.env.WC_ALLOW_MISSING !== "1") {
+  const missing = [["WC_SEND_TO", sendTo], ["WC_CONTROLLER", controller], ["WC_RETENTION", retention]].filter(([, v]) => !v).map(([n]) => n);
+  if (missing.length) fail(`the participant edition needs ${missing.join(", ")} (for example WC_SEND_TO=research@example.com WC_CONTROLLER="Example Ltd" WC_RETENTION="12 months"); set WC_ALLOW_MISSING=1 only for local testing`);
+}
+const inject = JSON.stringify({ sendTo, controller, retention }).replace(/</g, "\\u003c");
+const sendToScript = edition === "participant" ? `<script>window.__WC_SEND_TO__=${JSON.stringify(sendTo)};window.__WC_NOTICE__=${inject};</script>` : "";
 const embedded = JSON.stringify(protoDoc).replace(/<\/script/gi, "<\\/script").replace(/<!--/g, "<\\!--").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 // A Content-Security-Policy makes "no network at runtime" something the browser enforces, not just something checked in the
 // markup: nothing may load or connect except inline code and data URIs. The prototype frame (about:srcdoc) inherits it.

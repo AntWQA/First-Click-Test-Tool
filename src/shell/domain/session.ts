@@ -63,6 +63,22 @@ export interface Run {
   moderator: RunModerator;
 }
 
+/** Where an imported session came from, recorded by the tool at import time. A file can never supply it for itself. */
+export interface Provenance { file: string; sha256: string; size: number; at: number }
+
+/**
+ * A participant code compared as a person would read it: Unicode-normalised, with invisible and direction-control
+ * characters removed, and case ignored. P3, p3 and "P3" followed by a zero-width space are the same person.
+ */
+export const normaliseCode = (id: string): string =>
+  id.normalize("NFKC").replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/g, "").trim().toLowerCase();
+
+/**
+ * When a session counts as "newest". A participant's own file says when it was made, which anyone can forge, so for those
+ * the time the researcher imported it decides. Sessions run in this tool keep the time they were created.
+ */
+export const recency = (s: Session): number => (s.selfRun ? (s.imported?.at ?? s.createdAt) : s.createdAt);
+
 export interface Session {
   schemaVersion: 1;
   id: string;
@@ -73,6 +89,8 @@ export interface Session {
   practice: boolean;
   /** Set up and run by the participant alone (the participant edition), with no moderator present. */
   selfRun: boolean;
+  /** Present on sessions imported from a participant file: which file, its hash, and when it was imported. */
+  imported?: Provenance;
   /** The breakpoint for each task in this session, counterbalanced across participants. Fixed with the order when the session starts. */
   plan: Record<string, Breakpoint>;
   /** Breakpoints the moderator chose by hand at setup; they win over the rotation where the task allows them. */
@@ -158,7 +176,7 @@ export const currentTaskId = (s: Session): string | undefined => s.order[s.curso
 
 const IN_FLIGHT: RunStatus[] = ["presented", "active"];
 
-function emptyModerator(): RunModerator {
+export function emptyModerator(): RunModerator {
   return { menu: null, observed: "", interpretation: "", expected: "", secondChance: "", overrideReason: "", reviewed: false };
 }
 

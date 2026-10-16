@@ -13,7 +13,7 @@ export const CODE_LABELS: Record<number, string> = {
   6: "No destination reached",
 };
 
-export const sectionLabel = (id: string | null | undefined): string => (id ? (SECTION_LABELS[id] ?? (id === "footer" ? "Footer" : id)) : "none");
+export const sectionLabel = (id: string | null | undefined): string => (id ? (Object.hasOwn(SECTION_LABELS, id) ? SECTION_LABELS[id]! : id === "footer" ? "Footer" : id) : "none");
 
 export const seconds = (ms: number | null | undefined): string => (ms === null || ms === undefined ? "n/a" : (ms / 1000).toFixed(1) + " s");
 

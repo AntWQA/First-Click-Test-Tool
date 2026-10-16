@@ -12,7 +12,7 @@ export type ContentResult = { ok: true; content: Content } | { ok: false; errors
 function targets(raw: unknown, where: string, errors: string[], checkLinks: boolean): TargetSpec[] {
   if (!Array.isArray(raw)) { errors.push(`${where} must be a list`); return []; }
   const out: TargetSpec[] = [];
-  raw.forEach((t, i) => {
+  raw.slice(0, 20).forEach((t, i) => {
     if (!isRecord(t) || typeof t.href !== "string" || t.href === "") { errors.push(`${where}[${i}] needs an href`); return; }
     if (checkLinks && !hrefExists(t.href)) errors.push(`${where}[${i}] href "${t.href}" is not a link in the navigation or footer`);
     const note = typeof t.note === "string" ? t.note.slice(0, 200) : undefined;
@@ -39,6 +39,7 @@ export function validateContent(raw: unknown, options: { checkLinks?: boolean } 
   if (raw.schemaVersion !== 1) errors.push("schemaVersion must be 1");
   if (typeof raw.version !== "number" || !Number.isInteger(raw.version) || raw.version < 1) errors.push("version must be a whole number, 1 or more");
   if (!Array.isArray(raw.tasks) || raw.tasks.length === 0) errors.push("tasks must be a non-empty list");
+  else if (raw.tasks.length > 60) errors.push("there can be at most 60 tasks");
   const tasks: Task[] = [];
   const seen = new Set<string>();
   (Array.isArray(raw.tasks) ? raw.tasks : []).forEach((t, i) => {

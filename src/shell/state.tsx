@@ -5,7 +5,9 @@ import type { SaveResult } from "./domain/storage.ts";
 import { createSession, IllegalTransition, reduce } from "./domain/session.ts";
 import type { Action, NewSessionParams, RunModerator, Session } from "./domain/session.ts";
 import type { Content } from "./domain/tasks.ts";
-import { mergeSessions } from "./domain/exports.ts";
+import { applyReview } from "./domain/importReview.ts";
+import type { ReviewItem } from "./domain/importReview.ts";
+import type { Provenance } from "./domain/session.ts";
 
 export type SaveProblem = null | "quota" | "verify" | "unavailable";
 
@@ -30,7 +32,8 @@ export interface AppApi {
   openSession: (id: string) => void;
   closeSession: () => void;
   deleteSession: (id: string) => void;
-  importSessions: (list: Session[]) => { added: number; updated: number; kept: number };
+  /** Adds the reviewed sessions the researcher chose to import, all or none. */
+  applyImport: (items: ReviewItem[], source: Omit<Provenance, "at">) => { imported: number; skipped: number; error: string | null };
 }
 
 const Ctx = createContext<AppApi | null>(null);
@@ -41,6 +44,9 @@ export const useApp = (): AppApi => {
 };
 
 export const makeId = (prefix: string) => `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+/** Stay well inside the roughly 5 MB a browser allows for one site. */
+const STORAGE_BUDGET = 3_500_000;
 
 /** High-frequency actions (recorded events, and typing in the review, setup and debrief fields) are saved on a short delay; every step change straight away, which also flushes any pending save. */
 const DEBOUNCED: Action["type"][] = ["event", "scale", "reviewRun", "setup", "debrief"];
@@ -147,12 +153,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setSessions(sessionsRef.current);
       if (activeRef.current === id) { activeRef.current = null; setActiveId(null); }
     },
-    importSessions: (list) => {
-      const { merged, added, updated, kept } = mergeSessions(sessionsRef.current, list);
-      for (const s of merged) if (list.some((l) => l.id === s.id)) record(store.saveSession(s));
-      sessionsRef.current = merged;
-      setSessions(merged);
-      return { added, updated, kept };
+    applyImport: (items, source) => {
+      const before = sessionsRef.current;
+      const chosen = items.filter((i) => i.action === "import").map((i) => i.session.id);
+      const skipped = items.length - chosen.length;
+      if (chosen.length === 0) return { imported: 0, skipped, error: null };
+      const next = applyReview(before, items, source, Date.now());
+      // Browser storage is small (about 5 MB). Refuse an import that would crowd out everything else rather than half-save it.
+      const bytes = next.reduce((n, s) => n + JSON.stringify(s).length, 0);
+      if (bytes > STORAGE_BUDGET) return { imported: 0, skipped: items.length, error: `Importing these would take this browser's storage to about ${(bytes / 1048576).toFixed(1)} MB, which is too much. Delete sessions you no longer need, or import fewer at once. Nothing was changed.` };
+      const done: string[] = [];
+      for (const id of chosen) {
+        const r = store.saveSession(next.find((s) => s.id === id)!);
+        if (!r.ok) {
+          // All or nothing: put back what was there before.
+          for (const d of done) { const old = before.find((s) => s.id === d); if (old) store.saveSession(old); else store.removeSession(d); }
+          record(r);
+          return { imported: 0, skipped: items.length, error: "The browser could not save these sessions (its storage is full or blocked). Nothing was changed." };
+        }
+        done.push(id);
+      }
+      sessionsRef.current = next;
+      setSessions(next);
+      return { imported: chosen.length, skipped, error: null };
     },
   };
 

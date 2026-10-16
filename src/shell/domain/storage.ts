@@ -72,7 +72,7 @@ export function createStore(backing: Backing | null, now: () => number): Store {
       let skipped = 0;
       for (const key of b.keys().filter((k) => k.startsWith(SESSION))) {
         try {
-          const s = sanitiseSession(JSON.parse(b.getItem(key) ?? "null"));
+          const s = sanitiseSession(JSON.parse(b.getItem(key) ?? "null"), true);
           if (s) sessions.push(s); else skipped += 1;
         } catch { skipped += 1; }
       }

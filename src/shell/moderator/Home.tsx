@@ -3,6 +3,9 @@ import { useApp } from "../state.tsx";
 import { countedRuns, planCounts } from "../domain/session.ts";
 import type { Phase, Session } from "../domain/session.ts";
 import { parseImport, toJsonBundle } from "../domain/exports.ts";
+import { reviewImport } from "../domain/importReview.ts";
+import type { ReviewItem } from "../domain/importReview.ts";
+import { ImportReview } from "./ImportReview.tsx";
 import { clock, download, stamp } from "../format.ts";
 import { DownloadIcon } from "../brand.tsx";
 import { Confirm } from "./Confirm.tsx";
@@ -14,9 +17,10 @@ const breakpoints = (s: Session) => { const n = planCounts(s); return (["desktop
 const statusOf = (s: Session) => (s.status === "ended-early" ? "Ended early" : PHASE[s.phase]);
 
 export function Home() {
-  const { sessions, start, openSession, deleteSession, content, importSessions } = useApp();
+  const { sessions, start, openSession, deleteSession, content, applyImport } = useApp();
   const [del, setDel] = useState<Session | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [review, setReview] = useState<{ file: string; size: number; sha256: string | null; items: ReviewItem[]; unreadable: string[] } | null>(null);
   const file = useRef<HTMLInputElement>(null);
   const ordered = sessions.slice().sort((a, b) => b.updatedAt - a.updatedAt);
 
@@ -24,10 +28,14 @@ export function Home() {
     if (!f) return;
     try {
       if (f.size > MAX_IMPORT_BYTES) { setMsg(`That file is ${(f.size / 1048576).toFixed(0)} MB, which is too large for a session backup (limit ${MAX_IMPORT_BYTES / 1048576} MB).`); return; }
-      const r = parseImport(await f.text());
+      const bytes = await f.arrayBuffer();
+      const r = parseImport(new TextDecoder().decode(bytes));
       if (r.error) { setMsg(r.error); return; }
-      const { added, updated, kept } = importSessions(r.sessions);
-      setMsg(`Imported: ${added} new, ${updated} updated, ${kept} already up to date${r.rejected.length ? `, ${r.rejected.length} unreadable and skipped` : ""}.`);
+      if (r.sessions.length === 0) { setMsg(`Nothing in that file could be read${r.rejected.length ? ` (${[...new Set(r.rejected.map((x) => x.reason))].join("; ")})` : ""}.`); return; }
+      let sha256: string | null = null;
+      try { sha256 = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join(""); } catch { /* not available here */ }
+      setMsg(null);
+      setReview({ file: f.name.slice(0, 120), size: f.size, sha256, items: reviewImport(sessions, r.sessions, content), unreadable: r.rejected.map((x) => x.reason) });
     } finally {
       if (file.current) file.current.value = ""; // so choosing the same file again works
     }
@@ -48,7 +56,7 @@ export function Home() {
           <tbody>
             {ordered.map((s) => (
               <tr key={s.id}>
-                <td><strong>{s.participantId || "(no ID)"}</strong>{s.practice ? " (practice)" : ""}{s.selfRun ? " (self-run)" : ""}</td>
+                <td><strong>{s.participantId || "(no ID)"}</strong>{s.practice ? " (practice)" : ""}{s.selfRun ? " (self-run)" : ""}{s.imported ? <small className="m-note-quiet"> from {s.imported.file}</small> : null}</td>
                 <td>{breakpoints(s)}</td><td>{s.group || "n/a"}</td><td>{statusOf(s)}</td>
                 <td>{countedRuns(s).length} of {s.order.length}</td><td>{clock(s.updatedAt)}</td>
                 <td className="m-row-actions">
@@ -73,6 +81,11 @@ export function Home() {
       {del && <Confirm title={`Delete ${del.participantId || "this session"}?`} confirmLabel="Delete" danger onCancel={() => setDel(null)} onConfirm={() => { deleteSession(del.id); setDel(null); }}>
         This removes the session and its results from this browser. It cannot be undone, so download a backup first if you might need it.
       </Confirm>}
+      {review && <ImportReview {...review} onCancel={() => setReview(null)} onApply={(items) => {
+        const res = applyImport(items, { file: review.file, sha256: review.sha256 ?? "unavailable", size: review.size });
+        setReview(null);
+        setMsg(res.error ?? `Imported ${res.imported} session${res.imported === 1 ? "" : "s"}${res.skipped > 0 ? `, skipped ${res.skipped}` : ""}.`);
+      }} />}
     </main>
   );
 }

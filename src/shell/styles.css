@@ -213,6 +213,10 @@ details summary { cursor: pointer; font-weight: 600; font-size: 13px; color: var
 .m-dialog, .p-dialog, .shortcuts-panel { border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 24px; max-width: min(460px, 92vw); background: var(--paper-raised); color: var(--ink); }
 .m-dialog::backdrop, .p-dialog::backdrop, .shortcuts-panel::backdrop { background: rgba(30, 34, 38, 0.4); }
 .m-dialog h2, .p-dialog h2, .shortcuts-panel h2 { margin: 0 0 8px; font-size: 20px; font-weight: 700; }
+.m-import { max-width: min(860px, 94vw); }
+.m-hash { font-size: 11px; word-break: break-all; }
+.m-flags { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.m-flags .is-block { color: var(--warn-text); font-weight: 600; }
 .m-dialog-actions, .p-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .p-dialog label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px; }
 .shortcuts-list { list-style: none; margin: 0; padding: 0; }
@@ -226,7 +230,9 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 /* ---------- participant: same header, hand-off cards, the task alone, then a banner over the website ---------- */
 .p-root { height: 100%; display: flex; flex-direction: column; background: var(--paper); }
 .p-screen { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.p-center { align-items: center; justify-content: center; padding: 28px 20px 64px; overflow: auto; }
+/* Centred when it fits, scrolling from the top when it does not (plain centring would clip the top of a tall card where it cannot be scrolled to). */
+.p-center { align-items: center; justify-content: flex-start; padding: 28px 20px 64px; overflow: auto; }
+.p-center > .p-card { margin-block: auto; }
 .p-card { width: min(640px, 100%); background: var(--paper-raised); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 36px 32px; display: flex; flex-direction: column; gap: 16px; text-align: center; align-items: center; }
 .p-card h1 { color: var(--ink); line-height: 1.25; margin: 0; outline: none; font-size: 24px; font-weight: 700; text-wrap: balance; }
 .p-card p { margin: 0; color: var(--muted); max-width: 52ch; }
@@ -268,6 +274,11 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 /* A neutral panel with ink text (the card's default paragraph colour is the muted grey, which is too faint on a tint). */
 .p-note, .p-card .p-note { background: var(--paper); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
 .p-error:empty { display: none; }
+.p-notice { border: 1px solid var(--line-strong); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--paper); }
+.p-notice h2 { margin: 0; font-size: 15px; font-weight: 700; color: var(--ink); }
+.p-card .p-notice p { font-size: 13px; line-height: 1.45; color: var(--ink); }
+.p-check { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer; min-height: 40px; }
+.p-card .p-fine { font-size: 12px; color: var(--muted); }
 .p-card .p-send-note { border: 2px solid var(--accent); }
 .p-finish-steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
 .p-finish .p-offer-actions { justify-content: flex-start; }

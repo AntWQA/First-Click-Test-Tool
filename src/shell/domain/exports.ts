@@ -2,8 +2,8 @@ import { BREAKPOINTS, BREAKPOINT_IDS, parseProtoMessage } from "../../shared/pro
 import type { Breakpoint, CapturedEvent } from "../../shared/protocol.ts";
 import { validateContent } from "./content.ts";
 import type { Content } from "./tasks.ts";
-import { effective, MAX_EVENTS_PER_RUN } from "./session.ts";
-import type { Group, Phase, Run, RunModerator, RunStatus, Session } from "./session.ts";
+import { effective, emptyModerator, MAX_EVENTS_PER_RUN } from "./session.ts";
+import type { Group, Phase, Provenance, Run, RunModerator, RunStatus, Session } from "./session.ts";
 import { ledger } from "./ledger.ts";
 import { applyOverrides, buildPlan } from "./order.ts";
 
@@ -67,6 +67,12 @@ const GROUPS: Group[] = ["", "non-member", "WA", "WC"];
 const TIERS: Tier[] = ["P", "A", "X", "R", "S"];
 const ENDS: EndReason[] = ["destination", "found", "gave-up"];
 const ID = /^[A-Za-z0-9_.-]{1,80}$/;
+/** The only codes the participant edition can produce; a participant file carrying anything else is refused. */
+const CODE = /^[A-Za-z0-9_.-]{1,40}$/;
+/** A participant file holds one session. A backup of a whole study can hold more, but never an unbounded number. */
+export const MAX_SESSIONS_PER_FILE = 100;
+const DAY = 86_400_000;
+const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
 
 function sanitiseModerator(raw: unknown): RunModerator {
   const m = isRecord(raw) ? raw : {};
@@ -87,27 +93,40 @@ function sanitiseRun(raw: unknown, content: Content, fallback: Breakpoint, index
   if (!task) return null;
   const status = raw.status === "rated" ? "completed" : RUN_STATUSES.find((x) => x === raw.status);
   const attempt = finite(raw.attempt);
-  const presentedAt = finite(raw.presentedAt);
+  // Times are epoch milliseconds: anything before 1970 or more than two days ahead is not a real time.
+  const when = (v: unknown): number | null => { const n = finite(v); return n !== null && n >= 0 && n <= Date.now() + 2 * DAY ? n : null; };
+  const span = (v: unknown): number | null => { const n = finite(v); return n === null ? null : clamp(n, 0, DAY); };
+  const presentedAt = when(raw.presentedAt);
   if (!status || attempt === null || presentedAt === null) return null;
   const events: CapturedEvent[] = [];
   if (Array.isArray(raw.events)) for (const e of raw.events.slice(0, MAX_EVENTS_PER_RUN)) { const ev = parseProtoMessage(e); if (ev) events.push(ev); }
   const end = ENDS.find((x) => x === raw.end) ?? null;
   const ease = finite(raw.ease);
   const run: Run = {
-    runId: raw.runId, taskId: task.id, attempt: Math.max(1, Math.floor(attempt)),
+    runId: raw.runId, taskId: task.id, attempt: clamp(Math.floor(attempt), 1, 100),
     retakeOf: typeof raw.retakeOf === "string" && ID.test(raw.retakeOf) ? raw.retakeOf : null, status,
-    breakpoint: BREAKPOINT_IDS.find((b) => b === raw.breakpoint) ?? fallback, position: Math.max(0, Math.floor(finite(raw.position) ?? index)),
-    scale: finite(raw.scale) ?? 1, presentedAt, beginAt: finite(raw.beginAt), endAt: finite(raw.endAt), readingMs: finite(raw.readingMs), durationMs: finite(raw.durationMs),
+    breakpoint: BREAKPOINT_IDS.find((b) => b === raw.breakpoint) ?? fallback, position: clamp(Math.floor(finite(raw.position) ?? index), 0, 1000),
+    scale: clamp(finite(raw.scale) ?? 1, 0.1, 1), presentedAt, beginAt: when(raw.beginAt), endAt: when(raw.endAt), readingMs: span(raw.readingMs), durationMs: span(raw.durationMs),
     end, events, windowResized: raw.windowResized === true, ease: ease !== null && Number.isInteger(ease) && ease >= 1 && ease <= 7 ? ease : null,
     participantNotes: text(raw.participantNotes, 2000), suggestion: null, moderator: sanitiseModerator(raw.moderator),
   };
+  // A completed run was begun, ended and rated; one that claims to be completed without those cannot have happened in the tool.
+  if (run.status === "completed" && (run.end === null || run.beginAt === null || run.endAt === null || run.ease === null)) return null;
   // Never trust an imported suggestion: it is recomputed from the raw events against the session's own task snapshot.
   if (end) run.suggestion = suggest(task, events, end);
   return run;
 }
 
+/** Provenance is recorded by this tool when it imports a file; it is read back from storage but never from a file. */
+function provenanceOf(v: unknown): { imported?: Provenance } {
+  if (!isRecord(v)) return {};
+  const at = finite(v.at), size = finite(v.size);
+  if (at === null || size === null || typeof v.file !== "string" || typeof v.sha256 !== "string") return {};
+  return { imported: { file: v.file.slice(0, 200), sha256: v.sha256.slice(0, 64), size, at } };
+}
+
 /** Rebuilds a session from untrusted JSON (import, local storage), keeping only known fields, or null if it is unusable. */
-export function sanitiseSession(raw: unknown): Session | null {
+export function sanitiseSession(raw: unknown, trusted = false): Session | null {
   if (!isRecord(raw) || raw.schemaVersion !== 1 || typeof raw.id !== "string" || !ID.test(raw.id)) return null;
   // The snapshot is read structurally only: it must stay readable after a later build changes the navigation data.
   const c = validateContent(raw.content, { checkLinks: false });
@@ -121,7 +140,7 @@ export function sanitiseSession(raw: unknown): Session | null {
   // A timestamp far in the future would always win a merge, so clamp to a day ahead.
   const ceiling = Date.now() + 86_400_000;
   const known = new Set(c.content.tasks.map((t) => t.id));
-  const order = raw.order.filter((id): id is string => typeof id === "string" && known.has(id));
+  const order = raw.order.slice(0, 100).filter((id): id is string => typeof id === "string" && known.has(id));
   const cursor = finite(raw.cursor);
   const runs: Run[] = [];
   const bpMap = (v: unknown): Record<string, Breakpoint> => {
@@ -133,7 +152,19 @@ export function sanitiseSession(raw: unknown): Session | null {
   const participantId = text(raw.participantId, 40);
   let plan = bpMap(raw.plan);
   if (Object.keys(plan).length === 0) plan = legacy ? Object.fromEntries(order.map((id) => [id, legacy])) : applyOverrides(buildPlan(c.content, order, participantId), overrides, c.content);
-  for (const [i, r] of raw.runs.slice(0, 200).entries()) { const run = sanitiseRun(r, c.content, legacy ?? "desktop", i); if (run) runs.push(run); }
+  // A participant file is untrusted: its code must be one the participant edition can produce, and nothing the moderator
+  // would have written (tier, code, findings, reviewed) is believed, because a participant has none.
+  const selfRun = raw.selfRun === true;
+  const fromFile = selfRun && !trusted;
+  if (fromFile && !CODE.test(typeof raw.participantId === "string" ? raw.participantId : "")) return null;   // the code as sent, not a truncated copy
+  const seenRuns = new Set<string>();
+  for (const [i, r] of raw.runs.slice(0, 200).entries()) {
+    const run = sanitiseRun(r, c.content, legacy ?? "desktop", i);
+    if (!run || seenRuns.has(run.runId)) continue;   // a repeated run id would send findings to the wrong run
+    seenRuns.add(run.runId);
+    if (fromFile) run.moderator = emptyModerator();
+    runs.push(run);
+  }
   // A phase that is about a run in progress needs that run, or the screens for it cannot draw.
   if ((phase === "task" || phase === "rating" || phase === "offer" || phase === "handBack") && runs.length === 0) return null;
   let at = cursor !== null ? Math.min(Math.max(0, Math.floor(cursor)), order.length) : 0;
@@ -144,7 +175,8 @@ export function sanitiseSession(raw: unknown): Session | null {
   else if (legacyReview) phase = at >= order.length ? "debrief" : "intro";
   return {
     schemaVersion: 1, id: raw.id, createdAt: Math.min(createdAt, ceiling), updatedAt: Math.min(updatedAt, ceiling), participantId, group: GROUPS.find((g) => g === raw.group) ?? "",
-    practice: raw.practice === true, selfRun: raw.selfRun === true, plan, planOverrides: overrides,
+    practice: fromFile ? false : raw.practice === true, selfRun, plan, planOverrides: overrides,
+    ...(trusted ? provenanceOf(raw.imported) : {}),
     content: c.content, order, cursor: at, phase: phase!,
     status: raw.status === "ended" || raw.status === "ended-early" ? raw.status : "active", runs,
     retakeOf: typeof raw.retakeOf === "string" && ID.test(raw.retakeOf) ? raw.retakeOf : null,
@@ -164,11 +196,15 @@ export function parseImport(textInput: string): ImportResult {
   if (!isRecord(data) || data.exportVersion !== 1 || data.app !== "wayfinding-check" || !Array.isArray(data.sessions)) {
     return { sessions: [], rejected: [], error: "That file is not a Wayfinding Check export." };
   }
+  if (data.sessions.length > MAX_SESSIONS_PER_FILE) {
+    return { sessions: [], rejected: [], error: `That file holds ${data.sessions.length} sessions. A participant's file holds one, and no file may hold more than ${MAX_SESSIONS_PER_FILE}.` };
+  }
   const sessions: Session[] = [];
   const rejected: { index: number; reason: string }[] = [];
   data.sessions.forEach((raw, index) => {
     const s = sanitiseSession(raw);
-    if (s) sessions.push(s); else rejected.push({ index, reason: "unreadable or unsupported session" });
+    if (s) sessions.push(s);
+    else rejected.push({ index, reason: isRecord(raw) && raw.selfRun === true && !CODE.test(typeof raw.participantId === "string" ? raw.participantId : "") ? "its participant code has characters a participant could not have typed" : "unreadable or unsupported session" });
   });
   return { sessions, rejected, error: null };
 }
@@ -191,8 +227,12 @@ const pct = (r: { hits: number; den: number }) => (r.den === 0 ? "n/a" : `${r.hi
 const secs = (ms: number | null) => (ms === null ? "n/a" : (ms / 1000).toFixed(1) + " s");
 const split = (m: Record<string, number>) => Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${cell(k)} ${v}`).join(", ") || "none";
 
-/** A pipe or newline in a title or column name would break a Markdown table row. */
-const cell = (v: string) => v.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+/**
+ * Text from a file goes into a Markdown table cell. Every character that could start a link, image, HTML tag, code span or
+ * emphasis is escaped, and every kind of line break (including U+2028, U+2029 and U+0085) becomes a space, so it cannot
+ * break the row or inject anything into a viewer.
+ */
+const cell = (v: string) => v.replace(/[\r\n\u0085\u2028\u2029]+/g, " ").replace(/[\\`*_{}[\]()<>#+!|~&]/g, (m) => "\\" + m);
 
 export function ledgerMarkdown(sessions: Session[], exportedAt: string): string {
   const rows = ledger(sessions);
