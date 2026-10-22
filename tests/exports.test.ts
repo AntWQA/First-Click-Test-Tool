@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_CONTENT } from "../src/shell/domain/tasks.ts";
+import { NAVIGATION_CONTENT } from "../src/shell/domain/tasks.ts";
 import { createSession, reduce } from "../src/shell/domain/session.ts";
 import type { Session } from "../src/shell/domain/session.ts";
 import { CSV_COLUMNS, csvEscape, ledgerMarkdown, mergeSessions, parseImport, runsToCsv, sanitiseSession, toJsonBundle } from "../src/shell/domain/exports.ts";
@@ -9,7 +9,7 @@ import { leaf, open, ready } from "./helpers.ts";
 const T0 = 1_700_000_000_000;
 
 function finished(id: string, notes = "plain note"): Session {
-  let s = createSession({ id, now: T0, participantId: "P1", content: DEFAULT_CONTENT });
+  let s = createSession({ id, now: T0, participantId: "P1", content: NAVIGATION_CONTENT });
   s = { ...s, order: ["T1"], plan: { T1: "desktop" } };
   s = reduce(s, { type: "start", at: T0 });
   s = reduce(s, { type: "present", at: T0, runId: "run_" + id });
@@ -61,7 +61,7 @@ test("the CSV has one well formed row per run with a column for every header", (
 
 test("JSON export imports back to the same sessions (suggestions are recomputed, not trusted)", () => {
   const original = [finished("a"), finished("b")];
-  const result = parseImport(toJsonBundle(original, DEFAULT_CONTENT, "2026-10-14T12:00:00Z"));
+  const result = parseImport(toJsonBundle(original, NAVIGATION_CONTENT, "2026-10-14T12:00:00Z"));
   assert.equal(result.error, null);
   assert.deepEqual(result.rejected, []);
   // Compared as data, not as text: the import rebuilds objects with keys in its own order.
@@ -69,7 +69,7 @@ test("JSON export imports back to the same sessions (suggestions are recomputed,
 });
 
 test("an imported suggestion is ignored: a tampered tier is recomputed from the raw events", () => {
-  const bundle = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x"));
+  const bundle = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x"));
   bundle.sessions[0].runs[0].suggestion.tier = "P";
   bundle.sessions[0].runs[0].events = [{ type: "ready", at: 0, w: 1, h: 1 }];
   const s = parseImport(JSON.stringify(bundle)).sessions[0]!;
@@ -80,7 +80,7 @@ test("hostile or broken imports are rejected cleanly", () => {
   assert.match(parseImport("not json").error ?? "", /not valid JSON/);
   assert.match(parseImport('{"exportVersion":2}').error ?? "", /not a Wayfinding Check export/);
   assert.match(parseImport("[1,2,3]").error ?? "", /not a Wayfinding Check export/);
-  const bundle = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x"));
+  const bundle = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x"));
   bundle.sessions.push({ schemaVersion: 1, id: "../../evil", phase: "setup" }, "junk", null);
   const r = parseImport(JSON.stringify(bundle));
   assert.equal(r.sessions.length, 1);
@@ -88,7 +88,7 @@ test("hostile or broken imports are rejected cleanly", () => {
 });
 
 test("unknown fields, prototype pollution keys and oversize text are dropped or capped", () => {
-  const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const raw = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   raw.__proto__ = { polluted: true };
   raw.extra = "<script>alert(1)</script>";
   raw.runs[0].participantNotes = "x".repeat(50_000);
@@ -103,7 +103,7 @@ test("unknown fields, prototype pollution keys and oversize text are dropped or 
 });
 
 test("a session whose task snapshot is invalid is rejected, and runs for unknown tasks are dropped", () => {
-  const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const raw = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   // Structurally invalid (no primary target) is rejected. An unknown link is not: see the test that a snapshot stays readable after a rebuild.
   const bad = structuredClone(raw); bad.content.tasks[0].primary = [];
   assert.equal(sanitiseSession(bad), null);
@@ -139,7 +139,7 @@ test("Markdown cells escape pipes so a task title cannot break a table row", () 
 });
 
 test("a hostile future timestamp is clamped so it cannot win every merge", () => {
-  const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const raw = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   raw.updatedAt = 1e15; raw.createdAt = 1e15;
   const s = sanitiseSession(raw)!;
   assert.ok(s.updatedAt <= Date.now() + 86_400_001);
@@ -147,31 +147,31 @@ test("a hostile future timestamp is clamped so it cannot win every merge", () =>
 
 test("a session in a run phase with no runs is rejected rather than crashing a screen later", () => {
   for (const phase of ["task", "rating", "handBack"]) {
-    const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+    const raw = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
     raw.runs = []; raw.phase = phase;
     assert.equal(sanitiseSession(raw), null, phase);
   }
-  const ok = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const ok = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   ok.runs = []; ok.phase = "setup";
   assert.ok(sanitiseSession(ok));
 });
 
 test("a session saved while the moderator step between tasks still existed imports with that task counted and the session moved on", () => {
   for (const phase of ["handBack", "review"]) {
-    const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+    const raw = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
     raw.phase = phase; raw.cursor = 0; raw.runs[0].status = "rated"; raw.runs[0].moderator.reviewed = false;
     const s = sanitiseSession(raw)!;
     assert.equal(s.runs[0]!.status, "completed", phase);
     assert.equal(s.cursor, 1, phase);
     assert.equal(s.phase, "debrief", phase);
   }
-  const mid = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const mid = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   mid.order = ["T1", "T3"]; mid.plan = { T1: "desktop", T3: "desktop" }; mid.phase = "review"; mid.cursor = 0; mid.runs[0].status = "rated";
   const s = sanitiseSession(mid)!;
   assert.equal(s.phase, "intro");
   assert.equal(s.cursor, 1);
   // The new hand-back (all tasks done, run already completed) is left alone.
-  const fresh = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const fresh = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   fresh.phase = "handBack"; fresh.cursor = 1;
   const f = sanitiseSession(fresh)!;
   assert.equal(f.phase, "handBack");
@@ -179,13 +179,13 @@ test("a session saved while the moderator step between tasks still existed impor
 });
 
 test("a saved session stays readable after the navigation data changes: its snapshot is checked structurally only", () => {
-  const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const raw = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   raw.content.tasks[0].primary = [{ href: "/a/link/removed/in/a/later/build" }];
   assert.ok(sanitiseSession(raw), "an old session must not be orphaned by a rebuild");
 });
 
 test("a session saved before breakpoints became per task still imports: its one breakpoint becomes the plan for every task", () => {
-  const raw = JSON.parse(toJsonBundle([finished("old")], DEFAULT_CONTENT, "x")).sessions[0];
+  const raw = JSON.parse(toJsonBundle([finished("old")], NAVIGATION_CONTENT, "x")).sessions[0];
   delete raw.plan; delete raw.planOverrides; 
   raw.breakpoint = "mobile";
   for (const r of raw.runs) { delete r.breakpoint; delete r.position; }
@@ -206,7 +206,7 @@ test("the CSV records each run's own breakpoint and its place in the session", (
 });
 
 test("the self-run flag survives export and import, and appears in the CSV, so a moderator can tell the sessions apart", () => {
-  const raw = JSON.parse(toJsonBundle([finished("a")], DEFAULT_CONTENT, "x")).sessions[0];
+  const raw = JSON.parse(toJsonBundle([finished("a")], NAVIGATION_CONTENT, "x")).sessions[0];
   assert.equal(sanitiseSession(raw)!.selfRun, false);
   raw.selfRun = true;
   assert.equal(sanitiseSession(raw)!.selfRun, true);

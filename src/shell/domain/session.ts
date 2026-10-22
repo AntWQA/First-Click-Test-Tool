@@ -1,6 +1,6 @@
 import type { Breakpoint, CapturedEvent } from "../../shared/protocol.ts";
-import type { Content } from "./tasks.ts";
-import { applyOverrides, buildPlan, sessionOrder } from "./order.ts";
+import type { Arrival, Content, Task } from "./tasks.ts";
+import { applyOverrides, arrivalFor, buildPlan, deviceFor, runsOn, sessionOrder } from "./order.ts";
 import { suggest } from "./scoring.ts";
 import type { EndReason, Suggestion, Tier, WrongClickCode } from "./scoring.ts";
 
@@ -31,6 +31,11 @@ export interface RunModerator {
   expected: string;
   secondChance: string;
   overrideReason: string;
+  /** The coded answers the task asks for (task.codes), by code id: the chosen option. A code left out has not been coded. */
+  codes: Record<string, string>;
+  /** Where the first doubt moment happened (a zone of the page) and what was said. Empty when there was none. */
+  doubtZone: string;
+  doubt: string;
   /** True once the moderator has added or changed anything for this run. */
   reviewed: boolean;
 }
@@ -58,6 +63,8 @@ export interface Run {
   events: CapturedEvent[];
   windowResized: boolean;
   ease: number | null;
+  /** The 1 to 7 confidence rating, for tasks that ask one (task.confidence). */
+  confidence: number | null;
   participantNotes: string;
   suggestion: Suggestion | null;
   moderator: RunModerator;
@@ -95,6 +102,11 @@ export interface Session {
   plan: Record<string, Breakpoint>;
   /** Breakpoints the moderator chose by hand at setup; they win over the rotation where the task allows them. */
   planOverrides: Record<string, Breakpoint>;
+  /** Combined test: the one device for the whole session when the moderator overrides the participant-number rule. */
+  deviceOverride?: Breakpoint;
+  /** Combined test: how this participant reaches the product page (from the participant number, group and any override). */
+  arrival: Arrival;
+  arrivalOverride?: Arrival;
   /** The task definitions this session ran against. A later content edit never rescores it. */
   content: Content;
   /** Fixed at creation, so changing the ordering algorithm later cannot alter an existing session. */
@@ -122,24 +134,33 @@ export interface NewSessionParams {
   content: Content;
 }
 
-/** Recomputes the order and the per-task breakpoints from the setup fields. */
+/** The one device a combined-test participant uses: the moderator's choice, else the participant-number rule. Undefined when devices rotate per task. */
+export const sessionDevice = (s: Pick<Session, "content" | "participantId" | "deviceOverride">): Breakpoint | undefined =>
+  s.deviceOverride ?? deviceFor(s.content, s.participantId);
+
+/** The scenario's first line for the route this participant arrived by (tasks with leadIns), or "". */
+export const leadInFor = (task: Task, s: Pick<Session, "arrival">): string => task.leadIns?.[s.arrival] ?? "";
+
+/** Recomputes the order, the per-task breakpoints and the arrival route from the setup fields. */
 function arrange(s: Session): void {
-  s.order = sessionOrder(s.content, s.participantId);
-  s.plan = applyOverrides(buildPlan(s.content, s.order, s.participantId), s.planOverrides, s.content);
+  const device = sessionDevice(s);
+  s.order = sessionOrder(s.content, s.participantId, undefined, device);
+  s.plan = applyOverrides(buildPlan(s.content, s.order, s.participantId, device), s.planOverrides, s.content);
+  s.arrival = s.arrivalOverride ?? arrivalFor(s.participantId, s.group);
 }
 
 export function createSession(p: NewSessionParams): Session {
   const s: Session = {
     schemaVersion: 1, id: p.id, createdAt: p.now, updatedAt: p.now,
     participantId: p.participantId.trim(), group: p.group ?? "", practice: p.practice ?? false, selfRun: p.selfRun ?? false,
-    plan: {}, planOverrides: p.planOverrides ?? {},
+    plan: {}, planOverrides: p.planOverrides ?? {}, arrival: "homepage",
     content: structuredClone(p.content), order: [], cursor: 0, phase: "setup", status: "active", runs: [], retakeOf: null, interruptions: 0, debriefNotes: "",
   };
   arrange(s);
   return s;
 }
 
-export type SetupPatch = Partial<Pick<Session, "participantId" | "group" | "practice" | "planOverrides">>;
+export type SetupPatch = Partial<Pick<Session, "participantId" | "group" | "practice" | "planOverrides" | "deviceOverride" | "arrivalOverride">>;
 
 export type Action =
   | { type: "setup"; at: number; patch: SetupPatch }
@@ -152,7 +173,7 @@ export type Action =
   | { type: "event"; event: CapturedEvent }
   | { type: "scale"; scale: number }
   | { type: "end"; at: number; reason: EndReason; frameAt?: number }
-  | { type: "rate"; at: number; ease: number; notes: string }
+  | { type: "rate"; at: number; ease: number; notes: string; confidence?: number | null }
   | { type: "unlock"; at: number }
   | { type: "reviewRun"; at: number; runId: string; patch: Partial<RunModerator> }
   | { type: "endEarly"; at: number }
@@ -167,9 +188,8 @@ export class IllegalTransition extends Error {}
 const fail = (s: Session, a: Action): never => { throw new IllegalTransition(`${a.type} is not allowed in phase ${s.phase}`); };
 const need = (s: Session, a: Action, ...phases: Phase[]) => { if (!phases.includes(s.phase)) fail(s, a); };
 
-/** Reserve tasks that have not been added to this session yet. */
-/** Reserve tasks the participant has not been given yet, in content order. */
-export const reserveTasksLeft = (s: Session) => s.content.tasks.filter((t) => t.reserve && !s.order.includes(t.id));
+/** Reserve tasks the participant has not been given yet, in content order, and that run on this participant's device. */
+export const reserveTasksLeft = (s: Session) => s.content.tasks.filter((t) => t.reserve && !s.order.includes(t.id) && runsOn(t, sessionDevice(s)));
 
 export const currentRun = (s: Session): Run | undefined => s.runs[s.runs.length - 1];
 export const currentTaskId = (s: Session): string | undefined => s.order[s.cursor];
@@ -177,7 +197,7 @@ export const currentTaskId = (s: Session): string | undefined => s.order[s.curso
 const IN_FLIGHT: RunStatus[] = ["presented", "active"];
 
 export function emptyModerator(): RunModerator {
-  return { menu: null, observed: "", interpretation: "", expected: "", secondChance: "", overrideReason: "", reviewed: false };
+  return { menu: null, observed: "", interpretation: "", expected: "", secondChance: "", overrideReason: "", codes: {}, doubtZone: "", doubt: "", reviewed: false };
 }
 
 /**
@@ -208,7 +228,7 @@ export function reduce(session: Session, a: Action): Session {
       if (!next) return fail(s, a);
       s.order.push(next.id);
       // Reserves sit last in the content, so the breakpoints already planned for the core tasks do not move.
-      s.plan = applyOverrides(buildPlan(s.content, s.order, s.participantId), s.planOverrides, s.content);
+      s.plan = applyOverrides(buildPlan(s.content, s.order, s.participantId, sessionDevice(s)), s.planOverrides, s.content);
       s.phase = "intro";
       return s;
     }
@@ -225,7 +245,7 @@ export function reduce(session: Session, a: Action): Session {
       s.runs.push({
         runId: a.runId, taskId, attempt, retakeOf: s.retakeOf, status: "presented", breakpoint: s.plan[taskId] ?? "desktop", position: s.cursor, scale: 1,
         presentedAt: a.at, beginAt: null, endAt: null, readingMs: null, durationMs: null, end: null, events: [], windowResized: false,
-        ease: null, participantNotes: "", suggestion: null, moderator: emptyModerator(),
+        ease: null, confidence: null, participantNotes: "", suggestion: null, moderator: emptyModerator(),
       });
       s.retakeOf = null;
       s.phase = "task";
@@ -274,6 +294,10 @@ export function reduce(session: Session, a: Action): Session {
       need(s, a, "rating");
       if (!Number.isInteger(a.ease) || a.ease < 1 || a.ease > 7) fail(s, a);
       const run = currentRun(s)!;
+      const asked = (s.content.tasks.find((t) => t.id === run.taskId)?.confidence ?? "") !== "";
+      // A confidence rating is required when the task asks one, and ignored when it does not.
+      if (asked && !(Number.isInteger(a.confidence) && a.confidence! >= 1 && a.confidence! <= 7)) fail(s, a);
+      run.confidence = asked ? a.confidence! : null;
       run.ease = a.ease; run.participantNotes = a.notes.trim().slice(0, 2000); run.status = "completed";
       s.cursor += 1;
       // Once the core tasks are done, the participant is offered the reserves (and offered the next one after each).

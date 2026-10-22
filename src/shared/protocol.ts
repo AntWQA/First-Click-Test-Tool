@@ -52,6 +52,8 @@ export interface ClickMsg extends Stamped {
   column?: string;
   label?: string;
   testid?: string;
+  /** Where on the page the click landed: the nearest data-zone, else one derived from the kind (nav-learn, footer, search, header). */
+  zone?: string;
   x: number;
   y: number;
   /** True when this click takes the participant to a destination page (leaf, footer or featured link). The shell ends the task. */
@@ -106,7 +108,7 @@ export function parseProtoMessage(m: unknown): ProtoMessage | null {
     case "click": {
       const x = num(m.x), y = num(m.y);
       if (typeof m.kind !== "string" || !CLICK_KINDS.has(m.kind) || x === null || y === null || typeof m.ends !== "boolean") return null;
-      return { type: "click", at, kind: m.kind as ClickKind, href: optStr(m.href), section: optStr(m.section), column: optStr(m.column), label: optStr(m.label), testid: optStr(m.testid), x, y, ends: m.ends };
+      return { type: "click", at, kind: m.kind as ClickKind, href: optStr(m.href), section: optStr(m.section), column: optStr(m.column), label: optStr(m.label), testid: optStr(m.testid), zone: optStr(m.zone), x, y, ends: m.ends };
     }
     case "route": {
       const path = str(m.path);

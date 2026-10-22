@@ -65,8 +65,10 @@ function SelfSetup() {
     return () => window.removeEventListener("resize", on);
   }, []);
   useEnterPrimary(".p-setup button[type=submit]");
-  const scenarios = DEFAULT_CONTENT.tasks.filter((t) => !t.reserve).length;
-  const minutes = Math.max(5, Math.round((scenarios * 3) / 5) * 5);
+  const core = DEFAULT_CONTENT.tasks.filter((t) => !t.reserve);
+  const scenarios = core.length;
+  // Task allowances plus a few minutes for the welcome and the final page, rounded to the nearest 5.
+  const minutes = Math.max(5, Math.round((core.reduce((n, t) => n + t.minutes, 0) + 6) / 5) * 5);
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const pid = id.trim();
@@ -82,8 +84,8 @@ function SelfSetup() {
       <form className="p-card p-setup" onSubmit={submit} noValidate>
         <p className="p-eyebrow">Welcome</p>
         <h1>Thanks for taking part</h1>
-        <p>You will see {scenarios} short scenarios, one at a time. For each, a website's menu appears and you click where you would look first.</p>
-        <p className="p-note"><strong>We are testing the website's navigation, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website.</p>
+        <p>You will see {scenarios} short scenarios, one at a time. For each, part of a website appears and you do what you would do first. Where a scenario asks you something, answer in your own words in the box that follows.</p>
+        <p className="p-note"><strong>We are testing the website, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website.</p>
         <ul className="p-setup-facts">
           <li>It takes about {minutes} minutes.</li>
           <li>Use a laptop or desktop computer, with this window as large as you can.</li>
@@ -93,7 +95,7 @@ function SelfSetup() {
           <h2 id="notice-h">How your results are used</h2>
           <p>This study is run by <strong>{NOTICE.controller || "[organization not set]"}</strong>, who decides how your results are used.</p>
           <p>We record your code, whether you are a member, where you click, how long each step takes, the size of your browser window, and anything you type in the search box or the notes. We do not ask for your name. Nothing leaves your computer until you email us your results file, so we will also see the email address you send it from.</p>
-          <p>We use it to find out how easy the website's menus are to use, and we report results together, not about individuals.</p>
+          <p>We use it to find out how easy the website is to understand and use, and we report results together, not about individuals.</p>
           <p>We keep your results for <strong>{NOTICE.retention || "[retention not set]"}</strong>. You can stop at any time. To see or delete your results, email <strong>{SEND_TO || "the researcher who gave you this tool"}</strong>.</p>
           <p>Please do not put your name, contact details or anything about your health in the search box or the notes.</p>
         </section>
@@ -158,7 +160,7 @@ function Finished({ session }: { session: Session }) {
         <p className="p-note p-send-note"><strong>One last thing: please send us your results file.</strong> We only receive your answers when you do.</p>
         <label className="p-field p-setup-field" htmlFor="fin-notes">Anything you would like to add? (optional)
           <textarea id="fin-notes" rows={3} maxLength={2000} value={notes} readOnly={ended} onChange={(e) => setNotes(e.target.value)} />
-          <small>For example anything that was confusing, or that you expected to find in the menu.</small>
+          <small>For example anything that was confusing, or that you expected to find on the page.</small>
         </label>
         <ol className="p-finish-steps">
           <li>Save your results file with the button below.</li>

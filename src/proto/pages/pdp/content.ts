@@ -56,6 +56,9 @@ export const pdpSlugFor = (candidates: string[]): string => candidates.find((c) 
 /** The live catalogue also carries a size and a description; the dummy one does not. */
 type Rec = Product & { size?: string; description?: string };
 
+/** Products shown with no reviews yet (a newer product): an empty reviews section and no rating, for the "no reviews yet" scenario. */
+const NO_REVIEWS = new Set(["pb-restore"]);
+
 const hash = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
 
 const APPLICATION_ICON: Record<string, { icon: UsageIconType; use: string; how: string }> = {
@@ -108,6 +111,7 @@ export function buildPdp(slug: string): Pdp | undefined {
   const key = slugify(product.name);
   const lavender = key === "lavender-essential-oil" || key === "lavender-oil";
   const h = hash(key);
+  const noReviews = NO_REVIEWS.has(key);
   const apps = product.applications.map((a) => APPLICATION_ICON[a]).filter(Boolean);
   const goals = product.goals.slice(0, 2).join(" and ").toLowerCase();
   const own = productImage(product);
@@ -124,9 +128,9 @@ export function buildPdp(slug: string): Pdp | undefined {
     retail: product.retail,
     account: product.wholesale,
     rating: product.rating > 0 ? product.rating : 4,
-    reviewCount: lavender ? 220 : 40 + (h % 360),
-    bestSeller: product.status.includes("Best Sellers"),
-    soldThisWeek: product.status.includes("Best Sellers"),
+    reviewCount: noReviews ? 0 : lavender ? 220 : 40 + (h % 360),
+    bestSeller: !noReviews && product.status.includes("Best Sellers"),
+    soldThisWeek: !noReviews && product.status.includes("Best Sellers"),
     images: [{ src: own, alt: product.name }, ...FILLERS.map((src, i) => ({ src, alt: `${product.name}, image ${i + 2}` }))],
     blurb: lavender ? LAVENDER.blurb : `A ${product.productType.toLowerCase()} from our ${product.category.toLowerCase()} range, popular with customers looking for ${goals || "everyday support"}.`,
     things: lavender ? LAVENDER.things : [...apps.map((a) => a.use), "Store in a cool, dry place.", "Keep out of reach of children."],
@@ -134,7 +138,7 @@ export function buildPdp(slug: string): Pdp | undefined {
     usage: lavender ? LAVENDER.usage : apps.map((a) => a.icon),
     description: lavender ? LAVENDER.description : product.description ? [product.description] : [`${product.name} is part of our ${product.category} range and is made to be part of a daily routine.`, "Every batch is tested to the CPTG Certified Pure Tested Grade® standard."],
     howTo: lavender ? LAVENDER.howTo : apps.length ? apps.map((a) => a.how) : ["Follow the directions on the label."],
-    reviews: lavender ? LAVENDER.reviews : REVIEW_NAMES.map((name, i) => ({ stars: i % 2 ? 4 : 5, body: i % 2 ? `A solid choice. ${product.name} does what I wanted and I will order it again.` : `I use ${product.name} most days and it has become part of my routine.`, name, title: "Customer" })),
+    reviews: noReviews ? [] : lavender ? LAVENDER.reviews : REVIEW_NAMES.map((name, i) => ({ stars: i % 2 ? 4 : 5, body: i % 2 ? `A solid choice. ${product.name} does what I wanted and I will order it again.` : `I use ${product.name} most days and it has become part of my routine.`, name, title: "Customer" })),
     faq: FAQ,
     related,
   };

@@ -47,6 +47,19 @@ export async function launch({ width = 1500, height = 1000, port = 9400 + Math.f
   await send("Page.enable"); await send("Network.enable"); await send("Runtime.enable");
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
 
+  // Chrome sometimes opens its own page (for example Settings > About after an update). A background tab never acknowledges
+  // mouse events, so a check would hang forever: close any other page and keep ours in front.
+  const keepFront = async () => {
+    try {
+      for (const t of (await (await fetch(`http://127.0.0.1:${port}/json`)).json())) {
+        if (t.type === "page" && t.id !== target.id) await fetch(`http://127.0.0.1:${port}/json/close/${t.id}`);
+      }
+      await fetch(`http://127.0.0.1:${port}/json/activate/${target.id}`);
+    } catch { /* browser is closing */ }
+  };
+  const front = setInterval(keepFront, 2000);
+  front.unref?.();
+
   const unwrap = (r) => { if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text); return r.result?.result?.value; };
   const ev = async (expression, contextId) => unwrap(await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true, ...(contextId ? { contextId } : {}) }));
   const api = {
@@ -92,7 +105,7 @@ export async function launch({ width = 1500, height = 1000, port = 9400 + Math.f
     async type(text) { await send("Input.insertText", { text }); },
     async shot(file) { const r = await send("Page.captureScreenshot", { format: "png" }); writeFileSync(file, Buffer.from(r.result.data, "base64")); },
     async resize(w, h) { await send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: 1, mobile: false }); await sleep(300); },
-    async close() { try { ws.close(); } catch { /* already closed */ } chrome.kill(); },
+    async close() { clearInterval(front); try { ws.close(); } catch { /* already closed */ } chrome.kill(); },
   };
   return api;
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_CONTENT } from "../src/shell/domain/tasks.ts";
+import { NAVIGATION_CONTENT } from "../src/shell/domain/tasks.ts";
 import { createSession, reduce, recency } from "../src/shell/domain/session.ts";
 import type { Session } from "../src/shell/domain/session.ts";
 import { ledgerMarkdown, parseImport, sanitiseSession, toJsonBundle, MAX_SESSIONS_PER_FILE } from "../src/shell/domain/exports.ts";
@@ -14,7 +14,7 @@ const T0 = 1_700_000_000_000;
 let n = 0;
 /** A participant-edition session with T1 done (a wrong click unless `right`), built through the real reducer. */
 function selfRun(id: string, code: string, right = false, over: Partial<Session> = {}): Session {
-  let s = createSession({ id, now: T0, participantId: code, selfRun: true, content: DEFAULT_CONTENT });
+  let s = createSession({ id, now: T0, participantId: code, selfRun: true, content: NAVIGATION_CONTENT });
   s = { ...s, order: ["T1"], plan: { T1: "desktop" } };
   s = reduce(s, { type: "start", at: T0 });
   s = reduce(s, { type: "present", at: T0, runId: "r" + ++n });
@@ -29,8 +29,8 @@ function selfRun(id: string, code: string, right = false, over: Partial<Session>
   s = reduce(s, { type: "complete", at: T0 + 9600, notes: "" });
   return { ...s, ...over };
 }
-const roundTrip = (s: Session) => parseImport(toJsonBundle([s], DEFAULT_CONTENT, "x"));
-const rawOf = (s: Session) => JSON.parse(toJsonBundle([s], DEFAULT_CONTENT, "x")).sessions[0];
+const roundTrip = (s: Session) => parseImport(toJsonBundle([s], NAVIGATION_CONTENT, "x"));
+const rawOf = (s: Session) => JSON.parse(toJsonBundle([s], NAVIGATION_CONTENT, "x")).sessions[0];
 
 test("a participant file is not believed about the moderator's work: findings, tier, reviewed and practice are discarded", () => {
   const raw = rawOf(selfRun("a", "P1"));
@@ -59,7 +59,7 @@ test("a participant file cannot supply its own answers: it is scored against thi
   raw.content.tasks.find((t: { id: string }) => t.id === "T1").primary = [{ href: "/learn/essential-oils/discover-solutions" }];   // forged answer key
   const forged = sanitiseSession(raw)!;
   assert.equal(forged.runs[0]!.suggestion!.tier, "P", "scored against the forged key it looks right");
-  const [item] = reviewImport([], [forged], DEFAULT_CONTENT);
+  const [item] = reviewImport([], [forged], NAVIGATION_CONTENT);
   assert.equal(item!.session.runs[0]!.suggestion!.tier, "X", "scored against the tool's own key it is a miss");
   assert.ok(item!.flags.some((f) => f.kind === "rescored" && /T1/.test(f.text)));
   assert.equal(item!.action, "import", "this alone is safe to import because it has been re-scored");
@@ -67,27 +67,27 @@ test("a participant file cannot supply its own answers: it is scored against thi
 
 test("a participant file with different scenario wording, or tasks this tool does not have, is held back by default", () => {
   const reworded = rawOf(selfRun("a", "P1")); reworded.content.tasks[0].scenario = "Something else entirely.";
-  const [r] = reviewImport([], [sanitiseSession(reworded)!], DEFAULT_CONTENT);
+  const [r] = reviewImport([], [sanitiseSession(reworded)!], NAVIGATION_CONTENT);
   assert.equal(r!.action, "skip"); assert.ok(r!.flags.some((f) => f.kind === "tasks-differ"));
-  const tool = { ...DEFAULT_CONTENT, tasks: DEFAULT_CONTENT.tasks.filter((t) => t.id !== "T1") };
+  const tool = { ...NAVIGATION_CONTENT, tasks: NAVIGATION_CONTENT.tasks.filter((t) => t.id !== "T1") };
   const [m] = reviewImport([], [selfRun("b", "P2")], tool);
   assert.equal(m!.action, "skip"); assert.ok(m!.flags.some((f) => f.kind === "tasks-missing"));
 });
 
 test("a code that already belongs to another session is flagged, whatever its case, and held back by default", () => {
-  const mine = createSession({ id: "mine", now: T0, participantId: "P3", content: DEFAULT_CONTENT });
+  const mine = createSession({ id: "mine", now: T0, participantId: "P3", content: NAVIGATION_CONTENT });
   for (const code of ["P3", "p3"]) {
-    const [it] = reviewImport([mine], [selfRun("x" + code, code)], DEFAULT_CONTENT);
+    const [it] = reviewImport([mine], [selfRun("x" + code, code)], NAVIGATION_CONTENT);
     assert.equal(it!.action, "skip", code);
     assert.ok(it!.flags.some((f) => f.kind === "code-in-use"));
   }
-  const [fresh] = reviewImport([mine], [selfRun("y", "P9")], DEFAULT_CONTENT);
+  const [fresh] = reviewImport([mine], [selfRun("y", "P9")], NAVIGATION_CONTENT);
   assert.equal(fresh!.action, "import");
   assert.equal(fresh!.flags.some((f) => f.blocking), false);
 });
 
 test("two sessions in one file with the same code: the second is held back", () => {
-  const items = reviewImport([], [selfRun("a", "P4"), selfRun("b", "p4")], DEFAULT_CONTENT);
+  const items = reviewImport([], [selfRun("a", "P4"), selfRun("b", "p4")], NAVIGATION_CONTENT);
   assert.deepEqual(items.map((i) => i.action), ["import", "skip"]);
   assert.ok(items[1]!.flags.some((f) => f.kind === "duplicate-in-file"));
 });
@@ -96,7 +96,7 @@ test("a session you have already added findings to is never replaced without you
   const mine = selfRun("same", "P5");
   mine.runs[0]!.moderator.reviewed = true; mine.runs[0]!.moderator.observed = "my note";
   const incoming = { ...selfRun("same", "P5"), updatedAt: mine.updatedAt + 10_000 };
-  const [it] = reviewImport([mine], [incoming], DEFAULT_CONTENT);
+  const [it] = reviewImport([mine], [incoming], NAVIGATION_CONTENT);
   assert.equal(it!.action, "skip");
   assert.ok(it!.flags.some((f) => f.kind === "replaces-findings"));
   assert.equal(applyReview([mine], [{ ...it!, action: "skip" }], { file: "f", sha256: "h", size: 1 }, 5).find((s) => s.id === "same")!.runs[0]!.moderator.observed, "my note");
@@ -105,7 +105,7 @@ test("a session you have already added findings to is never replaced without you
 test("which of two files is newer is decided by when the tool imported them, not by the date a file claims", () => {
   const forgedFuture = selfRun("a", "P6", true, { createdAt: Date.now() + 86_400_000 });
   const genuine = selfRun("b", "P6", false, { createdAt: T0 });
-  const items = reviewImport([], [forgedFuture, genuine], DEFAULT_CONTENT).map((i) => ({ ...i, action: "import" as const }));
+  const items = reviewImport([], [forgedFuture, genuine], NAVIGATION_CONTENT).map((i) => ({ ...i, action: "import" as const }));
   const first = applyReview([], items.slice(0, 1), { file: "forged.json", sha256: "1", size: 1 }, 1_000);
   const both = applyReview(first, items.slice(1), { file: "genuine.json", sha256: "2", size: 1 }, 2_000);
   assert.equal(recency(both.find((s) => s.id === "b")!) > recency(both.find((s) => s.id === "a")!), true);
@@ -133,7 +133,7 @@ test("a file may not hold an unbounded number of sessions, or of tasks", () => {
   const one = rawOf(selfRun("a", "P8"));
   const many = Array.from({ length: MAX_SESSIONS_PER_FILE + 1 }, (_, i) => ({ ...structuredClone(one), id: "s" + i }));
   assert.match(parseImport(JSON.stringify({ exportVersion: 1, app: "wayfinding-check", sessions: many })).error!, /no file may hold more than 100/);
-  const content = { ...DEFAULT_CONTENT, tasks: Array.from({ length: 61 }, (_, i) => ({ ...DEFAULT_CONTENT.tasks[0]!, id: "T" + (100 + i) })) };
+  const content = { ...NAVIGATION_CONTENT, tasks: Array.from({ length: 61 }, (_, i) => ({ ...NAVIGATION_CONTENT.tasks[0]!, id: "T" + (100 + i) })) };
   assert.equal(validateContent(content, { checkLinks: false }).ok, false);
 });
 

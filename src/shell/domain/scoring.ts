@@ -34,14 +34,18 @@ export interface Suggestion {
   sectionsOpened: string[];
   /** Milliseconds from the frame being ready to the first menu opening or click. */
   firstInteractionMs: number | null;
+  /** Where the first click landed (a zone of the page, or nav-<section>, footer, search, header). Null when nothing was clicked. */
+  firstZone: string | null;
+  /** The zones clicked, in order, each once. */
+  zonesClicked: string[];
 }
 
-const set = (specs: TargetSpec[]) => new Set(specs.map((s) => normaliseHref(s.href)));
+const set = (specs: TargetSpec[]) => new Set(specs.flatMap((s) => (s.href ? [normaliseHref(s.href)] : [])));
 
 function targetSections(task: Task): Set<string> {
   const out = new Set<string>();
   for (const s of [...task.primary, ...task.acceptable]) {
-    const e = lookupHeader(s.href);
+    const e = s.href ? lookupHeader(s.href) : undefined;
     if (e) out.add(e.section);
   }
   return out;
@@ -50,7 +54,7 @@ function targetSections(task: Task): Set<string> {
 function targetColumns(task: Task, section: string): Set<string> {
   const out = new Set<string>();
   for (const s of [...task.primary, ...task.acceptable]) {
-    const e = lookupHeader(s.href);
+    const e = s.href ? lookupHeader(s.href) : undefined;
     if (e && e.section === section) out.add(e.column);
   }
   return out;
@@ -86,6 +90,29 @@ export function suggest(task: Task, events: CapturedEvent[], end: EndReason, fra
   const sectionsOpened = [...new Set(opens.map((o) => o.section))];
   const interactive = sorted.filter((e) => e.type === "menu-open" || e.type === "click");
   const firstInteractionMs = interactive.length > 0 ? Math.max(0, interactive[0]!.at - (ready?.at ?? 0)) : null;
+  const everyClick = sorted.filter((e): e is ClickMsg => e.type === "click");
+  const firstClick = everyClick[0];
+  const firstZone = firstClick?.zone ?? null;
+  const zonesClicked = [...new Set(everyClick.flatMap((c) => (c.zone ? [c.zone] : [])))];
+
+  // An observe task scores nothing: what the participant says and does is coded afterwards.
+  if (task.kind === "observe") {
+    return {
+      tier: "R", code: null, firstOpenSection: opens[0]?.section ?? null, levelOneSection: null, level1: null, level2: null,
+      finalKind: firstClick?.kind ?? null, finalHref: firstClick?.href ? normaliseHref(firstClick.href) : null, finalSection: null, finalColumn: null,
+      viaFooter: false, foundWithoutDestination: false, sectionsOpened, firstInteractionMs, firstZone, zonesClicked,
+    };
+  }
+  // A click task is a first click test in the plain sense: the tier comes from the FIRST click, by the zone it landed in (or the link, for a header route).
+  if (task.kind === "click") {
+    const hit = (specs: TargetSpec[]) => !!firstClick && specs.some((s) => (s.zone !== undefined && s.zone === firstClick.zone) || (s.href !== undefined && firstClick.href !== undefined && normaliseHref(s.href) === normaliseHref(firstClick.href)));
+    const tier: Tier = !firstClick ? "X" : hit(task.primary) ? "P" : hit(task.acceptable) ? "A" : hit(task.separate) ? "S" : "X";
+    return {
+      tier, code: firstClick ? null : 6, firstOpenSection: opens[0]?.section ?? null, levelOneSection: null, level1: null, level2: tier === "P" || tier === "A" ? true : tier === "X" ? false : null,
+      finalKind: firstClick?.kind ?? null, finalHref: firstClick?.href ? normaliseHref(firstClick.href) : null, finalSection: null, finalColumn: null,
+      viaFooter: firstClick?.kind === "footer", foundWithoutDestination: !firstClick && end === "found", sectionsOpened, firstInteractionMs, firstZone, zonesClicked,
+    };
+  }
 
   const clicks = sorted.filter((e): e is ClickMsg => e.type === "click" && e.ends);
   const searches = sorted.filter((e) => e.type === "search-submit");
@@ -144,6 +171,6 @@ export function suggest(task: Task, events: CapturedEvent[], end: EndReason, fra
 
   return {
     tier, code, firstOpenSection: opens[0]?.section ?? null, levelOneSection, level1, level2,
-    finalKind, finalHref, finalSection, finalColumn, viaFooter, foundWithoutDestination, sectionsOpened, firstInteractionMs,
+    finalKind, finalHref, finalSection, finalColumn, viaFooter, foundWithoutDestination, sectionsOpened, firstInteractionMs, firstZone, zonesClicked,
   };
 }

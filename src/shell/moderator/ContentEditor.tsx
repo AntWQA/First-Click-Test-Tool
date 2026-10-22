@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "../state.tsx";
 import { nextContent, validateContent } from "../domain/content.ts";
-import { DEFAULT_CONTENT } from "../domain/tasks.ts";
+import { DEFAULT_CONTENT, NAVIGATION_CONTENT } from "../domain/tasks.ts";
 import { Confirm } from "./Confirm.tsx";
 
 export function ContentEditor() {
@@ -10,6 +10,7 @@ export function ContentEditor() {
   const [errors, setErrors] = useState<string[]>([]);
   const [saved, setSaved] = useState<string | null>(null);
   const [reset, setReset] = useState(false);
+  const [navOnly, setNavOnly] = useState(false);
 
   const validate = (): ReturnType<typeof validateContent> => {
     try { return validateContent(JSON.parse(text)); } catch (e) { return { ok: false, errors: ["That is not valid JSON: " + (e as Error).message] }; }
@@ -48,12 +49,16 @@ export function ContentEditor() {
         {saved && <p className="m-ok">{saved}</p>}
       </div>
       <div className="m-actions">
-        <button type="button" className="btn btn-quiet" onClick={() => setReset(true)}>Reset to the plan's tasks</button>
+        <button type="button" className="btn btn-quiet" onClick={() => setNavOnly(true)}>Load the navigation-only test</button>
+        <button type="button" className="btn btn-quiet" onClick={() => setReset(true)}>Reset to the combined test</button>
         <button type="button" className="btn btn-secondary" onClick={check}>Check</button>
         <button type="button" className="btn btn-primary" onClick={save}>Save as version {content.version + 1}</button>
       </div>
-      {reset && <Confirm title="Reset to the plan's tasks?" confirmLabel="Reset" onCancel={() => setReset(false)} onConfirm={() => { setReset(false); setText(JSON.stringify(DEFAULT_CONTENT, null, 2)); setSaved("Loaded the plan's tasks into the editor. Save to use them."); setErrors([]); }}>
+      {reset && <Confirm title="Reset to the combined test?" confirmLabel="Reset" onCancel={() => setReset(false)} onConfirm={() => { setReset(false); setText(JSON.stringify(DEFAULT_CONTENT, null, 2)); setSaved("Loaded the plan's tasks into the editor. Save to use them."); setErrors([]); }}>
         This replaces the text in the editor with the original {DEFAULT_CONTENT.tasks.length} tasks. Nothing is saved until you press Save.
+      </Confirm>}
+      {navOnly && <Confirm title="Load the navigation-only test?" confirmLabel="Load" onCancel={() => setNavOnly(false)} onConfirm={() => { setNavOnly(false); setText(JSON.stringify(NAVIGATION_CONTENT, null, 2)); setSaved("Loaded the navigation-only test into the editor. Nothing is saved until you press Save."); }}>
+        This replaces the text in the editor with the earlier navigation-only test ({NAVIGATION_CONTENT.tasks.length} tasks, one breakpoint per task). Nothing is saved until you press Save.
       </Confirm>}
     </main>
   );

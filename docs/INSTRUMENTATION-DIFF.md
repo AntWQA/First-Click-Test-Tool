@@ -81,3 +81,15 @@ The homepage best seller cards, search results and every recommendation open a p
   reviews and FAQ are invented stand-ins. Replace them with the PDP team's copy before reading results as evidence about copy.
 - **Account price** is the catalogue wholesale price (25% off retail). The delivery table is from the "How shipping will work" overlay.
 - The button wording sits in one constant (`ADD_LABEL` in `ProductPage.tsx`): the design says "Add item to cart", the homepage team says "Add to bag".
+
+
+## Zones, start page and the combined test (22 Oct 2026)
+
+| Change | File | Why |
+|---|---|---|
+| Changed | `recorder/recorder.ts`, `shared/protocol.ts` | A click message carries an optional `zone`: the name from the nearest `data-zone` element. Fallbacks for Pure parts that do not forward the attribute: the product accordions by test id, the hero by class, and derived zones for the header (`nav-<section>`), footer, search. |
+| Changed | `main.tsx`, `recorder/globals.d.ts`, `shell/Frame.tsx` | The shell can start the prototype on a given path (`__WC_START__`, the first entry of the memory router), so product tasks open the product page. |
+| Changed | `pages/HomePage.tsx`, `pages/pdp/ProductPage.tsx` | `data-zone` on each band and the usage icons (a wrapper, because Pure's Section, Stack, Grid and Accordion.Item drop the attribute). The product page has a no-reviews state for `pb-restore` (Product B). |
+| Changed | `pages/pdp/content.ts` | Product B copy. |
+
+These add information to what is recorded and change what is rendered only for Product B; nothing else in the pages moved. The recorder-check, pdp-check and frame-check e2e scripts cover them.

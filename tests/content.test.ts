@@ -1,26 +1,26 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import navigation from "../src/proto/data/navigation.json" with { type: "json" };
-import { DEFAULT_CONTENT } from "../src/shell/domain/tasks.ts";
+import { NAVIGATION_CONTENT } from "../src/shell/domain/tasks.ts";
 import { validateContent } from "../src/shell/domain/content.ts";
 import { allHeaderEntries, hrefExists, lookupFooter, lookupHeader, normaliseHref } from "../src/shared/navIndex.ts";
 
-const clone = () => structuredClone(DEFAULT_CONTENT) as typeof DEFAULT_CONTENT;
+const clone = () => structuredClone(NAVIGATION_CONTENT) as typeof NAVIGATION_CONTENT;
 const errorsOf = (c: unknown) => { const r = validateContent(c); return r.ok ? [] : r.errors; };
 
 test("the default content is valid, and every target href exists in the navigation or footer data", () => {
-  const r = validateContent(DEFAULT_CONTENT);
+  const r = validateContent(NAVIGATION_CONTENT);
   assert.equal(r.ok, true);
-  const targets = DEFAULT_CONTENT.tasks.flatMap((t) => [...t.primary, ...t.acceptable, ...t.separate]);
+  const targets = NAVIGATION_CONTENT.tasks.flatMap((t) => [...t.primary, ...t.acceptable, ...t.separate]);
   assert.ok(targets.length > 15);
-  for (const t of targets) assert.ok(hrefExists(t.href), t.href);
+  for (const t of targets) assert.ok(t.href !== undefined && hrefExists(t.href), String(t.href));
 });
 
 test("there are 14 tasks: 12 core (the plan's ten and two footer tasks) and 2 reserves, with the plan's high-risk set", () => {
-  assert.equal(DEFAULT_CONTENT.tasks.length, 14);
-  assert.deepEqual(DEFAULT_CONTENT.tasks.filter((t) => t.reserve).map((t) => t.id), ["R1", "R2"]);
-  assert.deepEqual(DEFAULT_CONTENT.tasks.filter((t) => t.highRisk).map((t) => t.id), ["T1", "T2", "T9", "T10"]);
-  assert.deepEqual(DEFAULT_CONTENT.tasks.filter((t) => t.breakpoints.includes("mobile")).map((t) => t.id), ["T1", "T3", "T5", "T7", "T9", "T10", "T11", "T12"]);
+  assert.equal(NAVIGATION_CONTENT.tasks.length, 14);
+  assert.deepEqual(NAVIGATION_CONTENT.tasks.filter((t) => t.reserve).map((t) => t.id), ["R1", "R2"]);
+  assert.deepEqual(NAVIGATION_CONTENT.tasks.filter((t) => t.highRisk).map((t) => t.id), ["T1", "T2", "T9", "T10"]);
+  assert.deepEqual(NAVIGATION_CONTENT.tasks.filter((t) => t.breakpoints.includes("mobile")).map((t) => t.id), ["T1", "T3", "T5", "T7", "T9", "T10", "T11", "T12"]);
 });
 
 test("header hrefs are unique across the whole navigation, so an href identifies one link", () => {
@@ -115,7 +115,7 @@ test("validation drops unknown fields and trims text to safe lengths", () => {
 });
 
 test("no em dash appears anywhere in the default content", () => {
-  assert.ok(!JSON.stringify(DEFAULT_CONTENT).includes("\u2014"));
+  assert.ok(!JSON.stringify(NAVIGATION_CONTENT).includes("\u2014"));
 });
 
 test("link checking can be turned off, which is how a session's own snapshot is read", () => {

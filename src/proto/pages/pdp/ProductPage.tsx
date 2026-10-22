@@ -48,7 +48,7 @@ const Truck = () => (
 
 /** CPTG Certified Pure Tested Grade mark, drawn in CSS because the design's vector is not part of the prototype assets. */
 const Cptg = () => (
-  <div className="pdp-cptg" data-testid="pdp-cptg">
+  <div className="pdp-cptg" data-testid="pdp-cptg" data-zone="cptg">
     <span className="pdp-cptg__seal" aria-hidden="true"><b>CP</b>TG</span>
     <span className="pdp-cptg__text">Certified Pure Tested Grade</span>
   </div>
@@ -66,7 +66,7 @@ function ShippingOptions({ open, setOpen }: { open: boolean; setOpen: Dispatch<S
     <Modal state={[open, setOpen]} width="large">
       <Modal.Title>Shipping options</Modal.Title>
       <Modal.Body>
-        <Stack spacing="lg" data-testid="pdp-shipping-overlay">
+        <Stack spacing="lg" data-testid="pdp-shipping-overlay" data-zone="shipping">
           <Text size="textSm" color="text-subtle">Delivery times are estimates. They are counted in business days, starting from when your order ships.</Text>
           <table className="pdp-table">
             <thead><tr><th scope="col">Method</th><th scope="col">Shipping cost</th><th scope="col">Transit time</th></tr></thead>
@@ -114,17 +114,17 @@ function BuyBox({ pdp }: { pdp: Pdp }) {
 
   return (
     <Stack spacing="lg">
-      <div className="pdp-buy" data-testid="pdp-buy-box">
+      <div className="pdp-buy" data-testid="pdp-buy-box" data-zone="buy-options">
         <RadioGroup value={option} onValueChange={(v) => setOption(v as "one-time" | "account")} name="purchase-option">
-          <div className="pdp-option" data-testid="pdp-option-one-time">
+          <div className="pdp-option" data-testid="pdp-option-one-time" data-zone="option-one-time">
             <Radio id="pdp-opt-one-time" value="one-time" optionalText="" label={<span className="pdp-option__label pdp-option__label--strong">One time purchase</span>} />
           </div>
-          <div className="pdp-option" data-testid="pdp-option-account">
+          <div className="pdp-option" data-testid="pdp-option-account" data-zone="option-account">
             <Radio id="pdp-opt-account" value="account" optionalText="" label={<span className="pdp-option__label">Create an account and <b className="pdp-save">save 25%</b> <b>on products</b></span>} />
           </div>
         </RadioGroup>
         <div className="pdp-buy__panel">
-          <div data-testid="pdp-quantity"><QuantityField size="small" defaultValue={1} inputId="pdp-qty" onChange={setQty} /></div>
+          <div data-testid="pdp-quantity" data-zone="quantity"><QuantityField size="small" defaultValue={1} inputId="pdp-qty" onChange={setQty} /></div>
           <div className="pdp-price" data-testid="pdp-price" aria-live="polite">
             <Text size="textLg" weight="semiBold">{account ? "Your membership price" : "One time price"}</Text>
             <div className="pdp-price__row">
@@ -132,11 +132,11 @@ function BuyBox({ pdp }: { pdp: Pdp }) {
               <span className="pdp-price__now">{money(price)}</span>
             </div>
           </div>
-          <Button variant="primary" size="xlarge" className="pdp-add" onClick={add} data-testid="pdp-add-to-cart">{added ? "Added" : ADD_LABEL}</Button>
+          <Button variant="primary" size="xlarge" className="pdp-add" onClick={add} data-testid="pdp-add-to-cart" data-zone="add-to-cart">{added ? "Added" : ADD_LABEL}</Button>
         </div>
       </div>
 
-      <div className="pdp-ship" data-testid="pdp-shipping">
+      <div className="pdp-ship" data-testid="pdp-shipping" data-zone="shipping">
         <Truck />
         <div>
           <Text size="textSm">FREE Shipping on Loyalty orders of 100 PV+</Text>
@@ -154,7 +154,7 @@ function Details({ pdp }: { pdp: Pdp }) {
   return (
     <div className="pdp-accordion">
       <Accordion variant="ghost" defaultExpanded="things">
-        <Accordion.Item id="things" size="lg" title="Things to know" openIndicator={plus} closeIndicator={minus} data-testid="pdp-things-to-know">
+        <Accordion.Item id="things" size="lg" title="Things to know" openIndicator={plus} closeIndicator={minus} data-testid="pdp-things-to-know" data-zone="things-to-know">
           <Stack spacing="md">
             <ul className="pdp-list">{pdp.things.map((t) => <li key={t}><Text as="span" size="textMd">{t}</Text></li>)}</ul>
             <Stack spacing="xs">
@@ -162,17 +162,19 @@ function Details({ pdp }: { pdp: Pdp }) {
               <Text size="textMd" color="text-secondary">{pdp.cautions}</Text>
             </Stack>
             {pdp.usage.length > 0 && (
-              <Stack spacing="sm" data-testid="pdp-usage-icons">
-                <Text size="textSm" weight="semiBold">Can be used</Text>
-                <UsageIcons icons={pdp.usage} />
-              </Stack>
+              <div data-testid="pdp-usage-icons" data-zone="usage-icons">
+                <Stack spacing="sm">
+                  <Text size="textSm" weight="semiBold">Can be used</Text>
+                  <UsageIcons icons={pdp.usage} />
+                </Stack>
+              </div>
             )}
           </Stack>
         </Accordion.Item>
-        <Accordion.Item id="description" size="lg" title="Product description" openIndicator={plus} closeIndicator={minus} data-testid="pdp-product-description">
+        <Accordion.Item id="description" size="lg" title="Product description" openIndicator={plus} closeIndicator={minus} data-testid="pdp-product-description" data-zone="description">
           <Stack spacing="md">{pdp.description.map((p) => <Text key={p} size="textMd" color="text-secondary">{p}</Text>)}</Stack>
         </Accordion.Item>
-        <Accordion.Item id="how-to-use" size="lg" title="How to use" openIndicator={plus} closeIndicator={minus} data-testid="pdp-how-to-use">
+        <Accordion.Item id="how-to-use" size="lg" title="How to use" openIndicator={plus} closeIndicator={minus} data-testid="pdp-how-to-use" data-zone="how-to-use">
           <ul className="pdp-list">{pdp.howTo.map((t) => <li key={t}><Text as="span" size="textMd">{t}</Text></li>)}</ul>
         </Accordion.Item>
       </Accordion>
@@ -180,9 +182,9 @@ function Details({ pdp }: { pdp: Pdp }) {
   );
 }
 
-function Band({ id, tint, children }: { id: string; tint?: boolean; children: ReactNode }) {
+function Band({ id, tint, zone, children }: { id: string; tint?: boolean; zone?: string; children: ReactNode }) {
   return (
-    <Box backgroundColor={tint ? "extra-light" : undefined} id={id}>
+    <Box backgroundColor={tint ? "extra-light" : undefined} id={id} data-zone={zone}>
       <Section size="lg"><Container width="wide">{children}</Container></Section>
     </Box>
   );
@@ -204,29 +206,33 @@ function ProductPageView({ pdp }: { pdp: Pdp }) {
             <PageBreadcrumbs crumbs={crumbs} />
             <Grid gap="xl">
               <Grid.Column span={{ xs: 12, lg: 7 }}>
-                <div className="pdp-gallery" data-testid="pdp-gallery"><Gallery images={pdp.images} thumbnailPosition="bottom" /></div>
+                <div className="pdp-gallery" data-testid="pdp-gallery" data-zone="gallery"><Gallery images={pdp.images} thumbnailPosition="bottom" /></div>
               </Grid.Column>
               <Grid.Column span={{ xs: 12, lg: 5 }}>
                 <Stack spacing="lg">
                   <Stack spacing="md">
-                    <Flex spacing="xs" data-testid="pdp-badges">
+                    <Flex spacing="xs" data-testid="pdp-badges" data-zone="badges-title">
                       {pdp.bestSeller && <span className="pdp-badge pdp-badge--solid">Best seller</span>}
                       <span className="pdp-badge">25% off</span>
                     </Flex>
-                    <Text as="h1" size={{ xs: "displaySm", md: "displayMd" }} weight="semiBold" data-testid="pdp-title">{pdp.name}</Text>
-                    <Flex align="center" spacing="sm" wrap data-testid="pdp-rating">
-                      <Rating id="pdp-rating" label="Average rating" labelHidden readOnly value={pdp.rating} size="sm" />
-                      <Text size="textSm"><b>{pdp.rating.toFixed(1)}</b> ({pdp.reviewCount} reviews)</Text>
+                    <Text as="h1" size={{ xs: "displaySm", md: "displayMd" }} weight="semiBold" data-testid="pdp-title" data-zone="badges-title">{pdp.name}</Text>
+                    <Flex align="center" spacing="sm" wrap data-testid="pdp-rating" data-zone="rating">
+                      {pdp.reviewCount > 0 ? (
+                        <>
+                          <Rating id="pdp-rating" label="Average rating" labelHidden readOnly value={pdp.rating} size="sm" />
+                          <Text size="textSm"><b>{pdp.rating.toFixed(1)}</b> ({pdp.reviewCount} reviews)</Text>
+                        </>
+                      ) : <Text size="textSm" color="text-subtle">No reviews yet</Text>}
                       {pdp.soldThisWeek && <Text size="textSm" weight="semiBold" color="text-subtle">100+ sold this week</Text>}
                     </Flex>
-                    <Text size="textMd" data-testid="pdp-blurb">{pdp.blurb} <a className="pdp-readmore" href="#description" onClick={jump("pdp-details")} data-testid="pdp-readmore">Read more</a></Text>
+                    <Text size="textMd" data-testid="pdp-blurb" data-zone="description">{pdp.blurb} <a className="pdp-readmore" href="#description" onClick={jump("pdp-details")} data-testid="pdp-readmore">Read more</a></Text>
                     <Text size="textMd">Size: {pdp.size} - Item: {pdp.sku}. <a className="pdp-readmore" href="#description" onClick={jump("pdp-details")}>Read more</a></Text>
                   </Stack>
                   <BuyBox pdp={pdp} />
                   <Cptg />
                   <Flex spacing="sm">
-                    <span data-testid="pdp-download"><IconButton icon="file-download-01" accessibilityLabel="Download the Safety Data Sheet" className="pdp-iconbutton" /></span>
-                    <span data-testid="pdp-share"><IconButton icon="share-07" accessibilityLabel="Share this product" className="pdp-iconbutton" /></span>
+                    <span data-testid="pdp-download" data-zone="share"><IconButton icon="file-download-01" accessibilityLabel="Download the Safety Data Sheet" className="pdp-iconbutton" /></span>
+                    <span data-testid="pdp-share" data-zone="share"><IconButton icon="share-07" accessibilityLabel="Share this product" className="pdp-iconbutton" /></span>
                   </Flex>
                   <div id="pdp-details"><Details pdp={pdp} /></div>
                 </Stack>
@@ -236,9 +242,10 @@ function ProductPageView({ pdp }: { pdp: Pdp }) {
         </Container>
       </Section>
 
-      <Band id="reviews" tint>
+      <Band id="reviews" zone="reviews" tint>
         <Stack spacing="xl" data-testid="pdp-reviews">
           <BasicSection eyebrow="Reviews" headline="What our customers are saying" />
+          {pdp.reviews.length === 0 && <Text size="textLg" color="text-secondary">There are no reviews for this product yet.</Text>}
           <Grid gap="lg">
             {pdp.reviews.map((r) => (
               <Grid.Column key={r.name} span={{ xs: 12, sm: 6, lg: 3 }}>
@@ -250,7 +257,7 @@ function ProductPageView({ pdp }: { pdp: Pdp }) {
       </Band>
 
       <Band id="faq">
-        <Grid gap={{ xs: "lg", lg: "xxl" }} data-testid="pdp-faq">
+        <Grid gap={{ xs: "lg", lg: "xxl" }} data-testid="pdp-faq" data-zone="faq">
           <Grid.Column span={{ xs: 12, lg: 4 }}><BasicSection eyebrow="Questions and answers" headline="Frequently asked questions" /></Grid.Column>
           <Grid.Column span={{ xs: 12, lg: 8 }}>
             <Accordion variant="ghost" defaultExpanded="faq-0">
@@ -264,7 +271,7 @@ function ProductPageView({ pdp }: { pdp: Pdp }) {
         </Grid>
       </Band>
 
-      <Band id="recommended" tint>
+      <Band id="recommended" zone="recommended" tint>
         <Stack spacing="xl" data-testid="pdp-recommended">
           <BasicSection eyebrow="Recommended products" headline="Customers also purchased these items" />
           <Carousel {...RELATED} withIndicators indicatorStyle="dash" withControls controlsPosition="bottom" controlStyle="icon" controlIcon="arrow">

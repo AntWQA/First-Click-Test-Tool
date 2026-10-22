@@ -9,7 +9,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { launch, report, sleep, summary } from "./cdp.mjs";
 import { clickText, pointOf, setValue, waitMsg, waitPoint } from "./frame-geometry.mjs";
-import { DEFAULT_CONTENT } from "../../src/shell/domain/tasks.ts";
+import { NAVIGATION_CONTENT } from "../../src/shell/domain/tasks.ts";
 import { parseImport } from "../../src/shell/domain/exports.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -108,7 +108,7 @@ try {
   report(theme1 !== theme0, "the T key toggles light and dark", `${theme0} then ${theme1}`);
   await c.key("t", "KeyT"); await sleep(200);
   await tab("Content");
-  const reduced = { ...DEFAULT_CONTENT, tasks: DEFAULT_CONTENT.tasks.filter((t) => ["T1", "T3", "T9", "R1"].includes(t.id)) };
+  const reduced = { ...NAVIGATION_CONTENT, tasks: NAVIGATION_CONTENT.tasks.filter((t) => ["T1", "T3", "T9", "R1"].includes(t.id)) };
   await setValue(c, ".m-code", "{ not json");
   await c.send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "s", code: "KeyS", modifiers: 2, windowsVirtualKeyCode: 83 });
   await c.send("Input.dispatchKeyEvent", { type: "keyUp", key: "s", code: "KeyS", modifiers: 2, windowsVirtualKeyCode: 83 });
@@ -119,8 +119,8 @@ try {
   const bad = JSON.parse(JSON.stringify(reduced)); bad.tasks[0].primary = [{ href: "/not/a/link" }];
   await setValue(c, ".m-code", JSON.stringify(bad)); await clickText(c, "button", "Check");
   report(await has("is not a link in the navigation or footer"), "it rejects a target link that does not exist");
-  await setValue(c, ".m-code", JSON.stringify(reduced)); await clickText(c, "button", "Save as version 4");
-  await wait("Saved as version 4");
+  await setValue(c, ".m-code", JSON.stringify(reduced)); await clickText(c, "button", "Save as version 5");
+  await wait("Saved as version 5");
   report(true, "a valid edit saves as the next version");
 
   // ---------- B: a full desktop session ----------
@@ -269,7 +269,7 @@ try {
   await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
   report(await has("Finished") && await has("P1"), "after a reload the finished session is still there");
   await tab("Content");
-  report(await has("Version 4"), "and the saved content version survived the reload");
+  report(await has("Version 5"), "and the saved content version survived the reload");
 
   // ---------- E: resume after an interruption, then end early between tasks ----------
   await tab("Sessions");

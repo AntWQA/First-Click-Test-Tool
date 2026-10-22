@@ -7,6 +7,8 @@ import { download, seconds, stamp, TIER_LABELS } from "../format.ts";
 import { DownloadIcon } from "../brand.tsx";
 import { BREAKPOINTS } from "../../shared/protocol.ts";
 
+const LEGACY_LEDE =       <p className="m-lede">Ask: "Which task felt hardest?" "Was there anything you expected in the menu that wasn't there?" "Anything you would rename?" Explain any label only now, never before a task. Then thank them. Findings for each task can be added here, or later from the Ledger; nothing has to be done before the next participant.</p>;
+
 export function Debrief({ session, onReview }: { session: Session; onReview: (sessionId: string, runId: string) => void }) {
   const { dispatch, closeSession, content } = useApp();
   const [notes, setNotes] = useState(session.debriefNotes);
@@ -24,10 +26,12 @@ export function Debrief({ session, onReview }: { session: Session; onReview: (se
     <main className="m-page">
       <p className="m-kicker">{session.participantId}{session.practice ? " · practice" : ""}</p>
       <h1>{ended ? "Session record" : session.status === "ended-early" ? "Session ended early" : "Tasks complete"}</h1>
-      {!ended && <p className="m-lede">Ask: "Which task felt hardest?" "Was there anything you expected in the menu that wasn't there?" "Anything you would rename?" Explain any label only now, never before a task. Then thank them. Findings for each task can be added here, or later from the Ledger; nothing has to be done before the next participant.</p>}
+      {!ended && (session.content.debrief && session.content.debrief.length > 0
+        ? <><p className="m-lede">Debrief, about 4 minutes. Explain any label only now, never before a task.</p><ol className="m-debrief">{session.content.debrief.map((d) => <li key={d}>{d}</li>)}</ol></>
+        : LEGACY_LEDE)}
       <table className="m-table">
         <caption className="sr-only">Every attempt in this session</caption>
-        <thead><tr><th>Task</th><th>Breakpoint</th><th>Attempt</th><th>Status</th><th>Tier</th><th>Ease</th><th>First interaction</th><th>Counted</th><th>Findings</th></tr></thead>
+        <thead><tr><th>Task</th><th>Breakpoint</th><th>Attempt</th><th>Status</th><th>Tier</th><th>Ease</th><th>Time (allowance)</th><th>First interaction</th><th>Counted</th><th>Findings</th></tr></thead>
         <tbody>
           {session.runs.map((r) => {
             const t = session.content.tasks.find((x) => x.id === r.taskId);
@@ -35,7 +39,7 @@ export function Debrief({ session, onReview }: { session: Session; onReview: (se
             return (
               <tr key={r.runId}>
                 <td>{r.taskId} {t?.title}</td><td>{BREAKPOINTS[r.breakpoint].label}</td><td>{r.attempt}</td><td>{r.status}</td>
-                <td>{e.tier ? `${e.tier} ${TIER_LABELS[e.tier]}` : "n/a"}</td><td>{r.ease ?? "n/a"}</td><td>{seconds(r.suggestion?.firstInteractionMs)}</td><td>{counted.has(r.runId) ? "Yes" : "No"}</td>
+                <td>{e.tier ? `${e.tier} ${TIER_LABELS[e.tier]}` : "n/a"}</td><td>{r.ease ?? "n/a"}</td><td>{seconds(r.durationMs)}{t?.minutes ? ` (${t.minutes} min)` : ""}</td><td>{seconds(r.suggestion?.firstInteractionMs)}</td><td>{counted.has(r.runId) ? "Yes" : "No"}</td>
                 <td>{r.status === "completed" ? <button type="button" className="btn btn-quiet" onClick={() => onReview(session.id, r.runId)}>{r.moderator.reviewed ? "Edit" : "Add"}<span className="sr-only"> findings for {r.taskId} {t?.title}</span></button> : <span className="m-note-quiet">n/a</span>}</td>
               </tr>
             );

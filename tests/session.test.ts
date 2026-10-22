@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_CONTENT } from "../src/shell/domain/tasks.ts";
+import { NAVIGATION_CONTENT } from "../src/shell/domain/tasks.ts";
 import { countedRuns, createSession, currentRun, currentTaskId, effective, IllegalTransition, MAX_EVENTS_PER_RUN, planCounts, reduce, reserveTasksLeft, surfaceOf, taskProgress } from "../src/shell/domain/session.ts";
 import type { Action, RunModerator, Session } from "../src/shell/domain/session.ts";
 import { leaf, open, ready } from "./helpers.ts";
@@ -8,7 +8,7 @@ import { leaf, open, ready } from "./helpers.ts";
 const T0 = 1_700_000_000_000;
 let n = 0;
 const fresh = (over: Partial<Parameters<typeof createSession>[0]> = {}): Session =>
-  createSession({ id: "s1", now: T0, participantId: "P1", content: DEFAULT_CONTENT, ...over });
+  createSession({ id: "s1", now: T0, participantId: "P1", content: NAVIGATION_CONTENT, ...over });
 const apply = (s: Session, ...actions: Action[]) => actions.reduce(reduce, s);
 const present = (s: Session, at: number) => reduce(s, { type: "present", at, runId: "r" + ++n });
 const winning = [ready(0), open("shop", 200), leaf("/shop/goal/sleep-solutions", "shop", "Shop by Goal", 1500)];
@@ -195,7 +195,7 @@ test("ease must be a whole number from 1 to 7", () => {
   assert.equal(rated.cursor, 1);
 });
 
-const noReserves = () => ({ ...DEFAULT_CONTENT, tasks: DEFAULT_CONTENT.tasks.filter((t) => !t.reserve) });
+const noReserves = () => ({ ...NAVIGATION_CONTENT, tasks: NAVIGATION_CONTENT.tasks.filter((t) => !t.reserve) });
 
 test("the hand-back screen comes only after the last task, and leads to the debrief", () => {
   let s = reduce({ ...fresh({ content: noReserves() }), order: ["T1", "T3"] }, { type: "start", at: T0 });

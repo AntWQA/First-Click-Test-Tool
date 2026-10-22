@@ -32,9 +32,10 @@ async function doScenario(ease) {
   await waitMsg(c, (m) => m.type === "ready", 20000);
   await c.waitPage("[...document.querySelectorAll('.p-actions .btn')].every(b=>!b.disabled)", 8000, "the end buttons to unlock");
   await sleep(200);
-  await c.ev("[...document.querySelectorAll('.p-actions .btn')].find(b=>b.textContent==='I can\\'t find it').click()");
-  await wait("how easy was it to know where to start");
+  await c.ev("[...document.querySelectorAll('.p-actions .btn')].find(b=>b.textContent==='I can\\'t find it'||b.textContent.trim()==='Done').click()");
+  await wait("overall, how easy was it");
   await c.ev(`document.querySelector('input[name=ease][value="${ease}"]').click()`);
+  await c.ev(`document.querySelector('input[name=confidence][value="5"]')?.click()`);
   await clickText(c, "button", "Done");
 }
 
@@ -45,8 +46,8 @@ try {
   const headerOnlyTheme = "document.querySelectorAll('header button').length === 1 && /mode/i.test(document.querySelector('header button').getAttribute('aria-label') ?? '') && document.querySelectorAll('header a, .m-tab').length === 0";
   report(await c.ev(headerOnlyTheme), "the header carries the brand and one light/dark button: no tabs, no shortcuts button");
   report(!(await has("Ledger")) && !(await has("Content")) && !(await has("Preview")) && !(await has("moderator")), "no moderator wording or screens are anywhere on it");
-  report(await has("12 short scenarios"), "it says how many scenarios there are");
-  report(await has("We are testing the website's navigation, not you."), "the intro says the navigation is being tested, not the participant");
+  report(await has("11 short scenarios"), "it says how many scenarios there are");
+  report(await has("We are testing the website, not you."), "the intro says the website is being tested, not the participant");
   report(await c.ev(basics), "setup: one h1, every field has a visible label, every control is at least 40px tall");
 
   // The light/dark button makes a choice that is remembered across a reload.
@@ -105,12 +106,12 @@ try {
   await clickText(c, ".tour-tip button", "Skip"); await sleep(200);
   await doScenario(3);
   await wait("Ready for the next scenario?");
-  report((await has("Scenario 2 of 12")) && !(await has("Researcher: continue")), "after a scenario the next one is offered at once, with no hand-back");
+  report((await has("Scenario 2 of 11")) && !(await has("Researcher: continue")), "after a scenario the next one is offered at once, with no hand-back");
 
   // Closing the window part-way through must not lose anything.
   await c.send("Page.reload"); await sleep(900);
   await wait("Ready for the next scenario?", 20000);
-  report(await has("Scenario 2 of 12"), "reloading part-way through carries on at the same place");
+  report(await has("Scenario 2 of 11"), "reloading part-way through carries on at the same place");
 
   // Ctrl+Shift+M is the moderator's end-early menu; it does not exist here.
   await c.send("Input.dispatchKeyEvent", { type: "keyDown", key: "M", code: "KeyM", modifiers: 10 });

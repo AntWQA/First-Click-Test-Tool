@@ -12,13 +12,19 @@ import { RecorderBridge } from "./recorder/RecorderBridge.tsx";
 
 installRecorder();
 
+/** The page a task starts on: set by the shell per task. Anything that is not an in-site path falls back to the homepage. */
+const startPath = (): string => {
+  const raw = window.__WC_START__ ?? new URLSearchParams(window.location.search).get("start") ?? "/";
+  return raw.startsWith("/") && !raw.startsWith("//") && raw.length < 200 ? raw : "/";
+};
+
 // Test tool copy: a MemoryRouter, because the document lives in an iframe srcdoc where there is no URL to route on.
 // "Reset" from the shell remounts the whole app (router, search state, open menus) instead of reloading a 3 MB document.
 function Boot() {
   const [generation, setGeneration] = useState(0);
   useEffect(() => onShellReset(() => { setGeneration((g) => g + 1); window.scrollTo({ top: 0 }); }), []);
   return (
-    <MemoryRouter key={generation} initialEntries={["/"]}>
+    <MemoryRouter key={generation} initialEntries={[startPath()]}>
       <RecorderBridge />
       <App />
     </MemoryRouter>

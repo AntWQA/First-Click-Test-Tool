@@ -25,7 +25,7 @@ export interface ReviewItem {
   action: Action;
 }
 
-const hrefs = (t: Task): string => [...t.primary, ...t.acceptable, ...t.separate].map((x) => x.href).sort().join("|");
+const hrefs = (t: Task): string => [...t.primary, ...t.acceptable, ...t.separate].map((x) => x.href ?? `@${x.zone}`).sort().join("|");
 
 export interface ContentCheck { missing: string[]; scenarioDiffers: string[]; targetsDiffer: string[]; versionDiffers: boolean }
 

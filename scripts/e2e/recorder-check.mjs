@@ -55,6 +55,7 @@ try {
   await clickLink("[data-testid=nav-link-shop-goal-sleep-solutions]");
   const leaf = await waitMsg(c, (m) => m.type === "click" && m.kind === "nav-leaf");
   report(leaf?.href === "/shop/goal/sleep-solutions" && leaf.section === "shop" && leaf.column === "Shop by Goal" && leaf.ends === true, "a mega menu link click carries href, section and column and ends the task", JSON.stringify(leaf));
+  report(leaf?.zone === "nav-shop", "and carries the nav-shop zone, which a click task's header route is scored on", String(leaf?.zone));
   const route = await waitMsg(c, (m) => m.type === "route" && m.path === "/shop/goal/sleep-solutions");
   report(!!route, "the route change to the destination is reported");
 

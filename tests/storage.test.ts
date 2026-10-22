@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_CONTENT } from "../src/shell/domain/tasks.ts";
+import { DEFAULT_CONTENT, NAVIGATION_CONTENT } from "../src/shell/domain/tasks.ts";
 import { createSession } from "../src/shell/domain/session.ts";
 import { createStore, memoryBacking } from "../src/shell/domain/storage.ts";
 import type { Backing } from "../src/shell/domain/storage.ts";
 import { nextContent } from "../src/shell/domain/content.ts";
 
-const mk = (id: string) => createSession({ id, now: 1000, participantId: "P1", content: DEFAULT_CONTENT });
+const mk = (id: string) => createSession({ id, now: 1000, participantId: "P1", content: NAVIGATION_CONTENT });
 
 test("sessions survive a reload (a new store over the same backing)", () => {
   const backing = memoryBacking();
@@ -47,8 +47,8 @@ test("content falls back to the defaults when missing or invalid, and a saved ed
   const backing = memoryBacking({ "wc.v1.content": "garbage" });
   const store = createStore(backing, () => 1);
   assert.equal(store.loadContent().version, DEFAULT_CONTENT.version);
-  const edited = nextContent(DEFAULT_CONTENT, { ...DEFAULT_CONTENT, tasks: DEFAULT_CONTENT.tasks.slice(0, 3) }, "2026-10-14T10:00:00Z");
-  assert.equal(edited.version, DEFAULT_CONTENT.version + 1);
+  const edited = nextContent(NAVIGATION_CONTENT, { ...NAVIGATION_CONTENT, tasks: NAVIGATION_CONTENT.tasks.slice(0, 3) }, "2026-10-14T10:00:00Z");
+  assert.equal(edited.version, NAVIGATION_CONTENT.version + 1);
   assert.equal(store.saveContent(edited).ok, true);
   assert.equal(store.loadContent().tasks.length, 3);
 });

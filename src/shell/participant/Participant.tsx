@@ -2,9 +2,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import type { FormEvent } from "react";
 import { makeId, useApp } from "../state.tsx";
 import { Frame } from "../Frame.tsx";
-import { currentRun, reserveTasksLeft } from "../domain/session.ts";
+import { currentRun, leadInFor, reserveTasksLeft } from "../domain/session.ts";
 import type { Session } from "../domain/session.ts";
 import { taskById } from "../domain/content.ts";
+import type { Task } from "../domain/tasks.ts";
 import type { Breakpoint, ProtoMessage } from "../../shared/protocol.ts";
 import { AppHeader } from "../AppHeader.tsx";
 import { ArrowIcon, DeviceIcon, Logo, PersonIcon } from "../brand.tsx";
@@ -45,7 +46,7 @@ export function Participant({ session, theme, onToggleTheme }: { session: Sessio
       {showHeader && <AppHeader moderator={false} theme={theme} onToggleTheme={onToggleTheme} />}
       {session.phase === "intro" && <Intro session={session} />}
       {session.phase === "task" && <Task key={currentRun(session)!.runId} session={session} onModeratorKey={() => setMenu(true)} />}
-      {session.phase === "rating" && <Rating />}
+      {session.phase === "rating" && <Rating session={session} />}
       {session.phase === "offer" && <Offer session={session} />}
       {session.phase === "handBack" && !SELF_RUN && <HandBack session={session} />}
       {menu && !SELF_RUN && <ModeratorMenu onClose={() => setMenu(false)} />}
@@ -67,8 +68,8 @@ function Intro({ session }: { session: Session }) {
         <h1 ref={heading} tabIndex={-1}>{first ? "Thanks for taking part" : "Ready for the next scenario?"}</h1>
         {first ? (
           <>
-            <p>You will see a short scenario, then a website's menu. Show us where you would click first to find what you need.</p>
-            <p><strong>We are testing the website's navigation, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website. Please say your thoughts out loud as you go.</p>
+            <p>You will see a short scenario, then part of a website. Do what you would do first to find what you need, and tell us what you are thinking.</p>
+            <p><strong>We are testing the website, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website. Please say your thoughts out loud as you go.</p>
           </>
         ) : (
           <p>Take your time. When you are ready, the next scenario will appear.</p>
@@ -87,6 +88,7 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
   const { dispatch } = useApp();
   const run = currentRun(session)!;
   const task = taskById(session.content, run.taskId)!;
+  const leadIn = leadInFor(task, session);
   const begun = run.status === "active";
   const card = useRef<HTMLDivElement>(null);
   const before = useRef<DOMRect | null>(null);
@@ -97,7 +99,7 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
   const addTourMs = useCallback((ms: number) => { tourMs.current += ms; }, []);
   const tourSteps = useRef<TourStep[]>([
     { target: () => document.querySelector<HTMLElement>(".p-task-text"), title: "Your scenario", text: "Imagine you really are looking for this. The label shows which screen size you will see." },
-    { target: () => document.querySelector<HTMLElement>(".p-task-card .btn-primary"), title: "Press Begin when you're ready", text: "The website appears below. Click where you would look first, or press I can't find it." },
+    { target: () => document.querySelector<HTMLElement>(".p-task-card .btn-primary"), title: "Press Begin when you're ready", text: task.kind === "observe" ? "The website appears below. Look at it, say what you think, then press Done." : "The website appears below. Click where you would look first, or press I can't find it." },
   ]);
   useEnterPrimary(".p-task-card .btn-primary", !begun && !tourOn);
   // The end buttons wait for the website to be ready (plus a beat), so a double-click on Begin cannot land on "I can't find
@@ -151,15 +153,17 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
         <span className="p-banner-logo"><Logo /></span>
         <div className="p-task-text">
           <p className="p-label">{begun ? "Your task" : task.reserve ? "One more scenario" : `Scenario ${session.cursor + 1} of ${session.order.length}`}</p>
+          {leadIn && <p className="p-leadin">{leadIn}</p>}
           <h1 ref={heading} tabIndex={-1} className="p-scenario">{task.scenario}</h1>
+          {task.questions.length > 0 && <ul className="p-questions">{task.questions.map((q) => <li key={q}>{q}</li>)}</ul>}
           {!begun && <p className="p-device"><span className="pill"><DeviceIcon device={run.breakpoint} />You'll be viewing: {DEVICE[run.breakpoint]}</span></p>}
         </div>
         {!begun ? (
           <button type="button" className="btn btn-primary btn-lg" onClick={begin}>Begin <span className="enter-chip" aria-hidden="true">↵</span></button>
         ) : (
           <div className="p-actions">
-            <button type="button" className="btn btn-secondary" disabled={!canEnd} onClick={() => end("gave-up")}>I can't find it</button>
-            <button type="button" className="btn btn-primary" disabled={!canEnd} onClick={() => end("found")}>I found it</button>
+            {task.kind !== "observe" && <button type="button" className="btn btn-secondary" disabled={!canEnd} onClick={() => end("gave-up")}>I can't find it</button>}
+            <button type="button" className="btn btn-primary" disabled={!canEnd} onClick={() => end("found")}>{task.kind === "observe" ? "Done" : "I found it"}</button>
           </div>
         )}
       </div>
@@ -167,7 +171,7 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
       {!begun && <p className="p-hint">When you press Begin, the website's menu will appear below, as it looks on a {DEVICE[run.breakpoint].toLowerCase()} screen.</p>}
       {begun && (
         <div className="p-stage">
-          <Frame breakpoint={run.breakpoint} resetKey={0} onMessage={onMessage} onScale={onScale} />
+          <Frame breakpoint={run.breakpoint} resetKey={0} onMessage={onMessage} onScale={onScale} start={task.start} />
         </div>
       )}
     </main>
@@ -176,20 +180,23 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
 
 const EASE_LABELS = ["Very difficult", "Difficult", "A little difficult", "Neither", "A little easy", "Easy", "Very easy"];
 
-function Rating() {
+function Rating({ session }: { session: Session }) {
   const { dispatch } = useApp();
+  const task: Task | undefined = taskById(session.content, currentRun(session)?.taskId ?? "");
   const [ease, setEase] = useState<number | null>(null);
+  const [confidence, setConfidence] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const heading = useHeadingFocus("rating");
+  const asksConfidence = (task?.confidence ?? "") !== "";
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (ease !== null) dispatch({ type: "rate", at: Date.now(), ease, notes });
+    if (ease !== null && (!asksConfidence || confidence !== null)) dispatch({ type: "rate", at: Date.now(), ease, notes, confidence });
   };
   return (
     <main className="p-screen p-center phase-enter">
       <form className="p-card p-rating" onSubmit={submit}>
         <fieldset>
-          <legend><h1 ref={heading} tabIndex={-1}>Overall, how easy was it to know where to start?</h1></legend>
+          <legend><h1 ref={heading} tabIndex={-1}>{task?.kind === "nav" || task === undefined ? "Overall, how easy was it to know where to start?" : "Overall, how easy was it to do this?"}</h1></legend>
           <div className="p-scale">
             {EASE_LABELS.map((label, i) => (
               <label key={label} className="p-scale-item">
@@ -201,9 +208,24 @@ function Rating() {
           </div>
           <div className="p-scale-ends" aria-hidden="true"><span>Very difficult</span><span>Very easy</span></div>
         </fieldset>
-        <label className="p-field" htmlFor="ease-notes">What did you expect to find there? Was anything confusing or surprising? (optional)</label>
+        {asksConfidence && (
+          <fieldset>
+            <legend><h2 className="p-subq">{task!.confidence}</h2></legend>
+            <div className="p-scale">
+              {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                <label key={n} className="p-scale-item">
+                  <input type="radio" name="confidence" value={n} checked={confidence === n} onChange={() => setConfidence(n)} />
+                  <span className="p-scale-box" aria-hidden="true">{n}</span>
+                  <span className="sr-only">{n} of 7</span>
+                </label>
+              ))}
+            </div>
+            <div className="p-scale-ends" aria-hidden="true"><span>Not at all sure</span><span>Completely sure</span></div>
+          </fieldset>
+        )}
+        <label className="p-field" htmlFor="ease-notes">{task?.notesPrompt ? `${task.notesPrompt} (optional)` : "What did you expect to find there? Was anything confusing or surprising? (optional)"}</label>
         <textarea id="ease-notes" rows={4} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <button type="submit" className="btn btn-primary btn-lg" disabled={ease === null}>Done</button>
+        <button type="submit" className="btn btn-primary btn-lg" disabled={ease === null || (asksConfidence && confidence === null)}>Done</button>
       </form>
     </main>
   );

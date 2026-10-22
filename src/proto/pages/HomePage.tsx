@@ -108,7 +108,7 @@ export function HomePage() {
               <Text size="textLg">Essential oils, supplements and personal care, made from plants grown where they thrive and tested on every batch.</Text>
               <Flex align="center" spacing="sm" wrap>
                 <Button as="a" href="#best-sellers" variant="tertiary" size="xlarge" data-testid="hero-shop-best-sellers">Shop best sellers</Button>
-                <Button as="a" href="#quality" variant="link-inherit" size="xlarge" data-testid="hero-how-we-test">How we test</Button>
+                <Button as="a" href="#quality" variant="link-inherit" size="xlarge" data-testid="hero-how-we-test" data-zone="quality">How we test</Button>
               </Flex>
               <Flex spacing={{ xs: "lg", md: 9 }} wrap>
                 {[["176", "analyses on the life of a single oil"], ["60+", "quality tests on every bottle"], ["40+", "countries we source from"]].map(([figure, label]) => (
@@ -123,17 +123,17 @@ export function HomePage() {
         </Container>
       </Section>
 
-      <Box id="why-doterra" className={HEADROOM}>
+      <Box id="why-doterra" className={HEADROOM} data-zone="why">
         <Section size="lg">
           <Container width="wide">
             <Stack spacing="xl">
               <Stack spacing="md">
                 {sectionHeading("Why dōTERRA", <span className="section-header__headline-nowrap">What we do, and why you can trust it</span>, "Every bottle starts with a plant grown in its native soil, and ends with more testing than most brands ever run.")}
                 <Flex justify="start" spacing="md">
-                  <Button as="a" href="#quality" variant="link-secondary" size="medium" icon="arrow-right" iconPosition="right" data-testid="section-link-quality">How we source and test</Button>
+                  <Button as="a" href="#quality" variant="link-secondary" size="medium" icon="arrow-right" iconPosition="right" data-testid="section-link-quality" data-zone="quality">How we source and test</Button>
                 </Flex>
               </Stack>
-              <Grid gap="xl">
+              <Grid gap="xl" data-zone="why-value-cards">
                 {VALUES.map((v) => (
                   <Grid.Column key={v.headline} span={{ xs: 12, md: 4 }}>
                     <CtaCard image={v.image} headline={v.headline} body={v.body}
@@ -146,7 +146,7 @@ export function HomePage() {
         </Section>
       </Box>
 
-      <Box id="best-sellers" className={HEADROOM}>
+      <Box id="best-sellers" className={HEADROOM} data-zone="best-sellers">
         <Section size="lg">
           <Container width="wide">
             <Stack spacing="xl">
@@ -163,7 +163,7 @@ export function HomePage() {
         </Section>
       </Box>
 
-      <Box id="shop" className={HEADROOM}>
+      <Box id="shop" className={HEADROOM} data-zone="category">
         <Section size="lg">
           <Container width="wide">
             <Stack spacing="xl">
@@ -188,7 +188,7 @@ export function HomePage() {
         </Section>
       </Box>
 
-      <Box backgroundColor="extra-light" id="quality" className={HEADROOM}>
+      <Box backgroundColor="extra-light" id="quality" className={HEADROOM} data-zone="quality">
         <Section size="lg">
           <Container width="wide">
             <Duplex media={<Image src={img.credibility} alt="Capsules poured from a PB Restore ProBiome Complex bottle into a hand" ratio="3:4" radius="xl" />}>
@@ -209,7 +209,7 @@ export function HomePage() {
         </Section>
       </Box>
 
-      <Box id="offers" className={`${utilClassNames("py-13")} ${HEADROOM}`}>
+      <Box id="offers" className={`${utilClassNames("py-13")} ${HEADROOM}`} data-zone="offers">
         <Container width="wide">
           <Stack spacing="xl">
             <Grid gap={{ xs: "md", lg: "xl" }} align="end">
@@ -241,7 +241,7 @@ export function HomePage() {
         </Container>
       </Box>
 
-      <Box backgroundColor="extra-light" id="faq" className={HEADROOM}>
+      <Box backgroundColor="extra-light" id="faq" className={HEADROOM} data-zone="faq">
         <Section size="lg">
           <Container width="wide">
             <Grid gap={{ xs: "lg", lg: "xxl" }}>
@@ -263,7 +263,7 @@ export function HomePage() {
         </Section>
       </Box>
 
-      <Box backgroundColor="inverse" id="newsletter" className={HEADROOM}>
+      <Box backgroundColor="inverse" id="newsletter" className={HEADROOM} data-zone="newsletter-contact">
         <Section size="lg">
           <Container width="wide">
             <Grid gap="lg">

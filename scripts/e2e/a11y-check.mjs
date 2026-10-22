@@ -84,10 +84,11 @@ try {
   await screen("Task after Begin");
   report((await c.ev("document.querySelector('iframe').title")).length > 3, "the frame has a title");
   await c.waitPage("[...document.querySelectorAll('.p-actions .btn')].every(b=>!b.disabled)", 10000, "the end buttons to unlock");
-  await c.ev("[...document.querySelectorAll('.p-actions .btn')].find(b=>b.textContent==='I can\\'t find it').click()");
+  await c.ev("[...document.querySelectorAll('.p-actions .btn')].find(b=>b.textContent==='I can\\'t find it'||b.textContent.trim()==='Done').click()");
   await wait("how easy was it"); await screen("Rating");
   report(await c.ev("!!document.querySelector('fieldset legend h1') && document.querySelectorAll('input[type=radio][name=ease]').length===7"), "Rating: seven native radios in a fieldset with a legend");
   await c.ev("document.querySelector('input[name=ease][value=\"5\"]').click()");
+  await c.ev("document.querySelector('input[name=confidence][value=\"5\"]')?.click()");
   await clickText(c, "button", "Done"); await wait("Ready for the next scenario"); await screen("Next scenario");
   const mkey = async () => { await c.send("Input.dispatchKeyEvent", { type: "keyDown", key: "M", code: "KeyM", modifiers: 10 }); await c.send("Input.dispatchKeyEvent", { type: "keyUp", key: "M", code: "KeyM", modifiers: 10 }); await c.waitPage("!!document.querySelector('dialog[open]')"); };
   await mkey();

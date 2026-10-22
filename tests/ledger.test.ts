@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_CONTENT } from "../src/shell/domain/tasks.ts";
+import { NAVIGATION_CONTENT } from "../src/shell/domain/tasks.ts";
 import { createSession, reduce } from "../src/shell/domain/session.ts";
 import type { Session } from "../src/shell/domain/session.ts";
 import { ledger, median, rateVerdict, tallyTask, worstVerdict } from "../src/shell/domain/ledger.ts";
@@ -12,7 +12,7 @@ let n = 0;
 
 /** A finished session whose single task is `taskId`, built through the real reducer. */
 function session(id: string, taskId: string, events: CapturedEvent[], opts: { ease?: number; practice?: boolean; breakpoint?: "desktop" | "mobile"; reason?: "destination" | "gave-up" | "found" } = {}): Session {
-  let s = createSession({ id, now: T0, participantId: id, practice: opts.practice, content: DEFAULT_CONTENT });
+  let s = createSession({ id, now: T0, participantId: id, practice: opts.practice, content: NAVIGATION_CONTENT });
   s = { ...s, order: [taskId], plan: { [taskId]: opts.breakpoint ?? "desktop" } };
   s = reduce(s, { type: "start", at: T0 });
   s = reduce(s, { type: "present", at: T0, runId: "r" + ++n });
@@ -132,8 +132,8 @@ test("different participants are all counted", () => {
 });
 
 test("results come from each session's own task snapshot, so editing the content later never drops or relabels them", () => {
-  const renamed = { ...hit("a"), content: { ...DEFAULT_CONTENT, version: 2, tasks: DEFAULT_CONTENT.tasks.map((t) => (t.id === "T1" ? { ...t, title: "Rest" } : t)) } };
-  const removed = { ...hit("b"), content: { ...DEFAULT_CONTENT, version: 3, tasks: DEFAULT_CONTENT.tasks.filter((t) => t.id !== "T1").concat({ ...DEFAULT_CONTENT.tasks[0]!, id: "T1" }) } };
+  const renamed = { ...hit("a"), content: { ...NAVIGATION_CONTENT, version: 2, tasks: NAVIGATION_CONTENT.tasks.map((t) => (t.id === "T1" ? { ...t, title: "Rest" } : t)) } };
+  const removed = { ...hit("b"), content: { ...NAVIGATION_CONTENT, version: 3, tasks: NAVIGATION_CONTENT.tasks.filter((t) => t.id !== "T1").concat({ ...NAVIGATION_CONTENT.tasks[0]!, id: "T1" }) } };
   const rows = ledger([renamed, removed]);
   assert.equal(rows.length, 1);
   assert.equal(rows[0]!.n, 2);

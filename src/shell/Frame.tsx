@@ -9,6 +9,8 @@ interface Props {
   onMessage: (msg: ProtoMessage) => void;
   /** Called when the scale at which the frame is shown changes (1 means true size). */
   onScale?: (scale: number) => void;
+  /** The page this task starts on inside the prototype (a path). Left out, the homepage. */
+  start?: string;
 }
 
 const newNonce = () => (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36));
@@ -23,7 +25,7 @@ export const fitScale = (availW: number, availH: number, spec: { width: number; 
  * and height from the Figma frames), scaled down with a transform when the window is too small; the layout inside
  * stays at the true breakpoint, and pointer positions inside it stay in true-breakpoint coordinates.
  */
-export function Frame({ breakpoint, resetKey, onMessage, onScale }: Props) {
+export function Frame({ breakpoint, resetKey, onMessage, onScale, start }: Props) {
   const spec = BREAKPOINTS[breakpoint];
   const stage = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -64,8 +66,8 @@ export function Frame({ breakpoint, resetKey, onMessage, onScale }: Props) {
 
   const embedded = window.__PROTO_HTML__;
   const srcDoc = useMemo(
-    () => (embedded ? embedded.replace("<!--wc-nonce-->", `<script>window.__WC_NONCE__=${JSON.stringify(nonce)};</script>`) : undefined),
-    [embedded, nonce],
+    () => (embedded ? embedded.replace("<!--wc-nonce-->", `<script>window.__WC_NONCE__=${JSON.stringify(nonce)};${start ? `window.__WC_START__=${JSON.stringify(start)};` : ""}</script>`) : undefined),
+    [embedded, nonce, start],
   );
 
   return (
@@ -75,7 +77,7 @@ export function Frame({ breakpoint, resetKey, onMessage, onScale }: Props) {
           ref={frame}
           title="Website navigation"
           sandbox="allow-scripts"
-          {...(srcDoc ? { srcDoc } : { src: `/proto.html?nonce=${encodeURIComponent(nonce)}` })}
+          {...(srcDoc ? { srcDoc } : { src: `/proto.html?nonce=${encodeURIComponent(nonce)}${start ? `&start=${encodeURIComponent(start)}` : ""}` })}
           style={{ width: spec.width, height: spec.height, transform: `scale(${scale})` }}
         />
       </div>

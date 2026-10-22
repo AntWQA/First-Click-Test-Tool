@@ -22,11 +22,27 @@ try {
   const cards = JSON.parse(card);
   report(FEATURED.every((s) => cards[s] && /\$\d/.test(cards[s].text) && cards[s].img), "all five best seller cards show a name, a price and an image", FEATURED.filter((s) => !cards[s]).join(","));
 
+  // Zones: each real click reports the part of the page it landed in, which is how a click task is scored.
+  const zoneOf = async (selector, label, want) => {
+    const pt = await waitPoint(c, selector, { scrollIntoView: true });
+    if (!pt) { report(false, `${label}: the element was not found`, selector); return; }
+    await c.clearMsgs(); await c.click(pt.x, pt.y);
+    const m = await waitMsg(c, (x) => x.type === "click");
+    report(m?.zone === want, `${label} reports the ${want} zone`, JSON.stringify(m));
+  };
+  // Homepage zones: the bands a click task can name. Each click only records, so the page stays where it is.
+  await zoneOf(".hp-hero h1", "the hero heading", "hero");
+  await zoneOf('[data-zone="why-value-cards"] > *', "a value card", "why-value-cards");
+  await zoneOf('[data-testid="section-link-quality"]', "the How we source and test link", "quality");
+  await zoneOf("#quality h2", "the quality block heading", "quality");
+  await zoneOf("#offers h2", "the offers heading", "offers");
+  await zoneOf("#faq h2", "the FAQ heading", "faq");
   await c.clearMsgs();
   const p = await waitPoint(c, '[data-testid="product-card-lavender"]', { scrollIntoView: true });
   await c.click(p.x, p.y);
   const click = await waitMsg(c, (m) => m.type === "click" && m.testid === "product-card-lavender");
   report(click && click.ends === false && click.kind === "other", "clicking a product card is recorded and does not end a task", JSON.stringify(click));
+  report(click?.zone === "best-sellers", "the card click carries the best-sellers zone", String(click?.zone));
   const route = await waitMsg(c, (m) => m.type === "route" && /^\/shop\/products\//.test(m.path));
   report(!!route, "the route change to the product page is reported", route?.path);
   await c.waitFrame("!!document.querySelector('[data-testid=pdp-buy-box]')", 10000, "the product page");
@@ -53,14 +69,31 @@ try {
   await c.click(add.x, add.y);
   const addClick = await waitMsg(c, (m) => m.type === "click" && m.testid === "pdp-add-to-cart");
   report(addClick && addClick.ends === false, "the add button click is recorded and does not end a task", JSON.stringify(addClick));
+  report(addClick?.zone === "add-to-cart", "the add button click carries the add-to-cart zone", String(addClick?.zone));
   const label = await c.evFrame("document.querySelector('[data-testid=pdp-add-to-cart]').innerText");
   report(/added/i.test(label), "the add button confirms", label);
+  // Zones, product page. (zoneOf is defined with the homepage zones above.)
+  await zoneOf('[data-testid="pdp-option-one-time"] label', "choosing the one-time option", "option-one-time");
+  await zoneOf('[data-testid="pdp-option-account"] label', "choosing the account option", "option-account");
+  await zoneOf('[data-testid="pdp-quantity"] button:last-of-type', "the quantity plus button (the minus is disabled at 1)", "quantity");
+  await zoneOf('[data-testid="pdp-gallery"] img', "the gallery", "gallery");
+  await zoneOf('[data-testid="pdp-title"]', "the product title", "badges-title");
+  await zoneOf('[data-testid="pdp-rating"]', "the rating", "rating");
+  await zoneOf('[data-testid="pdp-shipping-link"]', "the shipping line link", "shipping");
+  await c.waitFrame("!!document.querySelector('[role=dialog] table')", 8000, "the shipping overlay opened by that click");
+  await c.key("Escape", "Escape"); await sleep(400);
+  await c.evFrame("document.querySelector('[role=dialog]')?.querySelector('button')?.click()"); await sleep(300);
   const ship = await waitPoint(c, '[data-testid="pdp-shipping-link"]', { scrollIntoView: true });
   await c.click(ship.x, ship.y);
   await c.waitFrame("!!document.querySelector('[role=dialog] table')", 8000, "the shipping options overlay");
   const rows = await c.evFrame("document.querySelectorAll('[role=dialog] tbody tr').length");
   report(rows === 6, "the shipping options overlay lists six delivery rows", String(rows));
 
+  // The shipping overlay is still open; its backdrop would take the next click, so close it as a participant would.
+  await c.evFrame("document.querySelector('.dtds-modal__close-button')?.click()"); await sleep(500);
+  report(!(await c.evFrame("!!document.querySelector('.dtds-modal')")), "the shipping overlay closes");
+  // last: a footer link leaves the page
+  await zoneOf('footer ul a[href^="/"]', "a footer link", "footer");
   const outside = c.requests.filter((u) => !/^(file:|data:|blob:|about:)/.test(u));
   report(outside.length === 0, "no network requests were made", outside.slice(0, 3).join(", "));
   report(c.consoleErrors.length === 0, "no console errors or exceptions", c.consoleErrors.slice(0, 2).join(" | "));

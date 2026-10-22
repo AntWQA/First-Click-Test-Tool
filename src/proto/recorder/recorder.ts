@@ -35,6 +35,8 @@ export interface Classified {
   column?: string;
   label?: string;
   testid?: string;
+  /** The zone of the page the click landed in (see zoneFor). */
+  zone?: string;
   ends: boolean;
 }
 
@@ -50,7 +52,7 @@ function footerColumn(a: Element, href: string): string | undefined {
   return (entries.find((e) => e.column.toUpperCase() === heading) ?? (a.closest("ul") ? entries.find((e) => e.column === "Legal") : undefined) ?? entries[0])?.column;
 }
 
-export function classify(target: Element): Classified {
+function classifyKind(target: Element): Classified {
   const anchor = target.closest("a[href]");
   const testid = target.closest("[data-testid]")?.getAttribute("data-testid") ?? undefined;
   const href = anchor?.getAttribute("href") ?? undefined;
@@ -75,6 +77,35 @@ export function classify(target: Element): Classified {
     return { ...base, kind: "search", ends: false };
   }
   return { ...base, kind: "other", ends: false };
+}
+
+/**
+ * The zone a click landed in. A page marks its own areas with data-zone (the homepage and the product page do); the
+ * nearest one wins, so a link to the quality block can carry its own zone inside the hero. Clicks in the header and
+ * footer have no data-zone, so they get one from what they are: nav-<section>, footer, search or header.
+ */
+/** Controls whose Pure component takes a test id but not a data-zone (the product page accordion headers). */
+const TESTID_ZONES: Record<string, string> = {
+  "pdp-things-to-know": "things-to-know",
+  "pdp-product-description": "description",
+  "pdp-how-to-use": "how-to-use",
+};
+
+export function zoneFor(target: Element, c: Classified): string | undefined {
+  const explicit = target.closest("[data-zone]")?.getAttribute("data-zone");
+  if (explicit) return explicit;
+  if (c.testid && Object.hasOwn(TESTID_ZONES, c.testid)) return TESTID_ZONES[c.testid];
+  if (target.closest(".hp-hero")) return "hero";
+  if (c.kind === "nav-top" || c.kind === "nav-leaf" || c.kind === "featured") return c.section ? `nav-${c.section}` : "header";
+  if (c.kind === "footer") return "footer";
+  if (c.kind === "search") return "search";
+  if (c.kind === "logo" || c.kind === "utility" || c.kind === "menu-toggle" || c.kind === "back") return "header";
+  return undefined;
+}
+
+export function classify(target: Element): Classified {
+  const c = classifyKind(target);
+  return { ...c, zone: zoneFor(target, c) };
 }
 
 // ---------- menus ----------
@@ -138,7 +169,7 @@ export function installRecorder() {
     const c = classify(e.target);
     if (c.kind !== "search") return;
     searchPressAt = now();
-    post({ type: "click", at: searchPressAt, kind: "search", href: c.href, label: c.label, testid: c.testid, x: Math.round(e.clientX), y: Math.round(e.clientY), ends: false });
+    post({ type: "click", at: searchPressAt, kind: "search", href: c.href, label: c.label, testid: c.testid, zone: c.zone, x: Math.round(e.clientX), y: Math.round(e.clientY), ends: false });
   }, true);
 
   // Captured on window, before the app's own handlers, so nothing in the page can stop propagation and hide a click.
@@ -147,7 +178,7 @@ export function installRecorder() {
     if (!(target instanceof Element)) return;
     const c = classify(target);
     if (c.kind === "search" && now() - searchPressAt < 500) return;
-    post({ type: "click", at: now(), kind: c.kind, href: c.href, section: c.section, column: c.column, label: c.label, testid: c.testid, x: Math.round(e.clientX), y: Math.round(e.clientY), ends: c.ends });
+    post({ type: "click", at: now(), kind: c.kind, href: c.href, section: c.section, column: c.column, label: c.label, testid: c.testid, zone: c.zone, x: Math.round(e.clientX), y: Math.round(e.clientY), ends: c.ends });
     if (c.kind === "nav-top" && c.testid && MOBILE_ROW.test(c.testid) && c.section) {
       drillSection = c.section;
       emitOpen(c.section, "drill", "click");

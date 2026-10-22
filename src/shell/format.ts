@@ -15,6 +15,21 @@ export const CODE_LABELS: Record<number, string> = {
 
 export const sectionLabel = (id: string | null | undefined): string => (id ? (Object.hasOwn(SECTION_LABELS, id) ? SECTION_LABELS[id]! : id === "footer" ? "Footer" : id) : "none");
 
+/** Names for the click zones the homepage and product page are marked with, and for the derived header, footer and search zones. */
+export const ZONE_LABELS: Record<string, string> = {
+  hero: "Hero", why: "Why dōTERRA", "why-value-cards": "Why dōTERRA value cards", "best-sellers": "Best sellers", category: "Shop by category",
+  quality: "Quality block (or a link to it)", offers: "Offers", faq: "FAQ", "newsletter-contact": "Newsletter or contact",
+  gallery: "Gallery", "badges-title": "Badges and title", rating: "Rating", description: "Description", "buy-options": "Buy box options",
+  "option-one-time": "One time purchase option", "option-account": "Create an account and save option", quantity: "Quantity", "add-to-cart": "Add item to cart",
+  shipping: "Shipping line and overlay", cptg: "CPTG badge", "things-to-know": "Things to know", "usage-icons": "Usage icons", "how-to-use": "How to use",
+  reviews: "Reviews", recommended: "Recommended products", share: "Share and download",
+  footer: "Footer", search: "Search", header: "Header (logo, account, bag, menu button)",
+};
+export const zoneLabel = (z: string | null | undefined): string =>
+  !z ? "none" : Object.hasOwn(ZONE_LABELS, z) ? ZONE_LABELS[z]! : z.startsWith("nav-") ? `Header: ${sectionLabel(z.slice(4))}` : z;
+/** The places a doubt moment can be placed, for the doubt log (homepage zones, then product page zones). */
+export const DOUBT_ZONES = ["hero", "why", "best-sellers", "category", "quality", "offers", "gallery", "badges-title", "rating", "description", "buy-options", "add-to-cart", "shipping", "cptg", "things-to-know", "reviews", "faq", "recommended", "header", "footer"] as const;
+
 export const seconds = (ms: number | null | undefined): string => (ms === null || ms === undefined ? "n/a" : (ms / 1000).toFixed(1) + " s");
 
 export const clock = (t: number): string => new Date(t).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
@@ -27,7 +42,7 @@ export function describeEvent(e: CapturedEvent, readyAt: number): string {
     case "menu-open": return `${t}  Opened ${sectionLabel(e.section)} (${e.surface === "drill" ? "section row" : e.surface === "dropdown" ? "dropdown" : "menu"}, by ${e.via})`;
     case "menu-close": return `${t}  Closed ${sectionLabel(e.section)}`;
     case "click": {
-      const where = [e.section ? sectionLabel(e.section) : "", e.column ?? ""].filter(Boolean).join(" > ");
+      const where = [e.section ? sectionLabel(e.section) : "", e.column ?? ""].filter(Boolean).join(" > ") || (e.kind === "other" && e.zone ? zoneLabel(e.zone) : "");
       return `${t}  ${e.kind === "nav-leaf" || e.kind === "footer" || e.kind === "featured" ? "Chose" : "Clicked"} ${e.label || e.kind}${where ? ` (${where})` : ""}${e.ends ? "  [ended the task]" : ""}`;
     }
     case "route": return `${t}  Page: ${e.path}`;

@@ -5,7 +5,9 @@ import type { Content } from "./tasks.ts";
 import { effective, emptyModerator, MAX_EVENTS_PER_RUN } from "./session.ts";
 import type { Group, Phase, Provenance, Run, RunModerator, RunStatus, Session } from "./session.ts";
 import { ledger } from "./ledger.ts";
-import { applyOverrides, buildPlan } from "./order.ts";
+import { applyOverrides, arrivalFor, buildPlan, deviceFor } from "./order.ts";
+import { ARRIVALS } from "./tasks.ts";
+import type { Task } from "./tasks.ts";
 
 import { suggest } from "./scoring.ts";
 import type { EndReason, Tier, WrongClickCode } from "./scoring.ts";
@@ -33,7 +35,14 @@ export const CSV_COLUMNS = [
   "final_kind", "final_href", "final_section", "final_column", "via_footer", "suggested_tier", "tier", "suggested_code", "code",
   "level1", "level2", "ease", "menu_unaided_or_prompt", "scale", "window_resized", "participant_notes", "observed", "interpretation",
   "expected", "second_chance", "override_reason",
+  "arrival", "first_zone", "zones_clicked", "confidence", "coded_answers", "doubt_zone", "doubt",
 ] as const;
+
+/** The coded answers as one cell: id=choice pairs, in the task's own order. */
+const codedCell = (s: Session, r: Run): string => {
+  const task = s.content.tasks.find((t) => t.id === r.taskId);
+  return (task?.codes ?? []).flatMap((c) => (r.moderator.codes[c.id] ? [`${c.id}=${r.moderator.codes[c.id]}`] : [])).join("; ");
+};
 
 /** One row per run attempt, including superseded and interrupted ones (the status column says which count). */
 export function runsToCsv(sessions: Session[]): string {
@@ -46,6 +55,7 @@ export function runsToCsv(sessions: Session[]): string {
       g?.finalKind, g?.finalHref, g?.finalSection, g?.finalColumn, g?.viaFooter, g?.tier, e.tier, g?.code, e.code,
       e.level1, e.level2, r.ease, e.menu, r.scale, r.windowResized, r.participantNotes, r.moderator.observed, r.moderator.interpretation,
       r.moderator.expected, r.moderator.secondChance, r.moderator.overrideReason,
+      s.arrival, g?.firstZone, g?.zonesClicked?.join(" > "), r.confidence, codedCell(s, r), r.moderator.doubtZone, r.moderator.doubt,
     ].map((c) => csvEscape(c as string | number | boolean | null | undefined)).join(","));
   }
   return rows.join("\r\n") + "\r\n";
@@ -74,12 +84,21 @@ export const MAX_SESSIONS_PER_FILE = 100;
 const DAY = 86_400_000;
 const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
 
-function sanitiseModerator(raw: unknown): RunModerator {
+/** Coded answers survive only when the task still asks that question and the choice is one of its options. */
+function sanitiseCodes(raw: unknown, task: Task): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!isRecord(raw)) return out;
+  for (const c of task.codes) { const v = raw[c.id]; if (typeof v === "string" && c.options.includes(v)) out[c.id] = v; }
+  return out;
+}
+
+function sanitiseModerator(raw: unknown, task: Task): RunModerator {
   const m = isRecord(raw) ? raw : {};
   const out: RunModerator = {
     menu: m.menu === "U" || m.menu === "P" ? m.menu : null,
     observed: text(m.observed, 2000), interpretation: text(m.interpretation, 2000), expected: text(m.expected, 1000),
-    secondChance: text(m.secondChance, 1000), overrideReason: text(m.overrideReason, 1000), reviewed: m.reviewed === true,
+    secondChance: text(m.secondChance, 1000), overrideReason: text(m.overrideReason, 1000),
+    codes: sanitiseCodes(m.codes, task), doubtZone: text(m.doubtZone, 40), doubt: text(m.doubt, 1000), reviewed: m.reviewed === true,
   };
   if (typeof m.tier === "string" && TIERS.includes(m.tier as Tier)) out.tier = m.tier as Tier;
   if (m.code === null || (typeof m.code === "number" && Number.isInteger(m.code) && m.code >= 1 && m.code <= 6)) out.code = m.code as WrongClickCode | null;
@@ -108,7 +127,8 @@ function sanitiseRun(raw: unknown, content: Content, fallback: Breakpoint, index
     breakpoint: BREAKPOINT_IDS.find((b) => b === raw.breakpoint) ?? fallback, position: clamp(Math.floor(finite(raw.position) ?? index), 0, 1000),
     scale: clamp(finite(raw.scale) ?? 1, 0.1, 1), presentedAt, beginAt: when(raw.beginAt), endAt: when(raw.endAt), readingMs: span(raw.readingMs), durationMs: span(raw.durationMs),
     end, events, windowResized: raw.windowResized === true, ease: ease !== null && Number.isInteger(ease) && ease >= 1 && ease <= 7 ? ease : null,
-    participantNotes: text(raw.participantNotes, 2000), suggestion: null, moderator: sanitiseModerator(raw.moderator),
+    confidence: ((v) => (v !== null && Number.isInteger(v) && v >= 1 && v <= 7 ? v : null))(finite(raw.confidence)),
+    participantNotes: text(raw.participantNotes, 2000), suggestion: null, moderator: sanitiseModerator(raw.moderator, task),
   };
   // A completed run was begun, ended and rated; one that claims to be completed without those cannot have happened in the tool.
   if (run.status === "completed" && (run.end === null || run.beginAt === null || run.endAt === null || run.ease === null)) return null;
@@ -150,8 +170,11 @@ export function sanitiseSession(raw: unknown, trusted = false): Session | null {
   };
   const overrides = bpMap(raw.planOverrides);
   const participantId = text(raw.participantId, 40);
+  const deviceOverride = BREAKPOINT_IDS.find((b) => b === raw.deviceOverride);
+  const arrivalOverride = ARRIVALS.find((a) => a === raw.arrivalOverride);
+  const group = GROUPS.find((g) => g === raw.group) ?? "";
   let plan = bpMap(raw.plan);
-  if (Object.keys(plan).length === 0) plan = legacy ? Object.fromEntries(order.map((id) => [id, legacy])) : applyOverrides(buildPlan(c.content, order, participantId), overrides, c.content);
+  if (Object.keys(plan).length === 0) plan = legacy ? Object.fromEntries(order.map((id) => [id, legacy])) : applyOverrides(buildPlan(c.content, order, participantId, deviceOverride ?? deviceFor(c.content, participantId)), overrides, c.content);
   // A participant file is untrusted: its code must be one the participant edition can produce, and nothing the moderator
   // would have written (tier, code, findings, reviewed) is believed, because a participant has none.
   const selfRun = raw.selfRun === true;
@@ -174,8 +197,10 @@ export function sanitiseSession(raw: unknown, trusted = false): Session | null {
   if (waiting) { at = Math.min(at + 1, order.length); phase = at >= order.length ? "debrief" : "intro"; }
   else if (legacyReview) phase = at >= order.length ? "debrief" : "intro";
   return {
-    schemaVersion: 1, id: raw.id, createdAt: Math.min(createdAt, ceiling), updatedAt: Math.min(updatedAt, ceiling), participantId, group: GROUPS.find((g) => g === raw.group) ?? "",
+    schemaVersion: 1, id: raw.id, createdAt: Math.min(createdAt, ceiling), updatedAt: Math.min(updatedAt, ceiling), participantId, group,
     practice: fromFile ? false : raw.practice === true, selfRun, plan, planOverrides: overrides,
+    ...(deviceOverride ? { deviceOverride } : {}), ...(arrivalOverride ? { arrivalOverride } : {}),
+    arrival: ARRIVALS.find((a) => a === raw.arrival) ?? arrivalOverride ?? arrivalFor(participantId, group),
     ...(trusted ? provenanceOf(raw.imported) : {}),
     content: c.content, order, cursor: at, phase: phase!,
     status: raw.status === "ended" || raw.status === "ended-early" ? raw.status : "active", runs,
@@ -251,5 +276,17 @@ export function ledgerMarkdown(sessions: Session[], exportedAt: string): string 
   }
   if (rows.length === 0) lines.push("| No counted runs yet | | | | | | | | | | |");
   lines.push("", "Verdict thresholds (proposed): Pass 80% or more, Watch 60 to 79%, Fail under 60%, on the worse of the two levels.", "");
+  // The combined test: observe tasks are not scored, so what the moderator coded is the result. Click tasks add where the first click landed.
+  const withCodes = rows.filter((t) => Object.keys(t.coded).length > 0 || t.meanConfidence !== null || Object.keys(t.zones).length > 0);
+  if (withCodes.length > 0) {
+    lines.push("## Coded answers, first click zones and confidence", "");
+    for (const t of withCodes) {
+      lines.push(`**${cell(t.taskId + " " + t.title)}** (${BREAKPOINTS[t.breakpoint].label}, n=${t.n})`, "");
+      if (Object.keys(t.zones).length > 0) lines.push(`- First click zone: ${split(t.zones)}`);
+      for (const [id, m] of Object.entries(t.coded)) lines.push(`- ${cell(t.codeLabels[id] ?? id)}: ${split(m)}`);
+      if (t.meanConfidence !== null) lines.push(`- Confidence, mean of 7: ${t.meanConfidence.toFixed(1)}`);
+      lines.push("");
+    }
+  }
   return lines.join("\n");
 }

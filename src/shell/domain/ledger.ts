@@ -2,6 +2,7 @@ import type { Breakpoint } from "../../shared/protocol.ts";
 import { BREAKPOINT_IDS } from "../../shared/protocol.ts";
 import { countedRuns, effective, normaliseCode, recency } from "./session.ts";
 import type { Run, Session } from "./session.ts";
+import type { Block, TaskKind } from "./tasks.ts";
 
 /** Proposed thresholds (decision D4): Pass 80 percent or more, Watch 60 to 79, Fail under 60. */
 export const THRESHOLDS = { pass: 0.8, watch: 0.6 } as const;
@@ -31,6 +32,8 @@ export interface Rate { hits: number; den: number; rate: number | null }
 export interface TaskTally {
   taskId: string;
   title: string;
+  kind: TaskKind;
+  block: Block;
   breakpoint: Breakpoint;
   highRisk: boolean;
   /** Counted runs: completed, not practice, latest attempt per participant, one per participant across sessions. */
@@ -62,6 +65,16 @@ export interface TaskTally {
   viaFooter: number;
   /** Counted runs where the moderator has added or changed findings. The rest show the tool's suggestion. */
   reviewed: number;
+  /** Coded answers: for each question the task asks, how many runs chose each option. Only runs that were coded count. */
+  coded: Record<string, Record<string, number>>;
+  /** The question text for each code id, from the task as the newest session ran it. */
+  codeLabels: Record<string, string>;
+  /** Where the first click landed, for click tasks: zone, then count. */
+  zones: Record<string, number>;
+  /** Mean 1 to 7 confidence rating, for tasks that ask one. */
+  meanConfidence: number | null;
+  /** Runs with a doubt moment logged. */
+  doubts: number;
 }
 
 const rate = (hits: number, den: number): Rate => ({ hits, den, rate: den === 0 ? null : hits / den });
@@ -105,11 +118,13 @@ function tallyFrom(rows: Counted[], taskId: string, breakpoint: Breakpoint): Tas
   const newest = rows.slice().sort((a, b) => recency(b.session) - recency(a.session))[0];
   const task = newest?.session.content.tasks.find((x) => x.id === taskId);
   const t: TaskTally = {
-    taskId, title: task?.title ?? taskId, breakpoint, highRisk: task?.highRisk ?? false, n: 0, contentVersions: [], meanPosition: null,
+    taskId, title: task?.title ?? taskId, kind: task?.kind ?? "nav", block: task?.block ?? "navigation", breakpoint, highRisk: task?.highRisk ?? false, n: 0, contentVersions: [], meanPosition: null,
     level1: rate(0, 0), level2: rate(0, 0), verdictLevel1: "n/a", verdictLevel2: "n/a", verdict: "n/a",
     recordedOnly: 0, separate: 0, medianFirstInteractionMs: null, meanEase: null, confidentWrong: 0,
     routeSplit: {}, misreads: {}, codes: {}, prompts: { unaided: 0, prompted: 0 }, viaFooter: 0, reviewed: 0,
+    coded: {}, codeLabels: Object.fromEntries((task?.codes ?? []).map((c) => [c.id, c.label])), zones: {}, meanConfidence: null, doubts: 0,
   };
+  const confidences: number[] = [];
   let l1h = 0, l1d = 0, l2h = 0, l2d = 0;
   const times: number[] = [];
   const eases: number[] = [];
@@ -135,6 +150,14 @@ function tallyFrom(rows: Counted[], taskId: string, breakpoint: Breakpoint): Tas
     if (e.menu === "P") t.prompts.prompted += 1;
     if (sug?.viaFooter) t.viaFooter += 1;
     if (r.moderator.reviewed) t.reviewed += 1;
+    for (const [id, choice] of Object.entries(r.moderator.codes ?? {})) {
+      if (id === "__proto__") continue;
+      const m = Object.hasOwn(t.coded, id) ? t.coded[id]! : (t.coded[id] = {});
+      bump(m, choice);
+    }
+    if (task?.kind === "click" && sug?.firstZone) bump(t.zones, sug.firstZone);
+    if (r.confidence !== null && r.confidence !== undefined) confidences.push(r.confidence);
+    if ((r.moderator.doubt ?? "") !== "" || (r.moderator.doubtZone ?? "") !== "") t.doubts += 1;
   }
   t.contentVersions = [...versions].sort((a, b) => a - b);
   t.level1 = rate(l1h, l1d); t.level2 = rate(l2h, l2d);
@@ -143,6 +166,7 @@ function tallyFrom(rows: Counted[], taskId: string, breakpoint: Breakpoint): Tas
   t.medianFirstInteractionMs = median(times);
   t.meanEase = eases.length === 0 ? null : eases.reduce((a, b) => a + b, 0) / eases.length;
   t.meanPosition = positions.length === 0 ? null : positions.reduce((a, b) => a + b, 0) / positions.length;
+  t.meanConfidence = confidences.length === 0 ? null : confidences.reduce((a, b) => a + b, 0) / confidences.length;
   return t;
 }
 

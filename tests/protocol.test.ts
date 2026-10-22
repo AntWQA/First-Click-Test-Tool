@@ -6,7 +6,7 @@ const wrap = (msg: unknown, nonce = "n1") => ({ source: "wc-proto", nonce, msg }
 
 test("a valid message is accepted and rebuilt from known fields only", () => {
   const m = parseProtoEnvelope(wrap({ type: "click", at: 12.5, kind: "nav-leaf", href: "/shop", x: 3, y: 4, ends: true, extra: "ignored" }), "n1");
-  assert.deepEqual(m, { type: "click", at: 12.5, kind: "nav-leaf", href: "/shop", section: undefined, column: undefined, label: undefined, testid: undefined, x: 3, y: 4, ends: true });
+  assert.deepEqual(m, { type: "click", at: 12.5, kind: "nav-leaf", href: "/shop", section: undefined, column: undefined, label: undefined, testid: undefined, zone: undefined, x: 3, y: 4, ends: true });
 });
 
 test("the wrong nonce, the wrong source or a missing message is rejected", () => {

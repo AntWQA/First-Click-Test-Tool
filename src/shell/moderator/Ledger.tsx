@@ -6,12 +6,16 @@ import { countedSessions, ledger, THRESHOLDS } from "../domain/ledger.ts";
 import type { Rate, TaskTally, Verdict } from "../domain/ledger.ts";
 import { ledgerMarkdown, runsToCsv, toJsonBundle } from "../domain/exports.ts";
 import { DownloadIcon } from "../brand.tsx";
-import { download, sectionLabel, seconds, stamp, TIER_LABELS } from "../format.ts";
+import { download, sectionLabel, seconds, stamp, TIER_LABELS, zoneLabel } from "../format.ts";
 
 const VERDICT: Record<Verdict, string> = { pass: "Pass", watch: "Watch", fail: "Fail", "n/a": "No data" };
 const GLYPH: Record<Verdict, string> = { pass: "✓", watch: "!", fail: "✕", "n/a": "\u00b7" };
 const pct = (r: Rate) => (r.den === 0 ? "n/a" : `${r.hits}/${r.den} (${Math.round((r.hits / r.den) * 100)}%)`);
 const split = (m: Record<string, number>, map?: (k: string) => string) => Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${map ? map(k) : k} ${v}`).join(", ") || "none";
+
+/** Coded answers on one line each: the question, then each choice with its count. */
+const codedText = (t: TaskTally): string =>
+  Object.entries(t.coded).map(([id, m]) => `${t.codeLabels[id] ?? id}: ${split(m)}`).join(" | ") || "none yet";
 
 function Badge({ v }: { v: Verdict }) {
   // Never colour alone: the word and a glyph carry the meaning.
@@ -52,13 +56,14 @@ export function Ledger({ onReview }: { onReview: (sessionId: string, runId: stri
             <h2 id={`l-${bp}`}>{BREAKPOINTS[bp].label}</h2>
             <div className="m-scroll">
               <table className="m-table m-ledger">
-                <thead><tr><th>Task</th><th>n</th><th>Level 1 section</th><th>Level 2 destination</th><th>Verdict</th><th>Reviewed</th><th>First interaction (median)</th><th>Ease (mean)</th><th>Position (mean)</th><th>Confident wrong</th><th>Prompted</th><th>Search / separate</th><th>Final column</th><th>Misread sections</th></tr></thead>
+                <thead><tr><th>Task</th><th>n</th><th>Level 1 section</th><th>Level 2 destination</th><th>Verdict</th><th>Reviewed</th><th>First interaction (median)</th><th>Ease (mean)</th><th>Position (mean)</th><th>Confident wrong</th><th>Prompted</th><th>Search / separate</th><th>Final column</th><th>Misread sections</th><th>First click zone</th><th>Coded answers</th><th>Confidence (mean)</th><th>Doubts</th></tr></thead>
                 <tbody>
                   {list.map((t: TaskTally) => (
                     <tr key={t.taskId}>
-                      <th scope="row">{t.taskId} {t.title}{t.highRisk ? " (high risk)" : ""}{t.contentVersions.length > 1 && <small className="m-note"> scored against content versions {t.contentVersions.join(", ")}: the targets changed part-way through</small>}</th><td>{t.n}</td><td>{pct(t.level1)}</td><td>{pct(t.level2)}</td><td><Badge v={t.verdict} /></td><td>{t.reviewed} of {t.n}</td>
+                      <th scope="row">{t.taskId} {t.title}{t.highRisk ? " (high risk)" : ""}{t.contentVersions.length > 1 && <small className="m-note"> scored against content versions {t.contentVersions.join(", ")}: the targets changed part-way through</small>}</th><td>{t.n}</td><td>{pct(t.level1)}</td><td>{pct(t.level2)}</td><td>{t.kind === "observe" ? <span className="m-verdict m-verdict-na">Not scored</span> : <Badge v={t.verdict} />}</td><td>{t.reviewed} of {t.n}</td>
                       <td>{seconds(t.medianFirstInteractionMs)}</td><td>{t.meanEase === null ? "n/a" : t.meanEase.toFixed(1)}</td><td>{t.meanPosition === null ? "n/a" : t.meanPosition.toFixed(1)}</td><td>{t.confidentWrong}</td>
                       <td>{t.prompts.prompted}</td><td>{t.recordedOnly} / {t.separate}</td><td>{split(t.routeSplit)}</td><td>{split(t.misreads, sectionLabel)}</td>
+                      <td>{t.kind === "click" ? split(t.zones, zoneLabel) : "n/a"}</td><td>{codedText(t)}</td><td>{t.meanConfidence === null ? "n/a" : t.meanConfidence.toFixed(1)}</td><td>{t.doubts}</td>
                     </tr>
                   ))}
                 </tbody>

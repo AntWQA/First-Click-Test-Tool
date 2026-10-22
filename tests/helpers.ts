@@ -1,9 +1,9 @@
 import type { CapturedEvent, ClickMsg } from "../src/shared/protocol.ts";
-import { DEFAULT_CONTENT } from "../src/shell/domain/tasks.ts";
+import { NAVIGATION_CONTENT } from "../src/shell/domain/tasks.ts";
 import type { Task } from "../src/shell/domain/tasks.ts";
 
 export const task = (id: string): Task => {
-  const t = DEFAULT_CONTENT.tasks.find((x) => x.id === id);
+  const t = NAVIGATION_CONTENT.tasks.find((x) => x.id === id);
   if (!t) throw new Error("no task " + id);
   return t;
 };
