@@ -24,7 +24,7 @@ const text = () => c.ev("document.body.innerText");
 const has = async (s) => (await text()).toLowerCase().includes(s.toLowerCase());
 const wait = (s, timeout = 8000) => c.waitPage(`document.body.innerText.toLowerCase().includes(${JSON.stringify(s.toLowerCase())})`, timeout, `text "${s}"`);
 const setField = (sel, v) => c.ev(`(()=>{const el=document.querySelector(${JSON.stringify(sel)});const proto=el instanceof HTMLSelectElement?HTMLSelectElement.prototype:el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,${JSON.stringify(v)});el.dispatchEvent(new Event(el instanceof HTMLSelectElement?'change':'input',{bubbles:true}))})()`);
-const basics = "document.querySelectorAll('h1').length === 1 && [...document.querySelectorAll('input, select, textarea')].every((e) => e.labels && e.labels.length > 0) && [...document.querySelectorAll('button, .p-textlink, .p-admin-btn')].every((b) => b.getBoundingClientRect().height >= 40)";
+const basics = "document.querySelectorAll('h1').length === 1 && [...document.querySelectorAll('input, select, textarea')].every((e) => e.labels && e.labels.length > 0) && [...document.querySelectorAll('button:not(.p-copy), .p-textlink, .p-admin-btn')].every((b) => b.getBoundingClientRect().height >= 40)";
 const admin = async (item) => { await clickText(c, ".p-admin-btn", "Admin", { startsWith: true }); await clickText(c, ".p-admin-item", item); };
 async function skipTour() { try { await c.waitPage("!!document.querySelector('.tour-tip')", 4000, "the tour"); await clickText(c, ".tour-tip button", "Skip"); await sleep(150); } catch { /* not shown */ } }
 async function doScenario(ease) {

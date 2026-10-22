@@ -119,8 +119,8 @@ try {
   const bad = JSON.parse(JSON.stringify(reduced)); bad.tasks[0].primary = [{ href: "/not/a/link" }];
   await setValue(c, ".m-code", JSON.stringify(bad)); await clickText(c, "button", "Check");
   report(await has("is not a link in the navigation or footer"), "it rejects a target link that does not exist");
-  await setValue(c, ".m-code", JSON.stringify(reduced)); await clickText(c, "button", "Save as version 8");
-  await wait("Saved as version 8");
+  await setValue(c, ".m-code", JSON.stringify(reduced)); await clickText(c, "button", "Save as version 9");
+  await wait("Saved as version 9");
   report(true, "a valid edit saves as the next version");
 
   // ---------- B: a full desktop session ----------
@@ -269,7 +269,7 @@ try {
   await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
   report(await has("Finished") && await has("P1"), "after a reload the finished session is still there");
   await tab("Content");
-  report(await has("Version 8"), "and the saved content version survived the reload");
+  report(await has("Version 9"), "and the saved content version survived the reload");
 
   // ---------- E: resume after an interruption, then end early between tasks ----------
   await tab("Sessions");

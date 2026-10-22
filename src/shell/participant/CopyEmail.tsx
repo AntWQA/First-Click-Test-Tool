@@ -5,7 +5,7 @@ import { CheckIcon, CopyIcon } from "../brand.tsx";
  * An email address with a small Copy button beside it. Where the browser blocks clipboard access, the address is selected
  * instead and the participant is told to press the copy keys.
  */
-export function CopyEmail({ address }: { address: string }) {
+export function CopyEmail({ address, after = "" }: { address: string; after?: string }) {
   const [state, setState] = useState<"idle" | "copied" | "manual">("idle");
   const text = useRef<HTMLElement>(null);
   const timer = useRef<number | undefined>(undefined);
@@ -27,7 +27,7 @@ export function CopyEmail({ address }: { address: string }) {
   };
   return (
     <>
-      <strong ref={text}>{address}</strong>{" "}
+      <strong ref={text}>{address}</strong>{after}
       <button type="button" className="p-copy" onClick={() => void copy()} aria-label="Copy email address">
         {state === "copied" ? <CheckIcon /> : <CopyIcon />}
         {state === "copied" ? "Copied" : "Copy"}

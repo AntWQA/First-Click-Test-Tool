@@ -5,8 +5,11 @@ import { closingQuestionsFor } from "../domain/session.ts";
 import type { Session } from "../domain/session.ts";
 import type { ClosingQuestion } from "../domain/tasks.ts";
 
+/** True when the closing questions should be put to this participant now: at the hand-back screen, with questions to ask and none answered yet. The moderated tool and the participant edition use the same rule. */
+export const needsClosing = (s: Session): boolean => s.phase === "handBack" && s.closing === undefined && closingQuestionsFor(s).length > 0;
+
 /**
- * The participant edition's debrief: a few last questions, answered on screen, after the last scenario and before the results
+ * The closing questions, which replace the spoken debrief for the participant in both editions: a few last questions, answered on screen, after the last scenario and before the results
  * page. Every question is optional. A ranking is recorded only when every item has its own place.
  */
 export function Closing({ session }: { session: Session }) {

@@ -381,12 +381,8 @@ export const COMBINED_TASKS: Task[] = [
 ];
 
 export const COMBINED_DEBRIEF: string[] = [
-  "Show the video version of the gallery once. Ask: \"Would seeing a video in the gallery have made a difference to how sure you felt? To what?\"",
-  "Rank four cards, most sure to least sure: reviews, CPTG, sourcing story, video.",
-  "If R2 did not run, ask: \"If a product you were thinking of buying had no reviews yet, what would you do?\"",
-  "What did each Rewards link mean to them (C10), and what did Solutions mean (C8, C9)?",
-  "What would they change first on the homepage and on the product page?",
-  "Thank them. These are spoken opinions: read them beside what people did.",
+  "The participant has already answered the closing questions on screen (the video, the ranking, no reviews, Rewards and Solutions, what to change first). Their answers are listed below the table: ask about anything that is unclear.",
+  "Thank them. These are written opinions: read them beside what people did.",
 ];
 
 /** The moderator's spoken debrief, put to the participant on screen. Each names what it is about: it is read with no page showing. */
@@ -430,7 +426,8 @@ export const DEFAULT_CONTENT: Content = {
   // Version 5: every scenario names the product instead of saying "this", "these" or "here".
   // Version 6: R2 no longer opens with "Here is".
   // Version 7: the debrief is put to the participant on screen (closingQuestions) in the participant edition.
-  version: 7,
+  // Version 8: the moderated tool puts the same closing questions to the participant, so the moderator's spoken debrief is a follow-up.
+  version: 8,
   updatedAt: "2026-10-22T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,

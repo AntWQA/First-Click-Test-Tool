@@ -363,10 +363,12 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 .p-rank-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 15px; color: var(--ink); }
 .p-rank-row select { min-height: 40px; min-width: 110px; }
 
-/* A small Copy button beside an email address. The tap target is 40px tall without making the line taller. */
-.p-copy { display: inline-flex; align-items: center; gap: 5px; min-height: 40px; margin-block: -10px; padding: 0 10px; vertical-align: middle; background: none; border: 1px solid var(--line-strong); border-radius: 8px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; }
+/* A small Copy button beside an email address: 28px tall (above the 24px minimum target), with room around it so it never crowds the lines above and below. */
+.p-copy { display: inline-flex; align-items: center; gap: 5px; height: 28px; margin: 4px 0 4px 10px; padding: 0 9px; vertical-align: middle; background: none; border: 1px solid var(--line-strong); border-radius: 7px; font: inherit; font-size: 12px; font-weight: 600; line-height: 1; color: var(--muted); cursor: pointer; }
 .p-copy:hover { color: var(--ink); background: var(--accent-tint); }
+.p-copy svg { width: 12px; height: 12px; }
 .p-copy-note { margin-left: 8px; font-size: 12.5px; color: var(--muted); }
+.p-finish-steps li { line-height: 1.5; }
 
 /* Closing answers on the moderator's record. */
 .m-closing { margin: 18px 0; }

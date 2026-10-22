@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { StartAgainDialog, START_AGAIN_LABEL } from "./StartAgain.tsx";
 import { AdminMenu } from "./AdminMenu.tsx";
+import { Closing, needsClosing } from "./Closing.tsx";
 import { Cued } from "../Cued.tsx";
 import type { FormEvent } from "react";
 import { makeId, useApp } from "../state.tsx";
@@ -51,7 +52,9 @@ export function Participant({ session, theme, onToggleTheme }: { session: Sessio
       {session.phase === "task" && <Task key={currentRun(session)!.runId} session={session} onModeratorKey={() => setMenu(true)} />}
       {session.phase === "rating" && <Rating session={session} />}
       {session.phase === "offer" && <Offer session={session} />}
-      {session.phase === "handBack" && !SELF_RUN && <HandBack session={session} />}
+      {/* The moderated tool puts the same closing questions to the participant before the hand-back screen. */}
+      {!SELF_RUN && needsClosing(session) && <Closing session={session} />}
+      {session.phase === "handBack" && !SELF_RUN && !needsClosing(session) && <HandBack session={session} />}
       {menu && !SELF_RUN && <ModeratorMenu onClose={() => setMenu(false)} />}
     </div>
   );

@@ -25,7 +25,9 @@ test("the default content is the combined test: 11 core tasks, 2 reserves, 34 ta
   assert.equal(core, 34, "34 minutes of tasks plus 4 welcome, 4 debrief and 2 buffer make the plan's 44 core minutes");
   assert.ok(!JSON.stringify(DEFAULT_CONTENT).includes("—"));
   assert.equal(DEFAULT_CONTENT.devicePerParticipant, true);
-  assert.ok((DEFAULT_CONTENT.debrief ?? []).length >= 5);
+  assert.equal((DEFAULT_CONTENT.debrief ?? []).length, 2, "the moderator's spoken debrief is two follow-ups now");
+  assert.match(DEFAULT_CONTENT.debrief![0]!, /already answered the closing questions on screen/);
+  assert.ok(!DEFAULT_CONTENT.debrief!.join(" ").includes("Rank four cards"), "it no longer repeats the questions the participant answers on screen");
 });
 
 test("the four navigation tasks are the plan's high-risk tasks, with their original targets", () => {

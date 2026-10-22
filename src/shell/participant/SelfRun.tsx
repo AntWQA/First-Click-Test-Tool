@@ -8,10 +8,10 @@ import { useFollowedTheme } from "../theme.tsx";
 import { NOTICE, SEND_TO } from "../edition.ts";
 import { Participant } from "./Participant.tsx";
 import { StartAgainDialog, START_AGAIN_LABEL } from "./StartAgain.tsx";
-import { Closing } from "./Closing.tsx";
+import { Closing, needsClosing } from "./Closing.tsx";
 import { CopyEmail } from "./CopyEmail.tsx";
 import { AdminMenu } from "./AdminMenu.tsx";
-import { reduce, countedRuns, closingQuestionsFor } from "../domain/session.ts";
+import { reduce, countedRuns } from "../domain/session.ts";
 import type { Group, Session } from "../domain/session.ts";
 import { toJsonBundle } from "../domain/exports.ts";
 import { download } from "../format.ts";
@@ -40,7 +40,7 @@ function SelfRunRoot() {
   if (!booted) return null;
   if (!active) return <Frame theme={theme} onToggleTheme={toggleTheme}><SelfSetup /></Frame>;
   // After the last scenario, the closing questions come before the results page (not after stopping early).
-  if (active.phase === "handBack" && active.closing === undefined && closingQuestionsFor(active).length > 0) return <Frame theme={theme} onToggleTheme={toggleTheme}><Closing session={active} /></Frame>;
+  if (needsClosing(active)) return <Frame theme={theme} onToggleTheme={toggleTheme}><Closing session={active} /></Frame>;
   if (active.phase === "handBack" || active.phase === "debrief" || active.phase === "ended") return <Frame theme={theme} onToggleTheme={toggleTheme}><Finished session={active} /></Frame>;
   if (active.phase === "setup") return <Frame theme={theme} onToggleTheme={toggleTheme}><SelfSetup /></Frame>;
   return <Participant session={active} theme={theme} onToggleTheme={toggleTheme} />;
@@ -174,7 +174,7 @@ function Finished({ session }: { session: Session }) {
         </label>
         <ol className="p-finish-steps">
           <li>Save your results file with the button below.</li>
-          <li>{SEND_TO ? <>Send it to <CopyEmail address={SEND_TO} />.</> : "Send it to the researcher who gave you this tool."}</li>
+          <li>{SEND_TO ? <>Send it to <CopyEmail address={SEND_TO} after="." /></> : "Send it to the researcher who gave you this tool."}</li>
         </ol>
         <div className="p-offer-actions">
           <button type="button" className="btn btn-primary btn-lg" onClick={save}><DownloadIcon />Save my results</button>

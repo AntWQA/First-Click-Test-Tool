@@ -18,8 +18,8 @@ const SEND_TO = process.env.WC_SEND_TO ?? "";
 const downloads = fs.mkdtempSync(path.join(os.tmpdir(), "wc-cl-"));
 const T0 = Date.now() - 120_000;
 
-function atHandBack(id, pid) {
-  let s = createSession({ id, now: T0, participantId: pid, selfRun: true, content: DEFAULT_CONTENT });
+function atHandBack(id, pid, selfRun = true) {
+  let s = createSession({ id, now: T0, participantId: pid, selfRun, content: DEFAULT_CONTENT });
   s = { ...s, order: ["C8"], plan: { C8: "desktop" } };
   s = reduce(s, { type: "start", at: T0 });
   s = reduce(s, { type: "present", at: T0, runId: "r" + id });
@@ -70,7 +70,8 @@ try {
   // Copy beside the address
   if (SEND_TO) {
     report(await c.ev("!!document.querySelector('.p-finish-steps .p-copy')"), "a small Copy button sits beside the email address");
-    report(await c.ev("document.querySelector('.p-finish-steps .p-copy svg') !== null && document.querySelector('.p-finish-steps .p-copy').getBoundingClientRect().height >= 40"), "it carries an icon and is a full-size tap target");
+    report(await c.ev("document.querySelector('.p-finish-steps .p-copy svg') !== null && document.querySelector('.p-finish-steps .p-copy').getBoundingClientRect().height >= 24"), "it carries an icon and is a small button, still over the 24px minimum target");
+    report(await c.ev("(()=>{const b=document.querySelector('.p-finish-steps .p-copy').getBoundingClientRect();const li=document.querySelector('.p-finish-steps li:last-child');const prev=document.querySelector('.p-finish-steps li:first-child').getBoundingClientRect();return b.height <= 30 && b.top - prev.bottom >= 2})()"), "it is no taller than 30px and does not touch the line above");
     await c.ev("document.querySelector('.p-finish-steps .p-copy').click()");
     await sleep(500);
     const after = await c.ev("document.querySelector('.p-finish-steps .p-copy').innerText + ' | ' + document.querySelector('.p-finish-steps [role=status]').innerText");
@@ -107,6 +108,23 @@ try {
   await c.waitPage("!!document.querySelector('.m-closing')", 8000, "the closing answers on the record");
   const rec = await c.ev("document.querySelector('.m-closing').innerText");
   report(rec.includes("A video would help.") && rec.includes("A clearer price.") && !rec.includes("Show prices"), "the moderator's session record lists the participant's closing answers");
+
+  // ---- the moderated tool puts the same questions to the participant, before its hand-back screen
+  await plant(mfile, atHandBack("cl4", "P4", false));
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  await clickText(c, "button", "Open P4");
+  await c.waitPage("document.body.innerText.includes('A few last questions')", 8000, "the closing questions in the moderated tool");
+  report(!(await has("Researcher: continue")) && (await c.ev("document.querySelectorAll('textarea').length")) === 6 && (await c.ev("document.querySelectorAll('select').length")) === 4, "the moderated tool shows the same closing questions, before the hand-back screen");
+  report(!(await c.ev("!!document.querySelector('.m-header')")), "with no moderator controls on screen");
+  await setValue(c, "#cq-rewardsMeaning", "Ways to pay less.");
+  await clickText(c, "button", "Continue");
+  await c.waitPage("document.body.innerText.toLowerCase().includes('that was the last one')", 8000, "the hand-back screen");
+  report(await has("Researcher: continue"), "after them comes the hand-back screen, as before");
+  await clickText(c, "button", "Researcher: continue");
+  await c.waitPage("document.body.innerText.includes('Tasks complete')", 8000, "the debrief");
+  const deb = await c.ev("document.body.innerText");
+  report(deb.includes("Ways to pay less.") && deb.includes("Closing questions, answered by the participant"), "the moderator's debrief lists the participant's answers");
+  report(deb.includes("already answered the closing questions on screen") && !deb.includes("Rank four cards"), "and its own prompts are now follow-ups, not the same questions again");
 
   const outside = c.requests.filter((u) => !/^(file:|data:|blob:|about:)/.test(u));
   report(outside.length === 0, "no network requests were made", outside.slice(0, 3).join(", "));
