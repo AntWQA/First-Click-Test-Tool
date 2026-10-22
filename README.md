@@ -111,6 +111,8 @@ Each participant does all their tasks in one session, and the frame **switches b
 
 ## Your data
 
+**Clearing saved data.** *Sessions > Clear this test's saved data* (moderated tool) and *Clear my progress in this test and start again* (participant edition, on the setup, between-scenario and results screens) delete only what this tool saved: its sessions and any task edits from the Content tab. They never touch other browser data (history, cookies, passwords, other sites or other tools), each is behind a confirmation that says so, and the tool then reloads on the built-in tasks. The moderated dialog offers a backup download first. Use it when an old session or saved copy of the tasks is showing out-of-date wording.
+
 - Sessions are stored in **this browser's local storage** as you go (after every step; high-frequency events are saved within 0.4 s). There is no server and no account.
 - A **Saved** time shows at the top of every moderator screen. If the browser refuses to save (private window, blocked site data, storage full) a red banner says so, and you should download a backup.
 - **Back up after every session** (it downloads at Finish unless you untick it). The JSON imports on any machine to continue or to combine results; imports are sanitised and suggestions are recomputed from the raw events.

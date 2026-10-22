@@ -7,6 +7,7 @@ import { DownloadIcon } from "../brand.tsx";
 import { useFollowedTheme } from "../theme.tsx";
 import { NOTICE, SEND_TO } from "../edition.ts";
 import { Participant } from "./Participant.tsx";
+import { StartAgain } from "./StartAgain.tsx";
 import { reduce, countedRuns } from "../domain/session.ts";
 import type { Group, Session } from "../domain/session.ts";
 import { toJsonBundle } from "../domain/exports.ts";
@@ -53,7 +54,7 @@ const ID_OK = /^[A-Za-z0-9_.-]{1,40}$/;
 
 /** The one setup screen: what to expect, the participant's code, and Start. Starting goes straight to the first scenario. */
 function SelfSetup() {
-  const { start, dispatch } = useApp();
+  const { start, dispatch, sessions } = useApp();
   const [id, setId] = useState("");
   const [group, setGroup] = useState<Group>("");
   const [adult, setAdult] = useState(false);
@@ -119,6 +120,7 @@ function SelfSetup() {
         {narrow && <p className="p-note" role="status">This window is quite small, so the websites will be shown scaled down. If you can, make it larger before you start.</p>}
         <button type="submit" className="btn btn-primary btn-lg">Start <span className="enter-chip" aria-hidden="true">↵</span></button>
         <p className="p-fine">By pressing Start you agree to your results being used in this way.</p>
+        {sessions.length > 0 && <StartAgain />}
       </form>
     </main>
   );
@@ -180,6 +182,7 @@ function Finished({ session }: { session: Session }) {
           </label>
         )}
         <button type="button" className="p-textlink" onClick={closeSession}>Start a new session</button>
+        <StartAgain saved />
       </div>
     </main>
   );

@@ -17,8 +17,9 @@ const breakpoints = (s: Session) => { const n = planCounts(s); return (["desktop
 const statusOf = (s: Session) => (s.status === "ended-early" ? "Ended early" : PHASE[s.phase]);
 
 export function Home() {
-  const { sessions, start, openSession, deleteSession, content, applyImport } = useApp();
+  const { sessions, start, openSession, deleteSession, content, applyImport, clearAllSaved } = useApp();
   const [del, setDel] = useState<Session | null>(null);
+  const [clearing, setClearing] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [review, setReview] = useState<{ file: string; size: number; sha256: string | null; items: ReviewItem[]; unreadable: string[] } | null>(null);
   const file = useRef<HTMLInputElement>(null);
@@ -74,12 +75,17 @@ export function Home() {
         <div className="m-actions">
           <button type="button" className="btn btn-secondary" disabled={sessions.length === 0} onClick={() => download(`wayfinding-all-${stamp()}.json`, "application/json", toJsonBundle(sessions, content, new Date().toISOString()))}><DownloadIcon />Download all sessions (JSON)</button>
           <button type="button" className="btn btn-secondary" onClick={() => file.current?.click()}>Import sessions (JSON)</button>
+          <button type="button" className="btn btn-quiet" onClick={() => setClearing(true)}>Clear this test's saved data</button>
           <input ref={file} type="file" accept="application/json,.json" hidden onChange={(e) => void onImport(e.target.files?.[0])} />
         </div>
         {msg && <p role="status" className="m-hint">{msg}</p>}
       </section>
       {del && <Confirm title={`Delete ${del.participantId || "this session"}?`} confirmLabel="Delete" danger onCancel={() => setDel(null)} onConfirm={() => { deleteSession(del.id); setDel(null); }}>
         This removes the session and its results from this browser. It cannot be undone, so download a backup first if you might need it.
+      </Confirm>}
+      {clearing && <Confirm title="Clear this test's saved data?" confirmLabel="Clear and reload" danger onCancel={() => setClearing(false)} onConfirm={clearAllSaved}
+        alt={sessions.length > 0 ? { label: "Download a backup first", onClick: () => download(`wayfinding-all-${stamp()}.json`, "application/json", toJsonBundle(sessions, content, new Date().toISOString())) } : undefined}>
+        This deletes only what Wayfinding Check has saved here: the {sessions.length} saved session{sessions.length === 1 ? "" : "s"} and any task edits from the Content tab. Your other browser data is not touched: no history, cookies, passwords or anything saved by other sites or tools. The tool then reloads with the built-in tasks. This cannot be undone. Use it when an old session or saved copy of the tasks is showing out-of-date wording.
       </Confirm>}
       {review && <ImportReview {...review} onCancel={() => setReview(null)} onApply={(items) => {
         const res = applyImport(items, { file: review.file, sha256: review.sha256 ?? "unavailable", size: review.size });

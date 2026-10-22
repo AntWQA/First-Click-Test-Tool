@@ -43,6 +43,48 @@ try {
   await c.waitPage("!!document.querySelector('.p-task-card')", 8000, "the first scenario");
   const shown = await c.ev("document.querySelector('.p-task-card').innerText");
   report(/homepage of the dōTERRA website/.test(shown) && !/this website|this company/.test(shown), "a session begun on the earlier default shows the current scenario wording", shown.slice(0, 160).replace(/\s+/g, " "));
+  // Clear saved data (moderator): sessions and saved content both go, and the tool reloads on the built-in tasks.
+  await c.ev(`localStorage.setItem('wc.v1.content', ${JSON.stringify(JSON.stringify(edited))}); localStorage.setItem('unrelated.key', 'keep me')`);
+  await c.send("Page.reload"); await sleep(900);
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  report(await c.ev("document.querySelectorAll('.m-table tbody tr').length") === 1, "before clearing, the planted session is listed");
+  await clickText(c, "button", "Clear this test's saved data");
+  await c.waitPage("!!document.querySelector('dialog[open]')", 5000, "the clear confirmation");
+  const dlg = await c.ev("document.querySelector('dialog[open]').innerText");
+  report(/1 saved session/.test(dlg), "the confirmation says how many sessions will go");
+  report(/only what Wayfinding Check has saved/.test(dlg) && /not touched/.test(dlg), "and says that no other browser data is touched");
+  await clickText(c, "dialog button", "Clear and reload");
+  await sleep(1200);
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  report((await c.ev("document.querySelectorAll('.m-table tbody tr').length")) === 0 && (await c.ev("document.body.innerText")).includes("No sessions yet"), "after Clear saved data no sessions are left");
+  report((await c.ev("[...Object.keys(localStorage)].filter(k=>/^wc\\.v1\\.(session|content)/.test(k)).length")) === 0, "and nothing saved remains in storage");
+  report((await c.ev("localStorage.getItem('unrelated.key')")) === "keep me", "but a key this test did not write is left alone");
+  text = await contentText();
+  report(!text.includes("There are two ways to buy on the page. Describe them."), "and the Content tab is back on the built-in tasks");
+
+  // Start again (participant edition): the same, from the participant's own screens.
+  const pfile = pathToFileURL(process.env.WC_PARTICIPANT_FILE ?? path.join(root, "dist-single", "wayfinding-check-participant.html")).href;
+  if (fs.existsSync(fileURLToPath(pfile))) {
+    let ps = createSession({ id: "stale2", now: Date.now() - 60_000, participantId: "SR9", content: oldContent.content, selfRun: true });
+    ps = reduce(ps, { type: "start", at: Date.now() - 59_000 });
+    await c.goto(pfile);
+    await c.ev(`localStorage.setItem('wc.v1.session.stale2', ${JSON.stringify(JSON.stringify(ps))})`);
+    await c.send("Page.reload"); await sleep(1200);
+    await c.waitPage("document.body.innerText.includes('Clear my progress in this test and start again')", 10000, "the Start again link");
+    report(true, "the participant edition offers Start again when it has saved progress");
+    await clickText(c, ".p-textlink", "Clear my progress in this test and start again");
+    await c.waitPage("!!document.querySelector('dialog[open]')", 5000, "the confirmation");
+    const pd = await c.ev("document.querySelector('dialog[open]').innerText");
+    report(/deletes only the progress this test has saved/.test(pd) && /answers you have not saved/.test(pd), "it warns that unsaved answers are deleted");
+    report(/Nothing else in your browser is touched/.test(pd), "and says that nothing else in the browser is touched");
+    await clickText(c, "dialog button", "Keep what I have"); await sleep(300);
+    report((await c.ev("localStorage.getItem('wc.v1.session.stale2')")) !== null, "Keep what I have changes nothing");
+    await clickText(c, ".p-textlink", "Clear my progress in this test and start again");
+    await c.waitPage("!!document.querySelector('dialog[open]')", 5000, "the confirmation");
+    await clickText(c, "dialog button", "Yes, start again"); await sleep(1500);
+    await c.waitPage("document.body.innerText.toLowerCase().includes('your code')", 15000, "the setup screen");
+    report((await c.ev("[...Object.keys(localStorage)].filter(k=>/^wc\\.v1\\.session/.test(k)).length")) === 0, "Yes, start again clears the saved progress and shows the first screen");
+  }
   report(c.consoleErrors.length === 0, "no console errors", c.consoleErrors.slice(0, 2).join(" | "));
 } catch (e) {
   report(false, "the check ran to completion", String(e.stack ?? e));

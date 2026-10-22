@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { StartAgain } from "./StartAgain.tsx";
 import type { FormEvent } from "react";
 import { makeId, useApp } from "../state.tsx";
 import { Frame } from "../Frame.tsx";
@@ -78,6 +79,7 @@ function Intro({ session }: { session: Session }) {
           {first ? "Show me the first scenario" : "Show me the next scenario"} <span className="enter-chip" aria-hidden="true">↵</span>
         </button>
         {!first && <button type="button" className="p-textlink" onClick={() => setConfirmEnd(true)}>End session</button>}
+        {SELF_RUN && <StartAgain />}
         {confirmEnd && <EndConfirm onCancel={() => setConfirmEnd(false)} onConfirm={() => dispatch({ type: "stopSession", at: Date.now() })} />}
       </div>
     </main>

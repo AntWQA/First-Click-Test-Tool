@@ -32,6 +32,8 @@ export interface AppApi {
   openSession: (id: string) => void;
   closeSession: () => void;
   deleteSession: (id: string) => void;
+  /** Deletes this test's own saved sessions and content edit (nothing else in the browser), then reloads so the shipped defaults load clean. */
+  clearAllSaved: () => void;
   /** Adds the reviewed sessions the researcher chose to import, all or none. */
   applyImport: (items: ReviewItem[], source: Omit<Provenance, "at">) => { imported: number; skipped: number; error: string | null };
 }
@@ -152,6 +154,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sessionsRef.current = sessionsRef.current.filter((s) => s.id !== id);
       setSessions(sessionsRef.current);
       if (activeRef.current === id) { activeRef.current = null; setActiveId(null); }
+    },
+    clearAllSaved: () => {
+      window.clearTimeout(timer.current);
+      pending.current = null; // a save still waiting would bring a session straight back
+      store.clearAll();
+      sessionsRef.current = [];
+      activeRef.current = null;
+      window.location.reload();
     },
     applyImport: (items, source) => {
       const before = sessionsRef.current;

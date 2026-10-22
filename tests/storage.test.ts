@@ -116,3 +116,18 @@ test("a session begun on an earlier default takes the current wording for tasks 
   store.saveSession(cur);
   assert.deepEqual(store.loadSessions().sessions.find((x) => x.id === "cur")!.content.tasks, DEFAULT_CONTENT.tasks.map((x) => ({ ...x })));
 });
+
+
+test("clearAll removes every saved session and the saved content, and nothing else", () => {
+  const backing = memoryBacking({ "wc.v1.theme": "dark", "other.key": "keep" });
+  const store = createStore(backing, () => 1);
+  store.saveSession(mk("a")); store.saveSession(mk("b"));
+  store.saveContent({ ...DEFAULT_CONTENT, version: 9 });
+  assert.equal(store.loadSessions().sessions.length, 2);
+  store.clearAll();
+  assert.equal(store.loadSessions().sessions.length, 0);
+  assert.equal(store.loadContent().version, DEFAULT_CONTENT.version, "the shipped default is back");
+  assert.equal(backing.getItem("wc.v1.content"), null);
+  assert.equal(backing.getItem("wc.v1.theme"), "dark", "preferences are not touched");
+  assert.equal(backing.getItem("other.key"), "keep");
+});

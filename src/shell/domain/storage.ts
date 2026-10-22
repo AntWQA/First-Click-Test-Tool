@@ -68,6 +68,8 @@ export interface Store {
   loadSessions(): { sessions: Session[]; skipped: number };
   saveSession(s: Session): SaveResult;
   removeSession(id: string): void;
+  /** Removes this test's saved sessions and saved content edit only (keys it wrote itself), leaving the shipped defaults. Never touches other keys, other sites or other browser data. */
+  clearAll(): void;
   loadContent(): Content;
   saveContent(c: Content): SaveResult;
 }
@@ -108,6 +110,7 @@ export function createStore(backing: Backing | null, now: () => number): Store {
     },
     saveSession(s) { return write(SESSION + s.id, JSON.stringify(s)); },
     removeSession(id) { b.removeItem(SESSION + id); },
+    clearAll() { for (const key of b.keys()) if (key.startsWith(SESSION) || key === CONTENT) b.removeItem(key); },
     loadContent() {
       const raw = b.getItem(CONTENT);
       if (raw === null) return DEFAULT_CONTENT;
