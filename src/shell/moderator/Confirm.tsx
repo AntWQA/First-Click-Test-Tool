@@ -12,7 +12,7 @@ export function Confirm({ title, children, confirmLabel, danger = false, alt, on
       <h2 id="confirm-title">{title}</h2>
       <div>{children}</div>
       <div className="m-dialog-actions">
-        <button type="button" className="btn btn-secondary" onClick={() => ref.current?.close()}>Cancel</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { ref.current?.close(); onCancel(); }}>Cancel</button>
         {alt && <button type="button" className="btn btn-secondary" onClick={alt.onClick}>{alt.label}</button>}
         <button type="button" className={`btn ${danger ? "btn-danger" : "btn-primary"}`} onClick={() => { onConfirm(); }}>{confirmLabel}</button>
       </div>

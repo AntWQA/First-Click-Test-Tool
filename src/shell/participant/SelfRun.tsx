@@ -7,7 +7,8 @@ import { DownloadIcon } from "../brand.tsx";
 import { useFollowedTheme } from "../theme.tsx";
 import { NOTICE, SEND_TO } from "../edition.ts";
 import { Participant } from "./Participant.tsx";
-import { StartAgain } from "./StartAgain.tsx";
+import { StartAgainDialog, START_AGAIN_LABEL } from "./StartAgain.tsx";
+import { AdminMenu } from "./AdminMenu.tsx";
 import { reduce, countedRuns } from "../domain/session.ts";
 import type { Group, Session } from "../domain/session.ts";
 import { toJsonBundle } from "../domain/exports.ts";
@@ -58,6 +59,7 @@ function SelfSetup() {
   const [id, setId] = useState("");
   const [group, setGroup] = useState<Group>("");
   const [adult, setAdult] = useState(false);
+  const [again, setAgain] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [narrow, setNarrow] = useState(window.innerWidth < 1000);
   useEffect(() => {
@@ -120,7 +122,8 @@ function SelfSetup() {
         {narrow && <p className="p-note" role="status">This window is quite small, so the websites will be shown scaled down. If you can, make it larger before you start.</p>}
         <button type="submit" className="btn btn-primary btn-lg">Start <span className="enter-chip" aria-hidden="true">↵</span></button>
         <p className="p-fine">By pressing Start you agree to your results being used in this way.</p>
-        {sessions.length > 0 && <StartAgain />}
+        {sessions.length > 0 && <AdminMenu items={[{ label: START_AGAIN_LABEL, onSelect: () => setAgain(true) }]} />}
+        {again && <StartAgainDialog onClose={() => setAgain(false)} />}
       </form>
     </main>
   );
@@ -132,6 +135,7 @@ function Finished({ session }: { session: Session }) {
   const [notes, setNotes] = useState(session.debriefNotes);
   const [saved, setSaved] = useState<string | null>(null);
   const [copy, setCopy] = useState<"idle" | "done" | "manual">("idle");
+  const [again, setAgain] = useState(false);
   const ended = session.phase === "ended";
   const early = session.status === "ended-early";
   const done = countedRuns(session).length;
@@ -181,8 +185,8 @@ function Finished({ session }: { session: Session }) {
             <textarea id="fin-copy" rows={4} readOnly value={text(session)} onFocus={(e) => e.currentTarget.select()} />
           </label>
         )}
-        <button type="button" className="p-textlink" onClick={closeSession}>Start a new session</button>
-        <StartAgain saved />
+        <AdminMenu items={[{ label: "Start a new session", onSelect: closeSession }, { label: START_AGAIN_LABEL, onSelect: () => setAgain(true) }]} />
+        {again && <StartAgainDialog saved onClose={() => setAgain(false)} />}
       </div>
     </main>
   );

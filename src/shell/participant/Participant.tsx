@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { StartAgain } from "./StartAgain.tsx";
+import { StartAgainDialog, START_AGAIN_LABEL } from "./StartAgain.tsx";
+import { AdminMenu } from "./AdminMenu.tsx";
 import { Cued } from "../Cued.tsx";
 import type { FormEvent } from "react";
 import { makeId, useApp } from "../state.tsx";
@@ -59,6 +60,7 @@ export function Participant({ session, theme, onToggleTheme }: { session: Sessio
 function Intro({ session }: { session: Session }) {
   const { dispatch } = useApp();
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const [again, setAgain] = useState(false);
   useEnterPrimary(".p-intro .btn-primary");
   const first = session.runs.length === 0;
   const extra = !first && taskById(session.content, session.order[session.cursor] ?? "")?.reserve === true;
@@ -79,8 +81,11 @@ function Intro({ session }: { session: Session }) {
         <button type="button" className="btn btn-primary btn-lg" onClick={() => dispatch({ type: "present", at: Date.now(), runId: makeId("r") })}>
           {first ? "Show me the first scenario" : "Show me the next scenario"} <span className="enter-chip" aria-hidden="true">↵</span>
         </button>
-        {!first && <button type="button" className="p-textlink" onClick={() => setConfirmEnd(true)}>End session</button>}
-        {SELF_RUN && <StartAgain />}
+        <AdminMenu items={[
+          ...(!first ? [{ label: "End session", onSelect: () => setConfirmEnd(true) }] : []),
+          ...(SELF_RUN ? [{ label: START_AGAIN_LABEL, onSelect: () => setAgain(true) }] : []),
+        ]} />
+        {again && <StartAgainDialog onClose={() => setAgain(false)} />}
         {confirmEnd && <EndConfirm onCancel={() => setConfirmEnd(false)} onConfirm={() => dispatch({ type: "stopSession", at: Date.now() })} />}
       </div>
     </main>
@@ -243,7 +248,7 @@ function EndConfirm({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: 
       <h2 id="end-title">End the session?</h2>
       <p>{SELF_RUN ? "Everything you have done so far is kept. You will be taken to the page where you can send your results." : "Everything you have done so far is kept. You will be asked to hand the device back to the researcher."}</p>
       <div className="p-dialog-actions">
-        <button type="button" className="btn btn-secondary" onClick={() => ref.current?.close()}>Keep going</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { ref.current?.close(); onCancel(); }}>Keep going</button>
         <button type="button" className="btn btn-danger" onClick={onConfirm}>Yes, end the session</button>
       </div>
     </dialog>

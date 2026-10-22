@@ -285,7 +285,7 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 .p-finish-steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
 .p-finish .p-offer-actions { justify-content: flex-start; }
 .p-finish-status:empty { display: none; }
-.p-finish .p-textlink { align-self: flex-start; }
+.p-finish .p-textlink, .p-finish .p-admin { align-self: flex-start; }
 /* ---------- onboarding tour (same look as the Tree Testing and Card Sort tools) ---------- */
 .tour-spotlight { position: fixed; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(30, 34, 38, 0.4), 0 0 0 2px var(--accent-glow), 0 0 0 5px var(--accent-glow); pointer-events: none; z-index: 600; transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease; }
 .tour-tip { position: fixed; z-index: 601; background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: var(--shadow); padding: 14px 16px; color: var(--ink); outline: none; }
@@ -342,3 +342,14 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 
 /* The opening cue of a scenario (Before you scroll...): bold, and in the accent family so it is not missed. */
 .cue { font-weight: 800; color: var(--cue); }
+
+/* Admin: a small, quiet disclosure for the actions a participant should rarely need. Not a call to action. */
+.p-admin { position: relative; align-self: center; margin-top: 10px; }
+.p-admin-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; background: none; border: 0; border-radius: 8px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; opacity: 0.85; }
+.p-admin-btn:hover, .p-admin-btn[aria-expanded="true"] { color: var(--ink); opacity: 1; background: var(--accent-tint); }
+.p-admin-caret { transition: transform 0.15s; }
+.p-admin-btn[aria-expanded="true"] .p-admin-caret { transform: rotate(180deg); }
+.p-admin-list { position: absolute; left: 50%; transform: translateX(-50%); top: 100%; z-index: 5; list-style: none; margin: 4px 0 0; padding: 4px; width: max-content; max-width: min(340px, 90vw); background: var(--paper-raised); border: 1px solid var(--line-strong); border-radius: 10px; box-shadow: 0 8px 24px rgba(30, 34, 38, 0.16); }
+.p-admin-item { display: block; width: 100%; min-height: 40px; padding: 0 12px; text-align: left; background: none; border: 0; border-radius: 6px; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; }
+.p-admin-item:hover { background: var(--accent-tint); }
+@media (prefers-reduced-motion: reduce) { .p-admin-caret { transition: none; } }

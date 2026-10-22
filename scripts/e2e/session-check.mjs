@@ -291,13 +291,18 @@ try {
   await rate(3, "");
   await wait("Ready for the next scenario?");
   // The participant can end the session themselves from this screen, after an "Are you sure?" step.
-  report(await c.ev("document.querySelector('.p-textlink')?.textContent === 'End session' && document.querySelector('.p-textlink').getBoundingClientRect().top > document.querySelector('.p-intro .btn-primary').getBoundingClientRect().bottom"), "a text link, End session, sits below the Show me the next scenario button");
-  await clickText(c, ".p-textlink", "End session");
+  const admin = async (item) => { await clickText(c, ".p-admin-btn", "Admin", { startsWith: true }); await clickText(c, ".p-admin-item", item); };
+  report(await c.ev("(()=>{const a=document.querySelector('.p-admin-btn');const b=document.querySelector('.p-intro .btn-primary');return !!a&&a.textContent.trim()==='Admin'&&a.getBoundingClientRect().top>b.getBoundingClientRect().bottom&&!document.querySelector('.p-textlink')&&!document.querySelector('.p-admin-list')})()"), "a quiet Admin button sits below the Show me the next scenario button, closed, with no loose text links");
+  await clickText(c, ".p-admin-btn", "Admin", { startsWith: true });
+  report((await c.ev("[...document.querySelectorAll('.p-admin-item')].map(b=>b.textContent.trim()).join('|')")) === "End session", "opened, the moderated tool's Admin lists End session only");
+  await c.key("Escape", "Escape"); await sleep(200);
+  report(!(await c.ev("!!document.querySelector('.p-admin-list')")), "Escape closes the Admin list");
+  await admin("End session");
   await c.waitPage("!!document.querySelector('dialog[open]')");
   report(await c.ev("document.querySelector('dialog[open]').textContent.includes('Everything you have done so far is kept')"), "it asks for confirmation and says nothing already done is lost");
-  await clickText(c, "dialog button", "Keep going"); await sleep(250);
+  await clickText(c, "dialog button", "Keep going"); await sleep(600);
   report(!(await c.ev("!!document.querySelector('dialog[open]')")) && (await has("Ready for the next scenario?")), "Keep going closes the question and stays on the same screen");
-  await clickText(c, ".p-textlink", "End session");
+  await admin("End session");
   await c.waitPage("!!document.querySelector('dialog[open]')");
   await clickText(c, "dialog button", "Yes, end the session");
   await wait("Thank you for your time");

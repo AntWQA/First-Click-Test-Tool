@@ -24,7 +24,8 @@ const text = () => c.ev("document.body.innerText");
 const has = async (s) => (await text()).toLowerCase().includes(s.toLowerCase());
 const wait = (s, timeout = 8000) => c.waitPage(`document.body.innerText.toLowerCase().includes(${JSON.stringify(s.toLowerCase())})`, timeout, `text "${s}"`);
 const setField = (sel, v) => c.ev(`(()=>{const el=document.querySelector(${JSON.stringify(sel)});const proto=el instanceof HTMLSelectElement?HTMLSelectElement.prototype:el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,${JSON.stringify(v)});el.dispatchEvent(new Event(el instanceof HTMLSelectElement?'change':'input',{bubbles:true}))})()`);
-const basics = "document.querySelectorAll('h1').length === 1 && [...document.querySelectorAll('input, select, textarea')].every((e) => e.labels && e.labels.length > 0) && [...document.querySelectorAll('button, .p-textlink')].every((b) => b.getBoundingClientRect().height >= 40)";
+const basics = "document.querySelectorAll('h1').length === 1 && [...document.querySelectorAll('input, select, textarea')].every((e) => e.labels && e.labels.length > 0) && [...document.querySelectorAll('button, .p-textlink, .p-admin-btn')].every((b) => b.getBoundingClientRect().height >= 40)";
+const admin = async (item) => { await clickText(c, ".p-admin-btn", "Admin", { startsWith: true }); await clickText(c, ".p-admin-item", item); };
 async function skipTour() { try { await c.waitPage("!!document.querySelector('.tour-tip')", 4000, "the tour"); await clickText(c, ".tour-tip button", "Skip"); await sleep(150); } catch { /* not shown */ } }
 async function doScenario(ease) {
   await c.clearMsgs();
@@ -122,7 +123,10 @@ try {
   await clickText(c, "button", "Show me the next scenario", { startsWith: true });
   await doScenario(5);
   await wait("Ready for the next scenario?");
-  await clickText(c, ".p-textlink", "End session"); await c.waitPage("!!document.querySelector('dialog[open]')");
+  await clickText(c, ".p-admin-btn", "Admin", { startsWith: true });
+  report((await c.ev("[...document.querySelectorAll('.p-admin-item')].map(b=>b.textContent.trim()).join('|')")) === "End session|Clear my progress in this test and start again", "the participant's Admin list holds End session and Clear my progress, and nothing else");
+  await c.key("Escape", "Escape"); await sleep(200);
+  await admin("End session"); await c.waitPage("!!document.querySelector('dialog[open]')");
   report((await c.ev("document.querySelector('dialog[open]').textContent")).includes("send your results"), "End session asks first, and says where it leads (sending the results, not a hand-back)");
   await clickText(c, "dialog button", "Yes, end the session");
 
@@ -153,7 +157,7 @@ try {
   await c.send("Page.reload"); await sleep(900);
   await wait("Thank you for your time", 20000);
   report((await has("Save my results")) && (await c.ev("document.querySelector('#fin-notes').readOnly")), "after a reload the results page is still there, to save again, with the note locked");
-  await clickText(c, ".p-textlink", "Start a new session");
+  await admin("Start a new session");
   await wait("Thanks for taking part");
   report(await has("Your code"), "Start a new session returns to setup");
 
