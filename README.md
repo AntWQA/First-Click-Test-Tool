@@ -28,6 +28,8 @@ One session, one device, three blocks in a fixed order: **homepage** (C1 to C3),
 
 **Order.** Homepage then product page tasks keep their plan order; the four navigation tasks follow, shuffled by the participant's number with Sleep and Cough never adjacent.
 
+**Wording.** A scenario is read before the page is on screen, so it names what it is about (dōTERRA Lavender essential oil, PB Restore) and never says "this" or "these"; a unit test enforces it. The after-task question is "Overall, how easy was it to know where to start?" for navigation tasks and "Overall, how easy was it to complete that task?" for the rest.
+
 **What the participant gives.** After a task that asks it they rate **confidence from 1 to 7**; every task asks the ease question and an optional note. The moderator can log a **doubt**: where on the page it arose, and a short note.
 
 **What you read.** The Ledger adds first click zone, coded answers, mean confidence and doubts per task, and marks observe tasks "Not scored". The CSV adds `arrival`, `first_zone`, `zones_clicked`, `confidence`, `coded_answers`, `doubt_zone` and `doubt`, and the Markdown export has a coded-answers section.

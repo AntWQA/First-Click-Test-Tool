@@ -221,16 +221,19 @@ const fromNavigation = (oldId: string, id: string, extra: Partial<Task>): Task =
   return mk({ ...base, id, breakpoints: BOTH, minutes: 2.75, block: "navigation", hypotheses: [], ...extra });
 };
 
-const CONFIDENCE_QUALITY = "How confident are you that these products are safe and high quality?";
-const CONFIDENCE_BUY = "How sure are you about buying this?";
+/** The two products the product page tasks use, named in full: a scenario is read before the page is on screen, so it cannot say "this" or "these". */
+const PRODUCT_A_NAME = "dōTERRA Lavender essential oil";
+const PRODUCT_B_NAME = "PB Restore";
+const CONFIDENCE_QUALITY = "How confident are you that the products dōTERRA sells are safe and high quality?";
+const confidenceBuy = (product: string) => `How sure are you about buying ${product}?`;
 const YES_NO = ["Yes", "No"];
 const ICON_CODES = ["Correct", "Partial", "Wrong", "Cannot say"];
 
 export const COMBINED_TASKS: Task[] = [
   mk({
     id: "C1", title: "First view", kind: "observe", block: "homepage", minutes: 3.5, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH1", "CH3", "CH9"],
-    scenario: "You have just arrived on this website. Before you scroll or click, tell me what you notice and what you think this company sells.",
-    questions: ["What does it sell?", "Who is it for?", "What makes it different from other places you could buy this?"],
+    scenario: "You have just arrived on the homepage of the dōTERRA website. Before you scroll or click, tell me what you notice and what you think dōTERRA sells.",
+    questions: ["What does dōTERRA sell?", "Who are its products for?", "What makes dōTERRA different from other places you could buy the same kind of products?"],
     confidence: CONFIDENCE_QUALITY,
     notesPrompt: "Your answers to the three questions, in your own words.",
     primary: [], acceptable: [], separate: [],
@@ -243,7 +246,7 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C2", title: "Looking for proof", kind: "click", block: "homepage", minutes: 3, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH2", "CH3", "CH9"],
-    scenario: "A friend mentioned doTERRA and you are thinking about trying an essential oil for the first time. Before you buy anything, find what would help you decide whether you can trust what is in the bottle.",
+    scenario: "A friend mentioned doTERRA and you are thinking about trying an essential oil for the first time. Before you buy anything, find what would help you decide whether you can trust what is in dōTERRA's essential oil bottles.",
     confidence: CONFIDENCE_QUALITY,
     primary: [{ zone: "quality", note: "The quality block, or a link to it (How we test, How we source and test)" }],
     acceptable: [{ zone: "why-value-cards", note: "Why dōTERRA value cards: Sourced at origin, Tested for purity" }, { zone: "nav-learn", note: "Header > Learn > Essential Oils > Certified Pure Testing Grade, a route off the page" }],
@@ -254,7 +257,7 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C3", title: "First product", kind: "observe", block: "homepage", minutes: 3, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH4", "CH9"], readsMenu: true,
-    scenario: "You have decided to try dōTERRA for the first time and want to choose something to buy. Show me what you would do, starting here, and what you would do next.",
+    scenario: "You have decided to try dōTERRA for the first time and want to choose something to buy. Show me what you would do, starting from the homepage, and what you would do next.",
     notesPrompt: "Which product would you choose, and why?",
     primary: [], acceptable: [], separate: [],
     codes: [
@@ -267,13 +270,13 @@ export const COMBINED_TASKS: Task[] = [
   mk({
     id: "C4", title: "First view and icons", kind: "observe", block: "product", minutes: 4, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH5", "CH6", "CH7", "CH9"],
     leadIns: {
-      homepage: "You opened this from the best sellers on the homepage.",
+      homepage: `You opened the ${PRODUCT_A_NAME} page from the best sellers on the dōTERRA homepage.`,
       google: "You searched for lavender essential oil and opened the dōTERRA result.",
-      shared: "A friend sent you this link and said: \"This is the one I use.\"",
+      shared: `A friend sent you a link to the ${PRODUCT_A_NAME} page and said: "Lavender is the one I use."`,
     },
-    scenario: "Before you scroll, tell me what you think this product is, whether it would suit you if you wanted something to help you wind down in the evening, and how you would use it.",
-    questions: ["Then, pointing at the usage icons: tell me what each of these means."],
-    notesPrompt: "What is this product, would it suit you, and how would you use it? What do the icons mean?",
+    scenario: `Before you scroll, tell me what you think ${PRODUCT_A_NAME} is for, whether it would suit you if you wanted something to help you wind down in the evening, and how you would use it.`,
+    questions: ["Then, pointing at the usage icons on the page: tell me what each icon means."],
+    notesPrompt: `What is ${PRODUCT_A_NAME} for, would it suit you, and how would you use it? What do the usage icons mean?`,
     primary: [], acceptable: [], separate: [],
     codes: [
       { id: "purpose", label: "What it is for", options: ["Correct", "Partial", "Not clear", "Wrong"] },
@@ -289,8 +292,8 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C5", title: "What makes you sure", kind: "observe", block: "product", minutes: 3, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH8", "CH9"],
-    scenario: "You are thinking about buying this. Have a look around the page and tell me, out loud, anything that makes you more sure or less sure.",
-    confidence: CONFIDENCE_BUY,
+    scenario: `You are thinking about buying ${PRODUCT_A_NAME}. Have a look around its page and tell me, out loud, anything that makes you more sure or less sure.`,
+    confidence: confidenceBuy(PRODUCT_A_NAME),
     notesPrompt: "What made you more sure, and what made you less sure?",
     primary: [], acceptable: [], separate: [],
     codes: [
@@ -302,7 +305,7 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C6", title: "What would I pay", kind: "click", block: "product", minutes: 2.5, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH10"],
-    scenario: "You decide to buy one of these and have it delivered to your home. Without leaving this page, tell me what you would pay in total.",
+    scenario: `You decide to buy one bottle of ${PRODUCT_A_NAME} and have it delivered to your home. Without leaving its page, tell me what you would pay in total.`,
     notesPrompt: "What would you pay in total, and how did you work it out?",
     primary: [{ zone: "shipping", note: "Opens the Shipping options overlay from the shipping line" }], acceptable: [], separate: [],
     codes: [
@@ -314,8 +317,8 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C7", title: "Two ways to buy, and choose", kind: "click", block: "product", minutes: 4, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH11"],
-    scenario: "There is more than one way to buy this on the page. Tell me what you think each one is and how they differ. What would you have to do to get the lower price, and how much would you save?",
-    questions: ["Then decide which way you would buy this, get it ready to buy, and tell me how sure you feel."],
+    scenario: `There is more than one way to buy ${PRODUCT_A_NAME} on its page. Tell me what you think each way is and how they differ. What would you have to do to get the lower price, and how much would you save?`,
+    questions: [`Then decide which way you would buy ${PRODUCT_A_NAME}, get it ready to buy, and tell me how sure you feel.`],
     confidence: "How sure are you about your choice?",
     notesPrompt: "What is each way to buy, how do they differ, and which would you choose?",
     primary: [{ zone: "option-account", note: "Selects the account option to see its price" }, { zone: "add-to-cart", note: "Add item to cart, with their chosen option selected" }],
@@ -337,7 +340,7 @@ export const COMBINED_TASKS: Task[] = [
   fromNavigation("T10", "C11", { hypotheses: ["CH13"], acceptable: [{ href: "/learn/business/path-to-500" }] }),
   mk({
     id: "R1", title: "Reserve: best sellers", kind: "observe", block: "homepage", minutes: 1.5, breakpoints: ["mobile"], reserve: true, highRisk: false, hypotheses: ["CH4"],
-    scenario: "You would like to see what other people buy most. Have a look through them and tell me which two you would look at first.",
+    scenario: "You would like to see which dōTERRA products other people buy most. Look through those products and tell me which two you would look at first.",
     notesPrompt: "Which two would you look at first?",
     primary: [], acceptable: [], separate: [],
     codes: [{ id: "moved", label: "Moved the carousel to see a product that was not in view", options: ["Arrow", "Swipe or drag", "Page scroll", "Did not move it"] }],
@@ -346,9 +349,9 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "R2", title: "Reserve: no reviews yet", kind: "observe", block: "product", minutes: 2.5, start: PRODUCT_B, breakpoints: BOTH, reserve: true, highRisk: false, hypotheses: ["CH9"],
-    scenario: "Here is a newer product from the same company. You are thinking of buying it. Tell me what you think.",
-    confidence: CONFIDENCE_BUY,
-    notesPrompt: "What do you think of this product, and would you buy it?",
+    scenario: `Here is the page for ${PRODUCT_B_NAME}, a newer probiotic supplement from dōTERRA. You are thinking of buying ${PRODUCT_B_NAME}. Tell me what you think.`,
+    confidence: confidenceBuy(PRODUCT_B_NAME),
+    notesPrompt: `What do you think of ${PRODUCT_B_NAME}, and would you buy it?`,
     primary: [], acceptable: [], separate: [],
     codes: [
       { id: "noticed", label: "Noticed there are no reviews", options: ["Unprompted, before any question", "Only when asked", "Not noticed"] },
@@ -360,9 +363,9 @@ export const COMBINED_TASKS: Task[] = [
 ];
 
 export const COMBINED_DEBRIEF: string[] = [
-  "Show the video version of the gallery once. Ask: \"Would this have made a difference? To what?\"",
+  "Show the video version of the gallery once. Ask: \"Would seeing a video in the gallery have made a difference to how sure you felt? To what?\"",
   "Rank four cards, most sure to least sure: reviews, CPTG, sourcing story, video.",
-  "If R2 did not run, ask: \"If this product had no reviews yet, what would you do?\"",
+  "If R2 did not run, ask: \"If a product you were thinking of buying had no reviews yet, what would you do?\"",
   "What did each Rewards link mean to them (C10), and what did Solutions mean (C8, C9)?",
   "What would they change first on the homepage and on the product page?",
   "Thank them. These are spoken opinions: read them beside what people did.",

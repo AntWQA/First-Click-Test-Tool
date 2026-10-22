@@ -100,8 +100,17 @@ test("arrival routes: homepage, Google, shared link in turn, four each across tw
   const s = createSession({ id: "a", now: T0, participantId: "P2", content: DEFAULT_CONTENT });
   assert.equal(s.arrival, "google");
   assert.match(leadInFor(task("C4"), s), /searched for lavender/);
-  assert.equal(leadInFor(task("C4"), { arrival: "shared" }), "A friend sent you this link and said: \"This is the one I use.\"");
+  assert.equal(leadInFor(task("C4"), { arrival: "shared" }), "A friend sent you a link to the dōTERRA Lavender essential oil page and said: \"Lavender is the one I use.\"");
   assert.equal(leadInFor(task("C1"), s), "", "a task with no arrival has no lead-in");
+});
+
+test("wording: what a participant reads before the page appears names the item, never 'this' or 'these'", () => {
+  const read = (t: (typeof COMBINED_TASKS)[number]) => [t.scenario, ...t.questions, t.confidence, t.notesPrompt, ...Object.values(t.leadIns ?? {})].join(" ");
+  for (const t of COMBINED_TASKS) assert.doesNotMatch(read(t), /\b(this|these|that one)\b/i, `${t.id}: ${read(t)}`);
+  for (const id of ["C4", "C5", "C6", "C7"]) assert.match(read(task(id)), /dōTERRA Lavender essential oil/, id);
+  assert.match(read(task("R2")), /PB Restore/);
+  assert.match(task("C5").confidence, /buying dōTERRA Lavender essential oil\?$/);
+  assert.match(task("R2").confidence, /buying PB Restore\?$/);
 });
 
 test("reserves: the mobile-only carousel reserve is offered to mobile participants only", () => {

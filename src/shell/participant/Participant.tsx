@@ -196,7 +196,7 @@ function Rating({ session }: { session: Session }) {
     <main className="p-screen p-center phase-enter">
       <form className="p-card p-rating" onSubmit={submit}>
         <fieldset>
-          <legend><h1 ref={heading} tabIndex={-1}>{task?.kind === "nav" || task === undefined ? "Overall, how easy was it to know where to start?" : "Overall, how easy was it to do this?"}</h1></legend>
+          <legend><h1 ref={heading} tabIndex={-1}>{task?.kind === "nav" || task === undefined ? "Overall, how easy was it to know where to start?" : "Overall, how easy was it to complete that task?"}</h1></legend>
           <div className="p-scale">
             {EASE_LABELS.map((label, i) => (
               <label key={label} className="p-scale-item">
