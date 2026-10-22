@@ -30,6 +30,7 @@ for (const [theme, T] of [["light", light], ["dark", dark]]) {
     ["button text on the accent (primary)", T["accent-ink"], T.accent, 4.5], ["text on the danger button", T["danger-ink"], T["fail-text"], 4.5],
     ["pass text on its tint", T["success-text"], tint("success-bg"), 4.5], ["watch text on its tint", T["warn-text"], tint("warn-bg"), 4.5], ["fail text on its tint", T["fail-text"], tint("fail-bg"), 4.5],
     ["accent text (eyebrows, pills) on cards", theme === "light" ? "#7a3f8f" : T.accent, theme === "light" ? solid(T["accent-tint"], card) : card, 4.5],
+    ["the scenario cue (bold, coloured) on cards", T.cue, card, 4.5],
     ["focus ring (accent) on cards, non-text 3:1", T.accent, card, 3], ["focus ring (accent) on the page, non-text 3:1", T.accent, page, 3],
     ["control borders on cards, non-text 3:1", T.control, card, 3], ["control borders on the page, non-text 3:1", T.control, page, 3],
   ];
@@ -74,6 +75,8 @@ try {
   await c.key("Escape", "Escape"); await sleep(250);
   report(!(await c.ev("!!document.querySelector('.tour-tip')")), "Esc closes the tour");
   await screen("Task before Begin");
+  const cue = JSON.parse(await c.ev(`JSON.stringify((()=>{const el=document.querySelector('.p-scenario .cue');if(!el)return null;const a=getComputedStyle(el),b=getComputedStyle(el.parentElement);return {text:el.textContent,weight:Number(a.fontWeight),color:a.color,body:b.color,tag:el.tagName}})())`));
+  report(cue?.text === "Before you scroll or click" && cue.tag === "STRONG" && cue.weight >= 700 && cue.color !== cue.body, "the scenario's opening cue is bold and in its own colour", JSON.stringify(cue));
   // Tab starts from where focus last was, so start from the heading, as a participant who has just read the scenario would.
   const firstTab = async () => { await c.ev("(document.querySelector('.p-scenario') ?? document.body).focus(); document.activeElement.blur()"); await c.key("Tab", "Tab"); return c.ev("document.activeElement.textContent.trim()"); };
   report((await firstTab()).includes("Begin"), "Task: the first thing a keyboard user reaches is Begin");

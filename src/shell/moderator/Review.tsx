@@ -1,4 +1,5 @@
 import { useApp } from "../state.tsx";
+import { Cued } from "../Cued.tsx";
 import { effective } from "../domain/session.ts";
 import type { RunModerator, Session } from "../domain/session.ts";
 import type { Tier, WrongClickCode } from "../domain/scoring.ts";
@@ -52,7 +53,7 @@ export function Review({ session, runId, onBack, backLabel }: { session: Session
         <section aria-labelledby="cap-h" className="m-col">
           <h2 id="cap-h">Captured automatically</h2>
           <dl className="m-facts">
-            <dt>Scenario</dt><dd>{task.scenario}</dd>
+            <dt>Scenario</dt><dd><Cued text={task.scenario} /></dd>
             <dt>Breakpoint</dt><dd>{BREAKPOINTS[run.breakpoint].label}. Earlier tasks this session at another breakpoint: {session.runs.filter((r) => r.status === "completed" && r.position < run.position && r.breakpoint !== run.breakpoint).length} of {run.position}. The earlier someone meets the navigation, the less of it they have already seen.</dd>
             {session.content.devicePerParticipant && <><dt>Route</dt><dd>Arrived by {ARRIVAL_LABELS[session.arrival]}{session.group ? ` · ${session.group}` : ""}</dd></>}
             <dt>Ended by</dt><dd>{run.end === "destination" ? "Chose a destination" : run.end === "found" ? (task.kind === "observe" ? "Pressed Done" : "Pressed I found it") : "Pressed I can't find it"}</dd>

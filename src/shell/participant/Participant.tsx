@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { StartAgain } from "./StartAgain.tsx";
+import { Cued } from "../Cued.tsx";
 import type { FormEvent } from "react";
 import { makeId, useApp } from "../state.tsx";
 import { Frame } from "../Frame.tsx";
@@ -156,8 +157,8 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
         <div className="p-task-text">
           <p className="p-label">{begun ? "Your task" : task.reserve ? "One more scenario" : `Scenario ${session.cursor + 1} of ${session.order.length}`}</p>
           {leadIn && <p className="p-leadin">{leadIn}</p>}
-          <h1 ref={heading} tabIndex={-1} className="p-scenario">{task.scenario}</h1>
-          {task.questions.length > 0 && <ul className="p-questions">{task.questions.map((q) => <li key={q}>{q}</li>)}</ul>}
+          <h1 ref={heading} tabIndex={-1} className="p-scenario"><Cued text={task.scenario} /></h1>
+          {task.questions.length > 0 && <ul className="p-questions">{task.questions.map((q) => <li key={q}><Cued text={q} /></li>)}</ul>}
           {!begun && <p className="p-device"><span className="pill"><DeviceIcon device={run.breakpoint} />You'll be viewing: {DEVICE[run.breakpoint]}</span></p>}
         </div>
         {!begun ? (

@@ -18,6 +18,7 @@
   --accent-ink: #ffffff;
   --accent-tint: #eadaee;
   --accent-glow: rgba(157, 87, 178, 0.32);
+  --cue: #7a3f8f;
   --success: #12b76a;
   --success-bg: rgba(18, 183, 106, 0.12);
   --success-text: #067647;
@@ -50,6 +51,7 @@
   --accent-ink: #2b1730;
   --accent-tint: rgba(157, 87, 178, 0.2);
   --accent-glow: rgba(189, 139, 202, 0.4);
+  --cue: #d4a9e0;
   --success-bg: rgba(18, 183, 106, 0.18);
   --success-text: #4ade9b;
   --fail-bg: rgba(240, 68, 56, 0.18);
@@ -337,3 +339,6 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 @media (max-width: 900px) { .m-cols { grid-template-columns: 1fr; } .m-order { columns: 1; } }
 .m-plan select { max-width: 220px; }
 .m-note-quiet { color: var(--muted); font-size: 12px; margin-left: 6px; }
+
+/* The opening cue of a scenario (Before you scroll...): bold, and in the accent family so it is not missed. */
+.cue { font-weight: 800; color: var(--cue); }
