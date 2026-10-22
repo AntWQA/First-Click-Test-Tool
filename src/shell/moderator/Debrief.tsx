@@ -46,6 +46,19 @@ export function Debrief({ session, onReview }: { session: Session; onReview: (se
           })}
         </tbody>
       </table>
+      {session.closing && Object.keys(session.closing).length > 0 && (
+        <section aria-labelledby="closing-h" className="m-closing">
+          <h2 id="closing-h">Closing questions, answered by the participant</h2>
+          <ol>
+            {(session.content.closingQuestions ?? []).flatMap((q) => {
+              const a = session.closing![q.id];
+              return a === undefined ? [] : [(
+                <li key={q.id}><strong>{q.prompt}</strong>{Array.isArray(a) ? <ol className="m-closing-rank">{a.map((item) => <li key={item}>{item}</li>)}</ol> : <p>{a}</p>}</li>
+              )];
+            })}
+          </ol>
+        </section>
+      )}
       {session.interruptions > 0 && <p className="m-warn">This session was interrupted {session.interruptions} time{session.interruptions === 1 ? "" : "s"}. Timings around the interruption are not comparable.</p>}
       <label className="m-field">Debrief notes
         <textarea rows={5} value={notes} readOnly={ended} onChange={(e) => setNotes(e.target.value)} onBlur={() => { if (!ended) dispatch({ type: "debrief", at: Date.now(), notes }); }} />

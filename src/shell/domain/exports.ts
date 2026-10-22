@@ -2,7 +2,7 @@ import { BREAKPOINTS, BREAKPOINT_IDS, parseProtoMessage } from "../../shared/pro
 import type { Breakpoint, CapturedEvent } from "../../shared/protocol.ts";
 import { validateContent } from "./content.ts";
 import type { Content } from "./tasks.ts";
-import { effective, emptyModerator, MAX_EVENTS_PER_RUN } from "./session.ts";
+import { cleanClosing, closingQuestionsFor, effective, emptyModerator, MAX_EVENTS_PER_RUN } from "./session.ts";
 import type { Group, Phase, Provenance, Run, RunModerator, RunStatus, Session } from "./session.ts";
 import { ledger } from "./ledger.ts";
 import { applyOverrides, arrivalFor, buildPlan, deviceFor } from "./order.ts";
@@ -35,13 +35,20 @@ export const CSV_COLUMNS = [
   "final_kind", "final_href", "final_section", "final_column", "via_footer", "suggested_tier", "tier", "suggested_code", "code",
   "level1", "level2", "ease", "menu_unaided_or_prompt", "scale", "window_resized", "participant_notes", "observed", "interpretation",
   "expected", "second_chance", "override_reason",
-  "arrival", "first_zone", "zones_clicked", "confidence", "coded_answers", "doubt_zone", "doubt",
+  "arrival", "first_zone", "zones_clicked", "confidence", "coded_answers", "doubt_zone", "doubt", "closing_answers",
 ] as const;
 
 /** The coded answers as one cell: id=choice pairs, in the task's own order. */
 const codedCell = (s: Session, r: Run): string => {
   const task = s.content.tasks.find((t) => t.id === r.taskId);
   return (task?.codes ?? []).flatMap((c) => (r.moderator.codes[c.id] ? [`${c.id}=${r.moderator.codes[c.id]}`] : [])).join("; ");
+};
+
+/** The participant's closing answers as one cell: id=answer pairs in the question order (a ranking reads item > item). The same on every row of one participant, like the arrival route. */
+const closingCell = (s: Session): string => {
+  if (!s.closing) return "";
+  const qs = s.content.closingQuestions ?? [];
+  return qs.flatMap((q) => { const a = s.closing![q.id]; return a === undefined ? [] : [`${q.id}=${Array.isArray(a) ? a.join(" > ") : a}`]; }).join("; ");
 };
 
 /** One row per run attempt, including superseded and interrupted ones (the status column says which count). */
@@ -55,7 +62,7 @@ export function runsToCsv(sessions: Session[]): string {
       g?.finalKind, g?.finalHref, g?.finalSection, g?.finalColumn, g?.viaFooter, g?.tier, e.tier, g?.code, e.code,
       e.level1, e.level2, r.ease, e.menu, r.scale, r.windowResized, r.participantNotes, r.moderator.observed, r.moderator.interpretation,
       r.moderator.expected, r.moderator.secondChance, r.moderator.overrideReason,
-      s.arrival, g?.firstZone, g?.zonesClicked?.join(" > "), r.confidence, codedCell(s, r), r.moderator.doubtZone, r.moderator.doubt,
+      s.arrival, g?.firstZone, g?.zonesClicked?.join(" > "), r.confidence, codedCell(s, r), r.moderator.doubtZone, r.moderator.doubt, closingCell(s),
     ].map((c) => csvEscape(c as string | number | boolean | null | undefined)).join(","));
   }
   return rows.join("\r\n") + "\r\n";
@@ -145,6 +152,13 @@ function provenanceOf(v: unknown): { imported?: Provenance } {
   return { imported: { file: v.file.slice(0, 200), sha256: v.sha256.slice(0, 64), size, at } };
 }
 
+/** The closing answers survive only for questions this content asks, in the right shape. Nothing is invented when there are none. */
+function closingOf(raw: unknown, content: Content, runs: Run[], status: unknown): { closing?: Record<string, string | string[]> } {
+  if (!isRecord(raw)) return {};
+  const asked = closingQuestionsFor({ content, runs, status: status === "ended-early" ? "ended-early" : "active" });
+  return { closing: cleanClosing(asked, raw) };
+}
+
 /** Rebuilds a session from untrusted JSON (import, local storage), keeping only known fields, or null if it is unusable. */
 export function sanitiseSession(raw: unknown, trusted = false): Session | null {
   if (!isRecord(raw) || raw.schemaVersion !== 1 || typeof raw.id !== "string" || !ID.test(raw.id)) return null;
@@ -206,6 +220,7 @@ export function sanitiseSession(raw: unknown, trusted = false): Session | null {
     status: raw.status === "ended" || raw.status === "ended-early" ? raw.status : "active", runs,
     retakeOf: typeof raw.retakeOf === "string" && ID.test(raw.retakeOf) ? raw.retakeOf : null,
     interruptions: Math.max(0, Math.floor(finite(raw.interruptions) ?? 0)), debriefNotes: text(raw.debriefNotes, 4000),
+    ...closingOf(raw.closing, c.content, runs, raw.status),
   };
 }
 
@@ -286,6 +301,18 @@ export function ledgerMarkdown(sessions: Session[], exportedAt: string): string 
       for (const [id, m] of Object.entries(t.coded)) lines.push(`- ${cell(t.codeLabels[id] ?? id)}: ${split(m)}`);
       if (t.meanConfidence !== null) lines.push(`- Confidence, mean of 7: ${t.meanConfidence.toFixed(1)}`);
       lines.push("");
+    }
+  }
+  // The participant edition's debrief: each closing question with every participant's answer.
+  const withClosing = sessions.filter((s) => !s.practice && s.closing && Object.keys(s.closing).length > 0);
+  if (withClosing.length > 0) {
+    lines.push("## Closing questions", "", "Answered on screen by the participant, in their own words. A ranking is listed from the one that made them most sure to the one that made them least sure.", "");
+    const prompts = new Map<string, string>();
+    for (const s of withClosing) for (const q of s.content.closingQuestions ?? []) if (!prompts.has(q.id)) prompts.set(q.id, q.prompt);
+    for (const [id, prompt] of prompts) {
+      const answers = withClosing.flatMap((s) => { const a = s.closing![id]; return a === undefined ? [] : [`- ${cell(s.participantId || s.id)}: ${cell(Array.isArray(a) ? a.join(" > ") : a)}`]; });
+      if (answers.length === 0) continue;
+      lines.push(`**${cell(prompt)}**`, "", ...answers, "");
     }
   }
   return lines.join("\n");

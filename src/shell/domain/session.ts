@@ -1,5 +1,5 @@
 import type { Breakpoint, CapturedEvent } from "../../shared/protocol.ts";
-import type { Arrival, Content, Task } from "./tasks.ts";
+import type { Arrival, ClosingQuestion, Content, Task } from "./tasks.ts";
 import { applyOverrides, arrivalFor, buildPlan, deviceFor, runsOn, sessionOrder } from "./order.ts";
 import { suggest } from "./scoring.ts";
 import type { EndReason, Suggestion, Tier, WrongClickCode } from "./scoring.ts";
@@ -119,6 +119,8 @@ export interface Session {
   retakeOf: string | null;
   interruptions: number;
   debriefNotes: string;
+  /** The participant's answers to the closing questions (the participant edition's debrief). Absent until they have seen that screen; a text answer is a string, a rank answer the items in order. */
+  closing?: Record<string, string | string[]>;
 }
 
 export const MAX_EVENTS_PER_RUN = 600;
@@ -178,6 +180,7 @@ export type Action =
   | { type: "reviewRun"; at: number; runId: string; patch: Partial<RunModerator> }
   | { type: "endEarly"; at: number }
   | { type: "stopSession"; at: number }
+  | { type: "closing"; at: number; answers: Record<string, string | string[]> }
   | { type: "complete"; at: number; notes: string }
   | { type: "debrief"; at: number; notes: string }
   | { type: "finish"; at: number }
@@ -326,6 +329,12 @@ export function reduce(session: Session, a: Action): Session {
       s.phase = "handBack";
       return s;
     }
+    case "closing": {
+      // The participant edition's debrief: typed answers to the closing questions, after the last task and before the results page.
+      need(s, a, "handBack");
+      s.closing = cleanClosing(closingQuestionsFor(s), a.answers);
+      return s;
+    }
     case "complete": {
       // The participant edition has no moderator debrief: from the hand-back screen the participant adds an optional note
       // and the session is closed in one step, ready to export. A session already stopped early stays marked as such.
@@ -406,5 +415,30 @@ export const taskProgress = (s: Session): { done: number; total: number } => ({ 
 export function planCounts(s: Session): Record<Breakpoint, number> {
   const out: Record<Breakpoint, number> = { desktop: 0, tablet: 0, mobile: 0 };
   for (const id of s.order) { const bp = s.plan[id]; if (bp) out[bp] += 1; }
+  return out;
+}
+
+
+/** The closing questions this participant is asked: none after stopping early, and not the ones whose task they already completed. */
+export function closingQuestionsFor(s: Pick<Session, "content" | "runs" | "status">): ClosingQuestion[] {
+  if (s.status === "ended-early") return [];
+  const done = new Set(s.runs.filter((r) => r.status === "completed").map((r) => r.taskId));
+  return (s.content.closingQuestions ?? []).filter((q) => q.unlessRun === undefined || !done.has(q.unlessRun));
+}
+
+/** Keeps only answers to the questions asked: text trimmed and capped, a ranking only if it puts every item in order exactly once. Blank answers are dropped. */
+export function cleanClosing(asked: ClosingQuestion[], answers: unknown): Record<string, string | string[]> {
+  const out: Record<string, string | string[]> = {};
+  if (typeof answers !== "object" || answers === null) return out;
+  const given = answers as Record<string, unknown>;
+  for (const q of asked) {
+    const v = given[q.id];
+    if (q.kind === "text" && typeof v === "string") {
+      const t = v.trim().slice(0, 1500);
+      if (t !== "") out[q.id] = t;
+    } else if (q.kind === "rank" && Array.isArray(v) && q.items && v.length === q.items.length && v.every((x) => typeof x === "string") && new Set(v).size === v.length && q.items.every((i) => v.includes(i))) {
+      out[q.id] = v as string[];
+    }
+  }
   return out;
 }

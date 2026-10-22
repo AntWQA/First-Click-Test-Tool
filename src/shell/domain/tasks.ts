@@ -71,6 +71,22 @@ export type TaskInput = Omit<Task, keyof TaskExtras> & Partial<TaskExtras>;
 export const TASK_DEFAULTS: TaskExtras = { kind: "nav", block: "navigation", minutes: 3, start: "/", questions: [], leadIns: null, codes: [], confidence: "", notesPrompt: "", apartFrom: "", readsMenu: false };
 export const mk = (t: TaskInput): Task => ({ ...TASK_DEFAULTS, ...t });
 
+/**
+ * A question the participant answers on screen after the last task, in their own words (text) or by putting items in order
+ * (rank). They replace the moderator's spoken debrief in the participant edition. Every question is optional.
+ */
+export interface ClosingQuestion {
+  id: string;
+  prompt: string;
+  kind: "text" | "rank";
+  /** Small text under the prompt. */
+  hint?: string;
+  /** rank only: the items to put in order, from the one that makes them most sure to the one that makes them least sure. */
+  items?: string[];
+  /** Only asked when this task was not completed (for example the reserve that already asked it). */
+  unlessRun?: string;
+}
+
 export interface Content {
   schemaVersion: 1;
   version: number;
@@ -80,6 +96,8 @@ export interface Content {
   devicePerParticipant?: boolean;
   /** Questions and steps for the debrief, shown to the moderator. */
   debrief?: string[];
+  /** Questions the participant answers on screen after the last task (the participant edition's debrief). */
+  closingQuestions?: ClosingQuestion[];
 }
 
 const ALL: Breakpoint[] = ["desktop", "tablet", "mobile"];
@@ -371,6 +389,39 @@ export const COMBINED_DEBRIEF: string[] = [
   "Thank them. These are spoken opinions: read them beside what people did.",
 ];
 
+/** The moderator's spoken debrief, put to the participant on screen. Each names what it is about: it is read with no page showing. */
+export const COMBINED_CLOSING_QUESTIONS: ClosingQuestion[] = [
+  {
+    id: "video", kind: "text", hint: "A sentence or two is plenty.",
+    prompt: `Imagine the gallery on the ${PRODUCT_A_NAME} page also had a short video of the product. Would that have changed how sure you felt about buying it? If so, how?`,
+  },
+  {
+    id: "rank", kind: "rank", hint: "Choose 1 for the one that makes you most sure and 4 for the one that makes you least sure. Give each its own number, or leave all four blank to skip.",
+    prompt: `Four things can help someone feel sure about buying a product like ${PRODUCT_A_NAME}. Put them in order.`,
+    items: ["Customer reviews", "The CPTG Certified Pure Tested Grade mark", "The story of where the oil is sourced", "A short video of the product (imagine it was on the page)"],
+  },
+  {
+    id: "noReviews", kind: "text", unlessRun: "R2", hint: "A sentence or two is plenty.",
+    prompt: "Imagine you were thinking of buying a product on the dōTERRA website and it had no reviews yet. What would you do?",
+  },
+  {
+    id: "rewardsMeaning", kind: "text", hint: "If you did not look at it, say so.",
+    prompt: "In the menu at the top of the dōTERRA website, what did the links under Rewards mean to you?",
+  },
+  {
+    id: "solutionsMeaning", kind: "text", hint: "If you did not look at it, say so.",
+    prompt: "In the menu at the top of the dōTERRA website, what did the word Solutions mean to you?",
+  },
+  {
+    id: "changeHome", kind: "text", hint: "A sentence or two is plenty.",
+    prompt: "What would you change first on the dōTERRA homepage?",
+  },
+  {
+    id: "changeProduct", kind: "text", hint: "A sentence or two is plenty.",
+    prompt: `What would you change first on the ${PRODUCT_A_NAME} page?`,
+  },
+];
+
 export const DEFAULT_TASKS: Task[] = COMBINED_TASKS;
 
 export const DEFAULT_CONTENT: Content = {
@@ -378,9 +429,11 @@ export const DEFAULT_CONTENT: Content = {
   // Version 4: the combined test (homepage, product page and navigation in one session of 50 minutes or less). Versions 1 to 3 were the navigation-only test, kept as NAVIGATION_CONTENT.
   // Version 5: every scenario names the product instead of saying "this", "these" or "here".
   // Version 6: R2 no longer opens with "Here is".
-  version: 6,
+  // Version 7: the debrief is put to the participant on screen (closingQuestions) in the participant edition.
+  version: 7,
   updatedAt: "2026-10-22T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,
   debrief: COMBINED_DEBRIEF,
+  closingQuestions: COMBINED_CLOSING_QUESTIONS,
 };

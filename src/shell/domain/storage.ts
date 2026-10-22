@@ -1,4 +1,4 @@
-import { tasksFingerprint, validateContent } from "./content.ts";
+import { contentFingerprint, tasksFingerprint, validateContent } from "./content.ts";
 import { sanitiseSession } from "./exports.ts";
 import type { Session } from "./session.ts";
 import { DEFAULT_CONTENT } from "./tasks.ts";
@@ -52,6 +52,13 @@ const SUPERSEDED_DEFAULTS = new Set<string>([
   "8dc1e364", // version 5 (22 Oct 2026): products named, but R2 still began "Here is the page..."
 ]);
 
+/** The same, for a default whose tasks did not change but whose other parts did (contentFingerprint of the whole content). */
+const SUPERSEDED_CONTENT = new Set<string>([
+  "a8baa120", // version 6 (22 Oct 2026): no closing questions for the participant
+]);
+
+const isSuperseded = (c: Content): boolean => SUPERSEDED_DEFAULTS.has(tasksFingerprint(c.tasks)) || SUPERSEDED_CONTENT.has(contentFingerprint(c));
+
 export type SaveResult = { ok: true; at: number } | { ok: false; reason: "quota" | "verify" | "unavailable" };
 
 const isQuota = (e: unknown): boolean => {
@@ -81,14 +88,14 @@ export interface Store {
  * where nobody has yet read the old ones.
  */
 export function refreshSupersededWording(s: Session): Session {
-  if (!SUPERSEDED_DEFAULTS.has(tasksFingerprint(s.content.tasks))) return s;
+  if (!isSuperseded(s.content)) return s;
   const started = new Set(s.runs.map((r) => r.taskId));
   const tasks = s.content.tasks.map((t) => {
     const now = DEFAULT_CONTENT.tasks.find((d) => d.id === t.id);
     if (!now || started.has(t.id)) return t;
     return { ...t, scenario: now.scenario, questions: now.questions, leadIns: now.leadIns, confidence: now.confidence, notesPrompt: now.notesPrompt };
   });
-  return { ...s, content: { ...s.content, tasks, debrief: DEFAULT_CONTENT.debrief ?? s.content.debrief } };
+  return { ...s, content: { ...s.content, tasks, debrief: DEFAULT_CONTENT.debrief ?? s.content.debrief, closingQuestions: DEFAULT_CONTENT.closingQuestions ?? s.content.closingQuestions } };
 }
 
 export function createStore(backing: Backing | null, now: () => number): Store {
@@ -116,7 +123,7 @@ export function createStore(backing: Backing | null, now: () => number): Store {
       if (raw === null) return DEFAULT_CONTENT;
       try {
         const r = validateContent(JSON.parse(raw));
-        if (r.ok && SUPERSEDED_DEFAULTS.has(tasksFingerprint(r.content.tasks))) { b.removeItem(CONTENT); return DEFAULT_CONTENT; }
+        if (r.ok && isSuperseded(r.content)) { b.removeItem(CONTENT); return DEFAULT_CONTENT; }
         if (r.ok) return r.content;
       } catch { /* fall through to the defaults */ }
       store.contentFellBack = true;

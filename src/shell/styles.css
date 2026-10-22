@@ -353,3 +353,30 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 .p-admin-item { display: block; width: 100%; min-height: 40px; padding: 0 12px; text-align: left; background: none; border: 0; border-radius: 6px; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; }
 .p-admin-item:hover { background: var(--accent-tint); }
 @media (prefers-reduced-motion: reduce) { .p-admin-caret { transition: none; } }
+
+/* The participant edition's closing questions. */
+.p-closing { max-width: 640px; text-align: left; align-items: stretch; }
+.p-closing h1, .p-closing .p-eyebrow { text-align: left; }
+.p-rank { border: 1px solid var(--line-strong); border-radius: 12px; padding: 14px 16px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.p-rank legend { padding: 0 6px; font-weight: 600; color: var(--ink); }
+.p-rank small { color: var(--muted); }
+.p-rank-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 15px; color: var(--ink); }
+.p-rank-row select { min-height: 40px; min-width: 110px; }
+
+/* A small Copy button beside an email address. The tap target is 40px tall without making the line taller. */
+.p-copy { display: inline-flex; align-items: center; gap: 5px; min-height: 40px; margin-block: -10px; padding: 0 10px; vertical-align: middle; background: none; border: 1px solid var(--line-strong); border-radius: 8px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.p-copy:hover { color: var(--ink); background: var(--accent-tint); }
+.p-copy-note { margin-left: 8px; font-size: 12.5px; color: var(--muted); }
+
+/* Closing answers on the moderator's record. */
+.m-closing { margin: 18px 0; }
+.m-closing > ol { display: flex; flex-direction: column; gap: 12px; padding-left: 20px; margin: 0; }
+.m-closing li > strong { display: block; font-size: 14px; }
+.m-closing li > p { margin: 4px 0 0; white-space: pre-wrap; }
+.m-closing-rank { margin: 4px 0 0; padding-left: 20px; }
+
+/* Closing questions are sentences, not field labels: read in normal case. */
+.p-closing .p-field, .p-closing .p-rank legend { text-transform: none; letter-spacing: normal; font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--ink); }
+.p-closing .p-field small, .p-closing .p-rank small { font-size: 13px; font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--muted); }
+.p-closing > p { max-width: none; }
+.p-rank-row select { width: 130px; flex: none; }

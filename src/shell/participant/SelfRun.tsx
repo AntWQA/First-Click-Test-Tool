@@ -8,8 +8,10 @@ import { useFollowedTheme } from "../theme.tsx";
 import { NOTICE, SEND_TO } from "../edition.ts";
 import { Participant } from "./Participant.tsx";
 import { StartAgainDialog, START_AGAIN_LABEL } from "./StartAgain.tsx";
+import { Closing } from "./Closing.tsx";
+import { CopyEmail } from "./CopyEmail.tsx";
 import { AdminMenu } from "./AdminMenu.tsx";
-import { reduce, countedRuns } from "../domain/session.ts";
+import { reduce, countedRuns, closingQuestionsFor } from "../domain/session.ts";
 import type { Group, Session } from "../domain/session.ts";
 import { toJsonBundle } from "../domain/exports.ts";
 import { download } from "../format.ts";
@@ -37,6 +39,8 @@ function SelfRunRoot() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   if (!booted) return null;
   if (!active) return <Frame theme={theme} onToggleTheme={toggleTheme}><SelfSetup /></Frame>;
+  // After the last scenario, the closing questions come before the results page (not after stopping early).
+  if (active.phase === "handBack" && active.closing === undefined && closingQuestionsFor(active).length > 0) return <Frame theme={theme} onToggleTheme={toggleTheme}><Closing session={active} /></Frame>;
   if (active.phase === "handBack" || active.phase === "debrief" || active.phase === "ended") return <Frame theme={theme} onToggleTheme={toggleTheme}><Finished session={active} /></Frame>;
   if (active.phase === "setup") return <Frame theme={theme} onToggleTheme={toggleTheme}><SelfSetup /></Frame>;
   return <Participant session={active} theme={theme} onToggleTheme={toggleTheme} />;
@@ -162,7 +166,7 @@ function Finished({ session }: { session: Session }) {
       <div className="p-card p-finish">
         <p className="p-eyebrow">{early ? "Stopped here" : "All done"}</p>
         <h1 ref={heading} tabIndex={-1}>{early ? "Thank you for your time" : "Thank you for finishing the scenarios"}</h1>
-        <p>{early ? `You finished ${done} ${done === 1 ? "scenario" : "scenarios"} and stopped there, which is fine.` : `You finished ${done} ${done === 1 ? "scenario" : "scenarios"}.`} There are no more questions to answer.</p>
+        <p>{early ? `You finished ${done} ${done === 1 ? "scenario" : "scenarios"} and stopped there, which is fine.` : `You finished ${done} ${done === 1 ? "scenario" : "scenarios"}.`}</p>
         <p className="p-note p-send-note"><strong>One last thing: please send us your results file.</strong> We only receive your answers when you do.</p>
         <label className="p-field p-setup-field" htmlFor="fin-notes">Anything you would like to add? (optional)
           <textarea id="fin-notes" rows={3} maxLength={2000} value={notes} readOnly={ended} onChange={(e) => setNotes(e.target.value)} />
@@ -170,7 +174,7 @@ function Finished({ session }: { session: Session }) {
         </label>
         <ol className="p-finish-steps">
           <li>Save your results file with the button below.</li>
-          <li>{SEND_TO ? <>Send it to <strong>{SEND_TO}</strong>.</> : "Send it to the researcher who gave you this tool."}</li>
+          <li>{SEND_TO ? <>Send it to <CopyEmail address={SEND_TO} />.</> : "Send it to the researcher who gave you this tool."}</li>
         </ol>
         <div className="p-offer-actions">
           <button type="button" className="btn btn-primary btn-lg" onClick={save}><DownloadIcon />Save my results</button>

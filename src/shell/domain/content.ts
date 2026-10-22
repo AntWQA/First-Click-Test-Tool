@@ -2,7 +2,7 @@ import { BREAKPOINT_IDS } from "../../shared/protocol.ts";
 import type { Breakpoint } from "../../shared/protocol.ts";
 import { hrefExists } from "../../shared/navIndex.ts";
 import { ARRIVALS, TASK_DEFAULTS } from "./tasks.ts";
-import type { Block, CodeSpec, Content, Task, TargetSpec, TaskKind } from "./tasks.ts";
+import type { Block, ClosingQuestion, CodeSpec, Content, Task, TargetSpec, TaskKind } from "./tasks.ts";
 
 const EM_DASH = "\u2014";
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -127,12 +127,52 @@ export function validateContent(raw: unknown, options: { checkLinks?: boolean } 
   for (const t of tasks) if (t.apartFrom !== "" && !seen.has(t.apartFrom)) errors.push(`${t.id}.apartFrom "${t.apartFrom}" is not a task id`);
   const debrief = raw.debrief === undefined ? undefined : strings(raw.debrief, "debrief", errors).slice(0, 12);
   if (debrief?.some((d) => d.includes(EM_DASH))) errors.push("debrief contains an em dash: use a comma, colon, brackets or a new sentence");
+  const closing = raw.closingQuestions === undefined ? undefined : closingQuestions(raw.closingQuestions, new Set(tasks.map((t) => t.id)), errors);
   if (raw.devicePerParticipant !== undefined && typeof raw.devicePerParticipant !== "boolean") errors.push("devicePerParticipant must be true or false");
   if (errors.length > 0) return { ok: false, errors };
   const content: Content = { schemaVersion: 1, version: raw.version as number, updatedAt: text(raw.updatedAt, 40) || new Date(0).toISOString(), tasks };
   if (raw.devicePerParticipant === true) content.devicePerParticipant = true;
   if (debrief && debrief.length > 0) content.debrief = debrief;
+  if (closing && closing.length > 0) content.closingQuestions = closing;
   return { ok: true, content };
+}
+
+const QID = /^[a-z][A-Za-z0-9]{0,29}$/;
+
+/** Checks the participant's closing questions: ids unique, prompts present, rank questions with 2 to 8 items, unlessRun naming a real task. */
+function closingQuestions(raw: unknown, taskIds: Set<string>, errors: string[]): ClosingQuestion[] {
+  if (!Array.isArray(raw)) { errors.push("closingQuestions must be a list"); return []; }
+  if (raw.length > 12) errors.push("closingQuestions can hold at most 12 questions");
+  const out: ClosingQuestion[] = [];
+  const ids = new Set<string>();
+  raw.slice(0, 12).forEach((q, i) => {
+    const where = `closingQuestions[${i}]`;
+    if (!isRecord(q)) { errors.push(`${where} must be an object`); return; }
+    const id = typeof q.id === "string" ? q.id : "";
+    if (!QID.test(id)) errors.push(`${where}.id must be letters and numbers, starting with a letter`);
+    if (ids.has(id)) errors.push(`${where}.id "${id}" is used twice`);
+    ids.add(id);
+    const prompt = text(q.prompt, 500);
+    if (prompt === "") errors.push(`${where}.prompt is empty`);
+    const kind = q.kind === "text" || q.kind === "rank" ? q.kind : null;
+    if (!kind) errors.push(`${where}.kind must be text or rank`);
+    const hint = text(q.hint, 300);
+    const question: ClosingQuestion = { id, prompt, kind: kind ?? "text" };
+    if (hint !== "") question.hint = hint;
+    if (kind === "rank") {
+      const items = strings(q.items ?? [], `${where}.items`, errors).map((x) => x.slice(0, 120));
+      if (items.length < 2 || items.length > 8) errors.push(`${where}.items needs 2 to 8 items to put in order`);
+      if (new Set(items).size !== items.length) errors.push(`${where}.items has a repeated item`);
+      question.items = items;
+    }
+    if (q.unlessRun !== undefined && q.unlessRun !== "") {
+      if (typeof q.unlessRun !== "string" || !taskIds.has(q.unlessRun)) errors.push(`${where}.unlessRun "${String(q.unlessRun)}" is not a task id`);
+      else question.unlessRun = q.unlessRun;
+    }
+    if (JSON.stringify(question).includes(EM_DASH)) errors.push(`${where} contains an em dash: use a comma, colon, brackets or a new sentence`);
+    out.push(question);
+  });
+  return out;
 }
 
 /** A saved edit becomes the next version, so past sessions stay tied to what they ran against. */
@@ -149,4 +189,9 @@ export function tasksFingerprint(tasks: unknown): string {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
   return h.toString(16);
+}
+
+/** Fingerprint of everything a default carries (tasks, moderator debrief, closing questions, device rule), for recognising a saved copy of an earlier shipped default. */
+export function contentFingerprint(c: Content): string {
+  return tasksFingerprint({ tasks: c.tasks, debrief: c.debrief ?? null, closing: c.closingQuestions ?? null, device: c.devicePerParticipant === true });
 }
