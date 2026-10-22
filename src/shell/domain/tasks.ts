@@ -221,7 +221,7 @@ const fromNavigation = (oldId: string, id: string, extra: Partial<Task>): Task =
   return mk({ ...base, id, breakpoints: BOTH, minutes: 2.75, block: "navigation", hypotheses: [], ...extra });
 };
 
-/** The two products the product page tasks use, named in full: a scenario is read before the page is on screen, so it cannot say "this" or "these". */
+/** The two products the product page tasks use, named in full: a scenario is read before the page is on screen, so it cannot say "this", "these" or "here". */
 const PRODUCT_A_NAME = "dōTERRA Lavender essential oil";
 const PRODUCT_B_NAME = "PB Restore";
 const CONFIDENCE_QUALITY = "How confident are you that the products dōTERRA sells are safe and high quality?";
@@ -349,7 +349,7 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "R2", title: "Reserve: no reviews yet", kind: "observe", block: "product", minutes: 2.5, start: PRODUCT_B, breakpoints: BOTH, reserve: true, highRisk: false, hypotheses: ["CH9"],
-    scenario: `Here is the page for ${PRODUCT_B_NAME}, a newer probiotic supplement from dōTERRA. You are thinking of buying ${PRODUCT_B_NAME}. Tell me what you think.`,
+    scenario: `You are looking at the page for ${PRODUCT_B_NAME}, a newer probiotic supplement from dōTERRA. You are thinking of buying ${PRODUCT_B_NAME}. Tell me what you think.`,
     confidence: confidenceBuy(PRODUCT_B_NAME),
     notesPrompt: `What do you think of ${PRODUCT_B_NAME}, and would you buy it?`,
     primary: [], acceptable: [], separate: [],
@@ -376,8 +376,9 @@ export const DEFAULT_TASKS: Task[] = COMBINED_TASKS;
 export const DEFAULT_CONTENT: Content = {
   schemaVersion: 1,
   // Version 4: the combined test (homepage, product page and navigation in one session of 50 minutes or less). Versions 1 to 3 were the navigation-only test, kept as NAVIGATION_CONTENT.
-  // Version 5: every scenario names the product instead of saying "this" or "these".
-  version: 5,
+  // Version 5: every scenario names the product instead of saying "this", "these" or "here".
+  // Version 6: R2 no longer opens with "Here is".
+  version: 6,
   updatedAt: "2026-10-22T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,

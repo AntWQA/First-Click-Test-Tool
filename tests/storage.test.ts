@@ -89,3 +89,30 @@ test("a saved copy of an earlier shipped default is replaced by the current defa
   const current = createStore(memoryBacking({ "wc.v1.content": JSON.stringify(DEFAULT_CONTENT) }), () => 1);
   assert.equal(current.loadContent().version, DEFAULT_CONTENT.version);
 });
+
+
+test("a session begun on an earlier default takes the current wording for tasks not yet started, and keeps what it already ran", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { validateContent } = await import("../src/shell/domain/content.ts");
+  const { reduce } = await import("../src/shell/domain/session.ts");
+  const old = validateContent(JSON.parse(readFileSync(new URL("./fixtures/combined-default-2026-10-22.json", import.meta.url), "utf8")));
+  assert.ok(old.ok);
+  let s = createSession({ id: "old1", now: 1000, participantId: "P1", content: old.content });
+  s = reduce(s, { type: "start", at: 1000 });
+  s = reduce(s, { type: "present", at: 1001, runId: "r1" });
+  const backing = memoryBacking();
+  const store = createStore(backing, () => 1);
+  store.saveSession(s);
+  const [loaded] = store.loadSessions().sessions;
+  const by = (id: string) => loaded!.content.tasks.find((x) => x.id === id)!;
+  assert.match(by("C1").scenario, /buy this|this website|this company/, "C1 was already shown, so it keeps the words the participant read");
+  assert.doesNotMatch(by("C4").scenario, /this product/, "C4 had not started");
+  assert.match(by("C3").scenario, /starting from the homepage/);
+  assert.equal(by("C7").primary[0]!.zone, "option-account", "targets are untouched");
+  assert.deepEqual(loaded!.order, s.order);
+  assert.equal(loaded!.runs.length, 1);
+  // A session on the current default is returned as it is.
+  const cur = createSession({ id: "cur", now: 1000, participantId: "P2", content: DEFAULT_CONTENT });
+  store.saveSession(cur);
+  assert.deepEqual(store.loadSessions().sessions.find((x) => x.id === "cur")!.content.tasks, DEFAULT_CONTENT.tasks.map((x) => ({ ...x })));
+});

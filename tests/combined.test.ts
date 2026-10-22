@@ -104,9 +104,9 @@ test("arrival routes: homepage, Google, shared link in turn, four each across tw
   assert.equal(leadInFor(task("C1"), s), "", "a task with no arrival has no lead-in");
 });
 
-test("wording: what a participant reads before the page appears names the item, never 'this' or 'these'", () => {
+test("wording: what a participant reads before the page appears names the item, never 'this', 'these' or 'here'", () => {
   const read = (t: (typeof COMBINED_TASKS)[number]) => [t.scenario, ...t.questions, t.confidence, t.notesPrompt, ...Object.values(t.leadIns ?? {})].join(" ");
-  for (const t of COMBINED_TASKS) assert.doesNotMatch(read(t), /\b(this|these|that one)\b/i, `${t.id}: ${read(t)}`);
+  for (const t of COMBINED_TASKS) assert.doesNotMatch(read(t), /\b(this|these|that one|here|above|below)\b/i, `${t.id}: ${read(t)}`);
   for (const id of ["C4", "C5", "C6", "C7"]) assert.match(read(task(id)), /dōTERRA Lavender essential oil/, id);
   assert.match(read(task("R2")), /PB Restore/);
   assert.match(task("C5").confidence, /buying dōTERRA Lavender essential oil\?$/);

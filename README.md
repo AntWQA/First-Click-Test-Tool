@@ -39,7 +39,7 @@ One session, one device, three blocks in a fixed order: **homepage** (C1 to C3),
 - The Google and shared-link arrivals are text only.
 - Product B (R2) has no reviews on purpose; other product copy, reviews and FAQs are invented stand-ins (see `docs/INSTRUMENTATION-DIFF.md`).
 - Time allowances are estimates until a pilot.
-- Saved content lives in the browser. A saved copy that is exactly an earlier default is replaced by the current default on load; anything you have edited is kept until you press *Reset to the combined test*. Add the fingerprint of the old default to `SUPERSEDED_DEFAULTS` in `src/shell/domain/storage.ts` whenever the default wording changes. A session always keeps the content it started with, so one begun before a wording change still shows the old wording.
+- Saved content lives in the browser. A saved copy that is exactly an earlier default is replaced by the current default on load; anything you have edited is kept until you press *Reset to the combined test*. Add the fingerprint of the old default to `SUPERSEDED_DEFAULTS` in `src/shell/domain/storage.ts` whenever the default wording changes. A session keeps the content it started with, but a session begun on a superseded default takes the current participant-facing wording for tasks not yet started (tasks already run keep the words the participant read; targets are untouched).
 
 ## Running a session
 

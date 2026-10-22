@@ -49,6 +49,7 @@ const CONTENT = PREFIX + "content";
  */
 const SUPERSEDED_DEFAULTS = new Set<string>([
   "f4e62947", // combined test as first shipped (22 Oct 2026): scenarios said "this" and "these"
+  "8dc1e364", // version 5 (22 Oct 2026): products named, but R2 still began "Here is the page..."
 ]);
 
 export type SaveResult = { ok: true; at: number } | { ok: false; reason: "quota" | "verify" | "unavailable" };
@@ -71,6 +72,23 @@ export interface Store {
   saveContent(c: Content): SaveResult;
 }
 
+/**
+ * A session keeps a copy of the content it started with, so wording fixed after it began never reached it. For a session
+ * that began on an earlier shipped default, the tasks the participant has not started take the current default's
+ * participant-facing wording. Targets, order and everything already run are left alone: only the words change, and only
+ * where nobody has yet read the old ones.
+ */
+export function refreshSupersededWording(s: Session): Session {
+  if (!SUPERSEDED_DEFAULTS.has(tasksFingerprint(s.content.tasks))) return s;
+  const started = new Set(s.runs.map((r) => r.taskId));
+  const tasks = s.content.tasks.map((t) => {
+    const now = DEFAULT_CONTENT.tasks.find((d) => d.id === t.id);
+    if (!now || started.has(t.id)) return t;
+    return { ...t, scenario: now.scenario, questions: now.questions, leadIns: now.leadIns, confidence: now.confidence, notesPrompt: now.notesPrompt };
+  });
+  return { ...s, content: { ...s.content, tasks, debrief: DEFAULT_CONTENT.debrief ?? s.content.debrief } };
+}
+
 export function createStore(backing: Backing | null, now: () => number): Store {
   const b = backing ?? memoryBacking();
   const store: Store = {
@@ -83,7 +101,7 @@ export function createStore(backing: Backing | null, now: () => number): Store {
       for (const key of b.keys().filter((k) => k.startsWith(SESSION))) {
         try {
           const s = sanitiseSession(JSON.parse(b.getItem(key) ?? "null"), true);
-          if (s) sessions.push(s); else skipped += 1;
+          if (s) sessions.push(refreshSupersededWording(s)); else skipped += 1;
         } catch { skipped += 1; }
       }
       return { sessions: sessions.sort((x, y) => x.createdAt - y.createdAt), skipped };
