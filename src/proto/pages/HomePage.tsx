@@ -123,7 +123,7 @@ export function HomePage() {
         </Container>
       </Section>
 
-      <Box backgroundColor="extra-light" id="why-doterra" className={HEADROOM}>
+      <Box id="why-doterra" className={HEADROOM}>
         <Section size="lg">
           <Container width="wide">
             <Stack spacing="xl">
