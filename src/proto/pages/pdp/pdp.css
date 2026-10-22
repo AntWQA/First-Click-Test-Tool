@@ -1,0 +1,37 @@
+/*
+ * Product page styles. Pure tokens only. These cover what Pure 2.6.0 has no component for: the purchase card with its
+ * two options, the shipping line, the CPTG mark and the shipping options table. Prefix pdp- so nothing collides when
+ * Pure is upgraded and these are replaced by library components.
+ */
+.pdp-gallery{max-width:640px}
+.pdp-badge{display:inline-block;padding:2px var(--spacing-3);border:1px solid var(--color-border-dark, #1f2a37);border-radius:var(--border-radius-md);font-size:.75rem;line-height:1.5;font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+.pdp-badge--solid{background:var(--color-text-base, #1f2a37);color:var(--color-text-inverse-base, #fff)}
+.pdp-buy{border:1px solid var(--color-border-base);border-radius:var(--border-radius-xl);overflow:hidden;background:var(--color-background-base)}
+.pdp-option{padding:var(--spacing-4) var(--spacing-5)}
+.pdp-option + .pdp-option{border-top:1px solid var(--color-border-light, var(--color-border-base))}
+.pdp-option__label{font-size:var(--font-size-text-md, 1rem)}
+.pdp-option__label--strong{font-weight:600}
+.pdp-save{color:var(--color-text-success-bold, #067647);font-weight:700}
+.pdp-buy__panel{background:var(--color-background-extra-light);padding:var(--spacing-5);display:flex;flex-direction:column;gap:var(--spacing-5)}
+.pdp-price{display:flex;flex-direction:column;gap:var(--spacing-1)}
+.pdp-price__row{display:flex;align-items:baseline;gap:var(--spacing-3)}
+.pdp-price__now{font-size:2.25rem;line-height:1.1;font-weight:500}
+.pdp-price__was{color:var(--color-text-error-bold, #b42318);font-size:1.5rem}
+.pdp-add{width:100%;text-transform:uppercase}
+.pdp-ship{display:flex;align-items:center;justify-content:center;gap:var(--spacing-3);padding:var(--spacing-3) var(--spacing-4);background:var(--color-background-light, #f2f4f7);border-radius:var(--border-radius-md);text-align:center}
+.pdp-ship__icon{flex:none}
+.pdp-linkbutton,.pdp-readmore{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.pdp-linkbutton{font-size:var(--font-size-text-sm, .875rem)}
+.pdp-cptg{display:flex;align-items:center;gap:var(--spacing-3)}
+.pdp-cptg__seal{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--color-text-base, #1f2a37);color:var(--color-text-inverse-base, #fff);font-size:.8rem;letter-spacing:-.04em;flex:none}
+.pdp-cptg__seal b{font-weight:800}
+.pdp-cptg__text{font-weight:600;letter-spacing:-.02em}
+.pdp-iconbutton{border:1px solid var(--color-border-base);border-radius:var(--border-radius-md);padding:var(--spacing-3)}
+.pdp-list{margin:0;padding-left:var(--spacing-5);list-style:disc;display:flex;flex-direction:column;gap:var(--spacing-2)}
+.pdp-list--small{font-size:var(--font-size-text-sm, .875rem)}
+.pdp-table{width:100%;border-collapse:collapse;font-size:var(--font-size-text-sm, .875rem)}
+.pdp-table th,.pdp-table td{text-align:left;vertical-align:top;padding:var(--spacing-3) var(--spacing-2);border-bottom:1px solid var(--color-border-table-base, var(--color-border-base))}
+.pdp-table thead th{font-weight:600;color:var(--color-text-subtle)}
+.pdp-table tbody th{font-weight:600}
+.pdp-table tbody th small{display:block;font-weight:400;color:var(--color-text-subtle)}
+.pdp-table tbody th span{display:block}

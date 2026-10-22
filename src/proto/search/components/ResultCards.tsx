@@ -4,7 +4,7 @@ import { ProductCardSimple } from "@doterra-it/design-system-ui-ecommerce";
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
 import { money, slugify } from "../format";
-import { imageFor } from "../images";
+import { productImage } from "../productView";
 import { SpaLinks } from "./SpaLinks";
 import type { Article, Product } from "../types";
 
@@ -19,7 +19,7 @@ export function ProductTile({ product }: { product: Product }) {
     <Stack spacing="xs" align="stretch">
       <ProductCardSimple
         variant="card"
-        productImage={imageFor(product.image)}
+        productImage={productImage(product)}
         productTitle={product.name}
         productMeta={`Retail ${money(product.retail)}`}
         price={product.wholesale}

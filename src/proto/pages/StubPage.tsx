@@ -50,7 +50,7 @@ const ESSENTIAL_OIL_SUBCATEGORIES: Record<string, { label: string; to: string }>
   "Proprietary Blend": { label: "Proprietary Blends", to: "/shop/essential-oils/proprietary-blends" },
 };
 /** The category trail above a product: category, then sub category where the nav has one. */
-const productCategoryCrumbs = (product: Product) => {
+export const productCategoryCrumbs = (product: Product) => {
   const category = CATEGORY_PAGES[product.category];
   const sub = product.category === "Essential Oils" ? ESSENTIAL_OIL_SUBCATEGORIES[product.productType] : undefined;
   return [category, sub].filter((c): c is { label: string; to: string } => Boolean(c));
@@ -104,15 +104,6 @@ export function StubPage() {
       <PageBreadcrumbs crumbs={crumbs} />
       <Text as="h1" size="displayMd" weight="extraBold">{crumbs[crumbs.length - 1].label}</Text>
       <Text>Prototype page. Path: <code>{pathname}</code></Text>
-    </PageShell>
-  );
-}
-
-export function HomePage() {
-  return (
-    <PageShell>
-      <Text as="h1" size="displayMd" weight="extraBold">Storefront navigation prototype</Text>
-      <Text>Use the header to explore Shop, Learn, Our Story and Rewards. Links lead to placeholder pages. Search, account and bag are not part of this build.</Text>
     </PageShell>
   );
 }

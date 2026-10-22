@@ -12,7 +12,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const edition = process.argv[2] === "participant" ? "participant" : "moderator";
 const shellConfig = edition === "participant" ? "vite.participant.config.ts" : "vite.shell.config.ts";
 const shellOut = edition === "participant" ? "dist-participant" : "dist-shell";
-const BUDGET_BYTES = 4 * 1024 * 1024;
+// Raised from 4 MB on 19 Oct 2026 for the homepage images and the 0.8 MB featured-tile video (the artefact host allows 16 MB).
+const BUDGET_BYTES = 6 * 1024 * 1024;
 const fail = (msg) => { console.error("BUILD FAILED: " + msg); process.exit(1); };
 const MB = (n) => (n / 1048576).toFixed(2) + " MB";
 
@@ -64,7 +65,7 @@ const sendToScript = edition === "participant" ? `<script>window.__WC_SEND_TO__=
 const embedded = JSON.stringify(protoDoc).replace(/<\/script/gi, "<\\/script").replace(/<!--/g, "<\\!--").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 // A Content-Security-Policy makes "no network at runtime" something the browser enforces, not just something checked in the
 // markup: nothing may load or connect except inline code and data URIs. The prototype frame (about:srcdoc) inherits it.
-const CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; frame-src about:; base-uri 'none'; form-action 'none'";
+const CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src data:; font-src data:; frame-src about:; base-uri 'none'; form-action 'none'";
 const shellDoc = s.html
   .replace("<head>", `<head>\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`)
   .replace(/<link rel="stylesheet"[^>]*>/, "")

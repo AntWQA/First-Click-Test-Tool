@@ -5,6 +5,7 @@ import type { IconName } from "@doterra-it/design-system-ui-base";
 import { ContentCard } from "@doterra-it/design-system-ui-ecommerce";
 import { Link as RouterLink } from "react-router-dom";
 import type { NavColumn, NavFeatured, NavItem, NavLink } from "../types/navigation";
+import { FeaturedMedia } from "./FeaturedMedia";
 import { testIdFor } from "./NavLinkItem";
 import { SECTION_LABEL_STYLE, sectionLabel } from "./sectionLabel";
 
@@ -58,8 +59,8 @@ function FeaturedBlock({ featured, onNavigate }: { featured: NavFeatured; onNavi
   return (
     <Stack spacing="md" align="start">
       <Text as="h3" size="textXs" weight="semiBold" color="text-subtle" style={SECTION_LABEL_STYLE} className={utilClassNames("py-4", "mt-6")}>FEATURED</Text>
-      <ContentCard href={featured.link.href} zoomOnHover>
-        <Flex direction="column" spacing="md"><Text size="textMd">{featured.title}</Text></Flex>
+      <ContentCard href={featured.link.href} zoomOnHover shadow="none" borderWidth="none">
+        <Flex direction="column" spacing="md"><FeaturedMedia href={featured.link.href} /><Text size="textMd">{featured.title}</Text></Flex>
       </ContentCard>
       <NavLinkButton link={{ ...featured.link }} onNavigate={onNavigate} />
     </Stack>

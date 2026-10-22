@@ -23,6 +23,9 @@ const articles = catalogue.articles as unknown as Article[];
 /** Product behind a /shop/products/:slug route (the slug is the slugified name, see format.ts). */
 export const findProductBySlug = (slug: string): Product | undefined => products.find((p) => slugify(p.name) === slug);
 
+/** Every product in the catalogue, for pages that suggest other products (the product page). */
+export const allProducts = (): Product[] => products;
+
 let latency = { suggest: 200, search: 450 };
 /** Tests and stories set this to 0. */
 export const setLatency = (next: Partial<typeof latency>) => { latency = { ...latency, ...next }; };

@@ -8,3 +8,5 @@ dist-single
 *.tsbuildinfo
 Live Catalogue Data/
 catalogue.live.json
+src/*.mov
+src/*.mp4

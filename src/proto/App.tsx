@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
-import { HomePage, NON_PAGE_REDIRECTS, StubPage } from "./pages/StubPage";
+import { HomePage } from "./pages/HomePage";
+import { ProductPage } from "./pages/pdp/ProductPage";
+import { NON_PAGE_REDIRECTS, StubPage } from "./pages/StubPage";
 import { ResultsPage } from "./search/components/ResultsPage";
 import { SearchProvider } from "./search/SearchProvider";
 
@@ -24,6 +26,8 @@ export default function App() {
         {/* Shop is the All Products page: the results view with no query */}
         <Route path="/shop" element={<ResultsPage />} />
         {Object.entries(NON_PAGE_REDIRECTS).map(([from, to]) => <Route key={from} path={from} element={<Navigate to={to} replace />} />)}
+        {/* A product page. Slugs with no product fall back to the stub inside ProductPage. */}
+        <Route path="/shop/products/:slug" element={<ProductPage />} />
         <Route path="*" element={<StubPage />} />
       </Routes>
       <SiteFooter />

@@ -34,6 +34,23 @@ Build-level differences (in the tool's configs, not in the copied source):
 - Fonts and images are inlined, and the 18 unused Raleway `@font-face` blocks are pruned by `scripts/build-single.mjs` (the elevated theme the prototype uses sets Plus Jakarta Sans).
 - Pure's avatar placeholder photo URLs in the stylesheet are neutralised, so nothing can reach the network.
 
+## Homepage body (19 Oct 2026)
+
+The start page is the homepage design from `Prod (CF-h)/` (a compiled build, no source), replacing the placeholder text. Only the body is used; the design's own header and footer are not imported. The prototype's header and footer wrap it as before.
+
+| Change | File | Why |
+|---|---|---|
+| Added | `pages/HomePage.tsx` | The homepage body: promo banner, hero, three value cards, best sellers carousel, category carousel, quality duplex with accordion, three campaign spotlights, FAQ accordion, newsletter and contact cards. Rebuilt from the rendered DOM of the Prod file. At 1440, 768 and 402 every section sits at the same offset and height as the Prod file. |
+| Added | `pages/home/blocks.tsx`, `pages/home/home.css` | Hero, BasicSection, CtaCard and Duplex are **not exported by the installed Pure 2.6.0**; they exist in the newer Pure build the design was made with. Local copies emit the same markup, with the stylesheet rules copied from that build under an `hp-` prefix. Replace them with the library components on the next Pure upgrade. Copied source gets no upstream fixes. |
+| Added | `pages/home/images.ts`, `pages/home/images/*.webp` | 13 images resized and saved as WebP (about 390 KB; the design's duplicates kept once) so the single file stays under its 4 MB budget (3.83 MB). |
+| Changed | `pages/StubPage.tsx`, `App.tsx` | The placeholder `HomePage` is removed; `App` imports the new one. |
+| Changed | `main.tsx`, `package.json` | Imports `@doterra-it/design-system-ui-carousel/styles` (the carousel was a transitive dependency of Ecommerce, now declared). |
+| Changed | `scripts/e2e/recorder-check.mjs` | The reset check looked for the old placeholder heading; it now looks for the new h1. |
+
+Behaviour: every link is a plain anchor as in the design. A click is recorded as `other` and never ends a task. The three in-page jumps (Shop best sellers, How we test, All offers/Get details) scroll to their section; all other anchors do nothing. Pure's `Image` logs a React `fetchPriority` warning in dev (library issue, no effect on the build).
+
+**Test validity:** the homepage now offers content that overlaps some tasks (Offers & campaigns vs the deals task, the quality/testing section vs the lab testing task, the Contact Us card vs the order problem task). Body clicks are recorded as wrong clicks (code 5), so read those tasks with that in mind.
+
 ## How the recorder works
 
 - **Clicks** are captured on `window` in the capture phase, before the app's own handlers, so nothing in the page can stop propagation and hide one. The element is classified (leaf link, footer, featured tile, logo, utility, menu toggle, back, search, other) from its `data-testid` and its position in the page. **Section and column come from a lookup by href** in `navigation.json` and `footer.json`, the same files the prototype renders. Every header href is unique (a test proves it), so this does not depend on DOM structure.
@@ -47,3 +64,19 @@ Build-level differences (in the tool's configs, not in the copied source):
 ## Verified
 
 `scripts/e2e/recorder-check.mjs` drives the built file with real mouse events. With `WC_FUZZ=full` it clicks every link at the breakpoint where it is reachable and checks the recorded message: 57 desktop, 58 mobile and 66 tablet header links and 47 footer links, 25 of 25 checks passing on 14 Oct 2026.
+
+
+## Product page
+
+The homepage best seller cards, search results and every recommendation open a product page at `/shop/products/:slug`
+(`src/pages/pdp/`). It is the signed-out retail state from the Figma Product Detail Page page: Pure `Gallery`, `Rating`,
+`QuantityField`, `UsageIcons`, `Accordion`, `Modal`, `ReviewCard` and the carousel, plus a few `pdp-` rules for what Pure
+2.6.0 has no component for (badges, purchase card, shipping line, CPTG mark). Add item to cart only confirms; there is no bag.
+
+- **One definition of a product card.** `src/search/productView.ts` gives every surface the same name, image and size, and the
+  catalogue record gives the price, so a homepage card, a search result, a recommendation and the page always agree.
+  The five homepage best sellers use the shots from the homepage design.
+- **Prototype copy.** Lavender has hand-written copy; other products get copy generated from their catalogue fields; the
+  reviews and FAQ are invented stand-ins. Replace them with the PDP team's copy before reading results as evidence about copy.
+- **Account price** is the catalogue wholesale price (25% off retail). The delivery table is from the "How shipping will work" overlay.
+- The button wording sits in one constant (`ADD_LABEL` in `ProductPage.tsx`): the design says "Add item to cart", the homepage team says "Add to bag".

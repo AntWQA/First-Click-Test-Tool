@@ -46,6 +46,7 @@ try {
   report(await c.ev(headerOnlyTheme), "the header carries the brand and one light/dark button: no tabs, no shortcuts button");
   report(!(await has("Ledger")) && !(await has("Content")) && !(await has("Preview")) && !(await has("moderator")), "no moderator wording or screens are anywhere on it");
   report(await has("12 short scenarios"), "it says how many scenarios there are");
+  report(await has("We are testing the website's navigation, not you."), "the intro says the navigation is being tested, not the participant");
   report(await c.ev(basics), "setup: one h1, every field has a visible label, every control is at least 40px tall");
 
   // The light/dark button makes a choice that is remembered across a reload.

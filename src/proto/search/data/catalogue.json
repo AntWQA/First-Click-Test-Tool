@@ -187,8 +187,8 @@
     "Aromatic / Diffusion",
     "Topical"
    ],
-   "retail": 89.0,
-   "wholesale": 66.75,
+   "retail": 105.33,
+   "wholesale": 79.0,
    "rating": 5,
    "inStock": false,
    "status": [
@@ -379,8 +379,8 @@
     "Internal / Dietary Supplement",
     "Surface & Cleaning"
    ],
-   "retail": 49.0,
-   "wholesale": 36.75,
+   "retail": 52.0,
+   "wholesale": 39.0,
    "rating": 4,
    "inStock": true,
    "status": [
@@ -498,8 +498,8 @@
    "applications": [
     "Topical"
    ],
-   "retail": 42.0,
-   "wholesale": 31.5,
+   "retail": 51.33,
+   "wholesale": 38.5,
    "rating": 4,
    "inStock": true,
    "status": [

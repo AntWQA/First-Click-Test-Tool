@@ -1,0 +1,7 @@
+/* Featured tile media: a 16:9 window onto the video, whatever the clip's own shape */
+.hp-featured-media{aspect-ratio:16/9;width:100%;overflow:hidden;border-radius:var(--border-radius-lg);corner-shape:var(--corner-shape-base);background:var(--color-background-extra-light)}
+.hp-featured-media .dtds-video,.hp-featured-media .dtds-html-video{width:100%;height:100%}
+.hp-featured-media video{display:block;width:100%;height:100%;object-fit:cover}
+
+/* Arrow that follows the end of a wrapping link's text, rather than sitting at the far edge of its row */
+.hp-link-arrow{display:inline-flex;vertical-align:text-bottom;margin-left:var(--spacing-3)}

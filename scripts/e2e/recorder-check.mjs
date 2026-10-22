@@ -62,7 +62,7 @@ try {
   const r = await resetFrame(c);
   report(!!r && r.at < 2000, "reset remounts the app and reports a fresh ready", JSON.stringify(r));
   const path0 = await c.evFrame("document.querySelector('h1')?.textContent");
-  report(/Storefront navigation prototype/.test(path0 ?? ""), "after reset the prototype is back on the start page", path0);
+  report(/Wellness from nature, tested beyond the label/.test(path0 ?? ""), "after reset the prototype is back on the start page", path0);
 
   // ---------- footer and featured tile: plain anchors must be intercepted ----------
   await c.clearMsgs();

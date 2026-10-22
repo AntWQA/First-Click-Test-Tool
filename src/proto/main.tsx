@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import "@doterra-it/design-system-ui-base/styles";
 import "@doterra-it/design-system-ui-ecommerce/styles";
+import "@doterra-it/design-system-ui-carousel/styles";
 // Theme CSS must come after every package /styles import (Pure rule). Figma tokens match the elevated theme.
 import "@doterra-it/design-system-ui-base/theme/elevated";
 import App from "./App";

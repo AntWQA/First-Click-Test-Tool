@@ -4,7 +4,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { SECTION_LABEL_STYLE } from "../../components/sectionLabel";
 import { browseCategories, popularBlog, popularOther, popularProducts, popularSearches } from "../content";
 import { money, slugify } from "../format";
-import { imageFor } from "../images";
+import { productImage } from "../productView";
 import { suggest } from "../service/searchService";
 import type { Product, ResultTab, SuggestResponse } from "../types";
 import { useAsync } from "../useAsync";
@@ -79,7 +79,7 @@ function CompactProductCard({ product }: { product: Product }) {
   return (
     <Box borderWidth="xs" borderStyle="solid" borderColor="base" radius="lg" data-testid={`search-result-product-${product.sku}`}>
       <Flex align="center" spacing={0}>
-        <Image src={imageFor(product.image)} alt={product.name} width={96} radius="lg" />
+        <Image src={productImage(product)} alt={product.name} width={96} radius="lg" />
         <Box padding="md">
           <Stack spacing="xs" align="start" justify="center">
             <Link as={RouterLink} to={`/shop/products/${slugify(product.name)}`} underline="hover" variant="inherit" size="textSm">{product.name}</Link>

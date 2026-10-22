@@ -82,7 +82,8 @@ function SelfSetup() {
       <form className="p-card p-setup" onSubmit={submit} noValidate>
         <p className="p-eyebrow">Welcome</p>
         <h1>Thanks for taking part</h1>
-        <p>You will see {scenarios} short scenarios, one at a time. For each, a website's menu appears and you click where you would look first. There are no right or wrong answers, and you are not being tested: we are looking at how the website works.</p>
+        <p>You will see {scenarios} short scenarios, one at a time. For each, a website's menu appears and you click where you would look first.</p>
+        <p className="p-note"><strong>We are testing the website's navigation, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website.</p>
         <ul className="p-setup-facts">
           <li>It takes about {minutes} minutes.</li>
           <li>Use a laptop or desktop computer, with this window as large as you can.</li>

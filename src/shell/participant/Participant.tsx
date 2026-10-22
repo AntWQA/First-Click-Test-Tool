@@ -68,7 +68,7 @@ function Intro({ session }: { session: Session }) {
         {first ? (
           <>
             <p>You will see a short scenario, then a website's menu. Show us where you would click first to find what you need.</p>
-            <p>There are no right or wrong answers, and you are not being tested: we are looking at how the website works for people. Please say your thoughts out loud as you go.</p>
+            <p><strong>We are testing the website's navigation, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website. Please say your thoughts out loud as you go.</p>
           </>
         ) : (
           <p>Take your time. When you are ready, the next scenario will appear.</p>

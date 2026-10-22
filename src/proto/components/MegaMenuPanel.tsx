@@ -1,8 +1,9 @@
-import { Flex, Grid, List, Text, utilClassNames } from "@doterra-it/design-system-ui-base";
+import { Flex, Grid, Icon, List, Stack, Text, utilClassNames } from "@doterra-it/design-system-ui-base";
 import type { GridColumns } from "@doterra-it/design-system-ui-base";
 import { ContentCard } from "@doterra-it/design-system-ui-ecommerce";
 import type { NavColumn, NavFeatured } from "../types/navigation";
 import { AppLink } from "./AppLink";
+import { FeaturedMedia } from "./FeaturedMedia";
 import { NavLinkItem } from "./NavLinkItem";
 import { SECTION_LABEL_STYLE, sectionLabel } from "./sectionLabel";
 
@@ -34,13 +35,18 @@ export function MegaMenuPanel({ columns, featured, onNavigate }: Props) {
       ))}
       {featured && (
         <Grid.Column span={{ xs: 12, lg: featuredSpan as GridColumns }} as="aside">
-          <Text as="h3" size="textXs" weight="semiBold" color="text-subtle" className={utilClassNames("mb-6")}>Featured</Text>
-          <ContentCard href={featured.link.href} zoomOnHover>
-            <Flex direction="column" spacing="md">
-              <Text size="textMd">{featured.title}</Text>
-            </Flex>
-          </ContentCard>
-          <AppLink href={featured.link.href} onClick={onNavigate}>{featured.link.label}</AppLink>
+          <Text as="h3" size="textXs" weight="semiBold" color="text-subtle" style={SECTION_LABEL_STYLE} className={utilClassNames("mb-6")}>{sectionLabel("Featured")}</Text>
+          <Stack spacing="md">
+            <ContentCard href={featured.link.href} zoomOnHover shadow="none" borderWidth="none">
+              <Flex direction="column" spacing="lg">
+                <FeaturedMedia href={featured.link.href} />
+                <Text size="textMd">{featured.title}</Text>
+              </Flex>
+            </ContentCard>
+            <AppLink href={featured.link.href} onClick={onNavigate} data-testid="content-card-action-link">
+              <span>{featured.link.label}<Icon name="arrow-right" size="sm" className="hp-link-arrow" /></span>
+            </AppLink>
+          </Stack>
         </Grid.Column>
       )}
     </Grid>
