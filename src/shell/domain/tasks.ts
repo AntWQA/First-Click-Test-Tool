@@ -376,7 +376,8 @@ export const DEFAULT_TASKS: Task[] = COMBINED_TASKS;
 export const DEFAULT_CONTENT: Content = {
   schemaVersion: 1,
   // Version 4: the combined test (homepage, product page and navigation in one session of 50 minutes or less). Versions 1 to 3 were the navigation-only test, kept as NAVIGATION_CONTENT.
-  version: 4,
+  // Version 5: every scenario names the product instead of saying "this" or "these".
+  version: 5,
   updatedAt: "2026-10-22T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,

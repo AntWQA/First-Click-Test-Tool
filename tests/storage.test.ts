@@ -68,3 +68,24 @@ test("the store says when saved content could not be read and the defaults are i
   broken.loadContent();
   assert.equal(broken.contentFellBack, true);
 });
+
+
+test("a saved copy of an earlier shipped default is replaced by the current default, and an edited copy is kept", async () => {
+  const { readFileSync } = await import("node:fs");
+  const old = JSON.parse(readFileSync(new URL("./fixtures/combined-default-2026-10-22.json", import.meta.url), "utf8"));
+  assert.match(old.tasks.find((t: { id: string }) => t.id === "C7").scenario, /buy this on the page/, "the fixture is the old wording");
+  const stale = memoryBacking({ "wc.v1.content": JSON.stringify({ ...old, version: 5 }) });
+  const store = createStore(stale, () => 1);
+  assert.equal(store.loadContent().version, DEFAULT_CONTENT.version);
+  assert.doesNotMatch(store.loadContent().tasks.find((t) => t.id === "C7")!.scenario, /buy this/);
+  assert.equal(stale.getItem("wc.v1.content"), null, "the stale copy is removed, so the shipped default is followed from now on");
+  assert.equal(store.contentFellBack, false);
+  // A researcher's own edit to that wording is theirs: it stays.
+  const edited = structuredClone(old);
+  edited.tasks.find((t: { id: string }) => t.id === "C7").scenario = "There are two ways to buy on the page. Describe them.";
+  const kept = createStore(memoryBacking({ "wc.v1.content": JSON.stringify(edited) }), () => 1);
+  assert.match(kept.loadContent().tasks.find((t) => t.id === "C7")!.scenario, /two ways to buy/);
+  // The current default is never treated as stale.
+  const current = createStore(memoryBacking({ "wc.v1.content": JSON.stringify(DEFAULT_CONTENT) }), () => 1);
+  assert.equal(current.loadContent().version, DEFAULT_CONTENT.version);
+});

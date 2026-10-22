@@ -72,7 +72,7 @@ function Intro({ session }: { session: Session }) {
             <p><strong>We are testing the website, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website. Please say your thoughts out loud as you go.</p>
           </>
         ) : (
-          <p>Take your time. When you are ready, the next scenario will appear.</p>
+          <p>Take a moment if you need one. The next scenario will not start until you press the button.</p>
         )}
         <button type="button" className="btn btn-primary btn-lg" onClick={() => dispatch({ type: "present", at: Date.now(), runId: makeId("r") })}>
           {first ? "Show me the first scenario" : "Show me the next scenario"} <span className="enter-chip" aria-hidden="true">↵</span>
@@ -168,7 +168,7 @@ function Task({ session, onModeratorKey }: { session: Session; onModeratorKey: (
         )}
       </div>
       {tourOn && !begun && <Tour steps={tourSteps.current} onClose={() => setTourOn(false)} onVisibleMs={addTourMs} returnFocus={() => document.querySelector<HTMLElement>(".p-task-card .btn-primary")} />}
-      {!begun && <p className="p-hint">When you press Begin, the website's menu will appear below, as it looks on a {DEVICE[run.breakpoint].toLowerCase()} screen.</p>}
+      {!begun && <p className="p-hint">When you press Begin, the website will appear below, as it looks on a {DEVICE[run.breakpoint].toLowerCase()} screen.</p>}
       {begun && (
         <div className="p-stage">
           <Frame breakpoint={run.breakpoint} resetKey={0} onMessage={onMessage} onScale={onScale} start={task.start} />

@@ -1,4 +1,4 @@
-import { validateContent } from "./content.ts";
+import { tasksFingerprint, validateContent } from "./content.ts";
 import { sanitiseSession } from "./exports.ts";
 import type { Session } from "./session.ts";
 import { DEFAULT_CONTENT } from "./tasks.ts";
@@ -40,6 +40,16 @@ export function browserBacking(): Backing | null {
 const PREFIX = "wc.v1.";
 const SESSION = PREFIX + "session.";
 const CONTENT = PREFIX + "content";
+
+/**
+ * Fingerprints (tasksFingerprint of the validated tasks) of earlier shipped defaults. Saving in the Content tab stores a
+ * copy of the tasks in the browser, so a copy of an old default would keep its old wording after a new release. A saved copy
+ * that is exactly an earlier default is replaced by the current default; anything the researcher has edited is kept.
+ * Add the fingerprint of the previous default whenever the default tasks change (print it with tasksFingerprint).
+ */
+const SUPERSEDED_DEFAULTS = new Set<string>([
+  "f4e62947", // combined test as first shipped (22 Oct 2026): scenarios said "this" and "these"
+]);
 
 export type SaveResult = { ok: true; at: number } | { ok: false; reason: "quota" | "verify" | "unavailable" };
 
@@ -85,6 +95,7 @@ export function createStore(backing: Backing | null, now: () => number): Store {
       if (raw === null) return DEFAULT_CONTENT;
       try {
         const r = validateContent(JSON.parse(raw));
+        if (r.ok && SUPERSEDED_DEFAULTS.has(tasksFingerprint(r.content.tasks))) { b.removeItem(CONTENT); return DEFAULT_CONTENT; }
         if (r.ok) return r.content;
       } catch { /* fall through to the defaults */ }
       store.contentFellBack = true;

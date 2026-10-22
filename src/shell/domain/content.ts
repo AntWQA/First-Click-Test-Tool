@@ -141,3 +141,12 @@ export function nextContent(previous: Content, edited: Content, nowIso: string):
 }
 
 export const taskById = (content: Content, id: string): Task | undefined => content.tasks.find((t) => t.id === id);
+
+
+/** A short fingerprint of a task list, used to recognise a saved copy of an earlier shipped default (see storage.ts). Not a security hash. */
+export function tasksFingerprint(tasks: unknown): string {
+  const s = JSON.stringify(tasks);
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h.toString(16);
+}
