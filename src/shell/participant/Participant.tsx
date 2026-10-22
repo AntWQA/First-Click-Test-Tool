@@ -76,7 +76,7 @@ function Intro({ session }: { session: Session }) {
             <p><strong>We are testing the website, not you.</strong> There are no right or wrong answers. If something is hard to find, that tells us how to improve the website. Please say your thoughts out loud as you go.</p>
           </>
         ) : (
-          <p>Take a moment if you need one. The next scenario will not start until you press the button.</p>
+          <p>The next scenario will start when you press the button.</p>
         )}
         <button type="button" className="btn btn-primary btn-lg" onClick={() => dispatch({ type: "present", at: Date.now(), runId: makeId("r") })}>
           {first ? "Show me the first scenario" : "Show me the next scenario"} <span className="enter-chip" aria-hidden="true">↵</span>
