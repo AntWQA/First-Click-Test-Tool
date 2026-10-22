@@ -162,7 +162,7 @@ function Finished({ session }: { session: Session }) {
       <div className="p-card p-finish">
         <p className="p-eyebrow">{early ? "Stopped here" : "All done"}</p>
         <h1 ref={heading} tabIndex={-1}>{early ? "Thank you for your time" : "Thank you for finishing the scenarios"}</h1>
-        <p>{early ? `You finished ${done} ${done === 1 ? "scenario" : "scenarios"} and stopped there, which is fine.` : `You finished ${done} ${done === 1 ? "scenario" : "scenarios"}.`} There is nothing more to do in the test.</p>
+        <p>{early ? `You finished ${done} ${done === 1 ? "scenario" : "scenarios"} and stopped there, which is fine.` : `You finished ${done} ${done === 1 ? "scenario" : "scenarios"}.`} There are no more questions to answer.</p>
         <p className="p-note p-send-note"><strong>One last thing: please send us your results file.</strong> We only receive your answers when you do.</p>
         <label className="p-field p-setup-field" htmlFor="fin-notes">Anything you would like to add? (optional)
           <textarea id="fin-notes" rows={3} maxLength={2000} value={notes} readOnly={ended} onChange={(e) => setNotes(e.target.value)} />
