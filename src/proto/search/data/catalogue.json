@@ -767,7 +767,7 @@
     "Best Sellers"
    ],
    "keywords": "omega fish oil mega",
-   "image": "vmg-plus",
+   "image": "eo-mega",
    "suggestionLabel": "In Supplements & Nutrition"
   },
   {
@@ -792,7 +792,7 @@
     "Best Sellers"
    ],
    "keywords": "vitamin mineral greens",
-   "image": "eo-mega",
+   "image": "vmg-plus",
    "suggestionLabel": "In Supplements & Nutrition"
   },
   {
@@ -1331,6 +1331,32 @@
    "keywords": "gift set present holiday",
    "image": "capsules",
    "suggestionLabel": "In Bundles & Collections"
+  },
+  {
+   "id": "p57",
+   "sku": "31001212",
+   "name": "Ylang Ylang Essential Oil",
+   "category": "Essential Oils",
+   "productType": "Single Oil",
+   "collection": null,
+   "goals": [
+    "Relaxation & Sleep",
+    "Skin & Beauty"
+   ],
+   "applications": [
+    "Aromatic / Diffusion",
+    "Topical"
+   ],
+   "retail": 58.67,
+   "wholesale": 44.0,
+   "rating": 4,
+   "inStock": true,
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "ylang floral calm",
+   "image": "eo-mega",
+   "suggestionLabel": "In Essential Oils"
   }
  ],
  "articles": [

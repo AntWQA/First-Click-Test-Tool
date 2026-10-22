@@ -1,6 +1,7 @@
 import mockCatalogue from "../data/catalogue.json";
 import { liveCatalogue } from "../data/liveCatalogue";
 import { popularSearches } from "../content";
+import { inImageBank } from "../productView";
 import { slugify } from "../format";
 import {
   SearchError,
@@ -17,7 +18,8 @@ import {
  */
 
 const catalogue = liveCatalogue ?? mockCatalogue;
-const products = catalogue.products as unknown as Product[];
+/** Only products we hold a matching image for are served (see productView.ts). */
+const products = (catalogue.products as unknown as Product[]).filter(inImageBank);
 const articles = catalogue.articles as unknown as Article[];
 
 /** Product behind a /shop/products/:slug route (the slug is the slugified name, see format.ts). */

@@ -1,14 +1,20 @@
 import { slugify } from "./format";
+import { liveImage } from "./data/liveCatalogue";
 import { imageFor } from "./images";
 import type { Product } from "./types";
 import { homeImages as img } from "../pages/home/images";
 
 /**
- * One definition of how a product is shown, used by every card that surfaces a product (homepage best sellers, search
- * results, typeahead, the product page and its recommendations) so the same product always has the same name, image
- * and price wherever it appears. Name and price come from the catalogue record itself; the image is the shot from the
- * homepage design for the five best sellers it features (keyed by name slug, for the dummy and the live catalogue) and
- * the catalogue image for everything else.
+ * One definition of how a product is shown, and of which products may be shown at all.
+ *
+ * THE IMAGE BANK RULE: a product is served anywhere in the prototype (search results, suggestions, the product page,
+ * recommendations, the homepage) only when we hold an image that really shows that product. The dummy catalogue reuses
+ * a few placeholder photos across dozens of unrelated products, so a product that only has one of those is not served.
+ * Three sources count, in this order:
+ *   1. the product shots from the homepage design, for the five best sellers it features;
+ *   2. the live catalogue's own photo for the product (matched by item code), where the live catalogue is loaded;
+ *   3. the few dummy photos that genuinely show a product (EO Mega+, VMG+, PB Restore).
+ * Name and price come from the catalogue record, so a card, a page and a search result always agree.
  */
 const FEATURED_IMAGES: Record<string, string> = {
   "lavender-essential-oil": img.productLavender,
@@ -21,7 +27,20 @@ const FEATURED_IMAGES: Record<string, string> = {
   "ylang-ylang-essential-oil": img.productYlangYlang,
 };
 
-export const productImage = (p: Product): string => FEATURED_IMAGES[slugify(p.name)] ?? imageFor(p.image);
+/** Dummy photos that show exactly the product they are named after, keyed by the product's name slug. */
+const DUMMY_OWN_IMAGES: Record<string, string> = {
+  "eo-mega": imageFor("eo-mega"),
+  "vmg": imageFor("vmg-plus"),
+  "pb-restore": imageFor("pb-restore"),
+};
+
+const imageOrUndefined = (p: Product): string | undefined =>
+  FEATURED_IMAGES[slugify(p.name)] ?? (p.image ? liveImage(p.image) : undefined) ?? DUMMY_OWN_IMAGES[slugify(p.name)];
+
+/** True when we hold an image that really shows this product. Only these products are served. */
+export const inImageBank = (p: Product): boolean => imageOrUndefined(p) !== undefined;
+/** The product's own image. Only call it for products in the bank (everything the prototype serves is). */
+export const productImage = (p: Product): string => imageOrUndefined(p) ?? "";
 
 const SIZE: Record<string, string> = { "Essential Oils": "15 mL", "Personal Care": "4 oz", "Supplements & Nutrition": "60 softgels", Accessories: "1 ea", "Bundles & Collections": "1 kit" };
 /** The live catalogue carries a size; the dummy one does not. */

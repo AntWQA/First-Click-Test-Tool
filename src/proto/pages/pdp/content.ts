@@ -41,19 +41,10 @@ export interface Pdp {
   related: Product[];
 }
 
-/** Homepage best sellers that are not in the dummy catalogue still need a page. */
-const EXTRA_PRODUCTS: Record<string, Product> = {
-  "ylang-ylang-essential-oil": {
-    id: "x1", sku: "31001212", name: "Ylang Ylang Essential Oil", category: "Essential Oils", productType: "Single Oil", collection: null,
-    goals: ["Relaxation & Sleep", "Skin & Beauty"], applications: ["Aromatic / Diffusion", "Topical"], retail: 58.67, wholesale: 44, rating: 4,
-    inStock: true, status: ["Best Sellers"], keywords: "ylang floral calm", image: "eo-mega", suggestionLabel: "In Essential Oils",
-  },
-};
-
 const FILLERS = [img.credibility, img.hero, img.catSkin, img.catWellness, img.campaignAbode];
 
-/** The catalogue first, so a card, a search result and the page always agree. The extras only cover homepage products the dummy catalogue lacks. */
-export const findPdpProduct = (slug: string): Product | undefined => findProductBySlug(slug) ?? EXTRA_PRODUCTS[slug];
+/** The catalogue only: a product that is not served has no page. */
+export const findPdpProduct = (slug: string): Product | undefined => findProductBySlug(slug);
 
 /**
  * The page slug for a homepage card. The dummy and the live catalogue name the same products differently (Lavender

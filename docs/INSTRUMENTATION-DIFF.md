@@ -76,6 +76,7 @@ The homepage best seller cards, search results and every recommendation open a p
 - **One definition of a product card.** `src/search/productView.ts` gives every surface the same name, image and size, and the
   catalogue record gives the price, so a homepage card, a search result, a recommendation and the page always agree.
   The five homepage best sellers use the shots from the homepage design.
+- **The image bank rule.** A product is served anywhere (search, suggestions, recommendations, homepage, product page) only when we hold an image that really shows it: the homepage shots for the five best sellers, the live catalogue's own photo where that is loaded, or one of the few dummy photos that genuinely show a product (EO Mega+, VMG+, PB Restore). The dummy catalogue reuses a few placeholder photos across dozens of unrelated products, so those products are not served (8 are in the placeholder catalogue). `inImageBank` in `src/search/productView.ts` is the single filter, applied in `searchService.ts`.
 - **Prototype copy.** Lavender has hand-written copy; other products get copy generated from their catalogue fields; the
   reviews and FAQ are invented stand-ins. Replace them with the PDP team's copy before reading results as evidence about copy.
 - **Account price** is the catalogue wholesale price (25% off retail). The delivery table is from the "How shipping will work" overlay.

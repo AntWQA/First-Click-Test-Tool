@@ -39,6 +39,11 @@ try {
   report(page.img === cards.lavender.img, "the page image matches the card image");
   report(page.crumbs, "the page has a breadcrumb");
 
+  // The image bank rule: every product served has its own photo, so no two recommendations share an image.
+  const rel = JSON.parse(await c.evFrame(`JSON.stringify([...document.querySelectorAll('[data-testid^=pdp-related-]')].map(r=>({name:r.innerText.split('\\n')[0],img:(r.querySelector('img')||{}).src||''})))`));
+  report(rel.length >= 5 && rel.every((r) => r.img.length > 100), "the recommendations show a photo for every product", `${rel.length} cards`);
+  report(new Set(rel.map((r) => r.img)).size === rel.length, "no two recommended products share a photo", rel.map((r) => r.name).join(", "));
+
   // The buy box: the account option shows the membership price, the add button confirms, the shipping overlay opens.
   await c.evFrame("document.querySelector('#pdp-opt-account').click()"); await sleep(300);
   const acct = await c.evFrame("document.querySelector('[data-testid=pdp-price]').innerText.replace(/\\n+/g,' ')");
