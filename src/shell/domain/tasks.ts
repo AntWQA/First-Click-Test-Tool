@@ -78,14 +78,24 @@ export const mk = (t: TaskInput): Task => ({ ...TASK_DEFAULTS, ...t });
 export interface ClosingQuestion {
   id: string;
   prompt: string;
-  kind: "text" | "rank";
+  /** text: a typed answer. rank: cards dragged into order. choice: one option, with an optional box for more words. */
+  kind: "text" | "rank" | "choice";
   /** Small text under the prompt. */
   hint?: string;
   /** rank only: the items to put in order, from the one that makes them most sure to the one that makes them least sure. */
   items?: string[];
+  /** choice only: the options, in the order shown. */
+  options?: string[];
+  /** choice only: adds a last option, "Other", that opens a box to say what. */
+  other?: boolean;
+  /** choice only: options that open an optional box, with the words that label it. */
+  follow?: Record<string, string>;
   /** Only asked when this task was not completed (for example the reserve that already asked it). */
   unlessRun?: string;
 }
+
+/** The label of the last option a choice question can add, and the word its answers start with. */
+export const OTHER_OPTION = "Other";
 
 export interface Content {
   schemaVersion: 1;
@@ -387,34 +397,41 @@ export const COMBINED_DEBRIEF: string[] = [
 ];
 
 /** The moderator's spoken debrief, put to the participant on screen. Each names what it is about: it is read with no page showing. */
+const CHOOSE = "Choose the closest one.";
 export const COMBINED_CLOSING_QUESTIONS: ClosingQuestion[] = [
   {
-    id: "video", kind: "text", hint: "A sentence or two is plenty.",
-    prompt: `Imagine the gallery on the ${PRODUCT_A_NAME} page also had a short video of the product. Would that have changed how sure you felt about buying it? If so, how?`,
+    id: "video", kind: "choice", options: ["Yes", "No", "Don't know"],
+    follow: { Yes: "How would it have changed how sure you felt?", No: "Why would it not have changed how sure you felt?" },
+    prompt: `Imagine the gallery on the ${PRODUCT_A_NAME} page also had a short video of the product. Would that have changed how sure you felt about buying it?`,
   },
   {
-    id: "rank", kind: "rank", hint: "Choose 1 for the one that makes you most sure and 4 for the one that makes you least sure. Give each its own number, or leave all four blank to skip.",
+    id: "rank", kind: "rank", hint: "Drag the cards into order, with the one that makes you most sure at the top and the one that makes you least sure at the bottom. The arrow buttons do the same.",
     prompt: `Four things can help someone feel sure about buying a product like ${PRODUCT_A_NAME}. Put them in order.`,
     items: ["Customer reviews", "The CPTG Certified Pure Tested Grade mark", "The story of where the ingredients are sourced", "A short video of the product (imagine it was on the page)"],
   },
   {
-    id: "noReviews", kind: "text", unlessRun: "R2", hint: "A sentence or two is plenty.",
+    id: "noReviews", kind: "choice", unlessRun: "R2", hint: CHOOSE, other: true,
+    options: ["Look for reviews on another website", "Buy it anyway", "Read the product details more closely", "Wait until it has reviews", "Choose a different product"],
     prompt: "Imagine you were thinking of buying a product on the dōTERRA website and it had no reviews yet. What would you do?",
   },
   {
-    id: "rewardsMeaning", kind: "text", hint: "If you did not look at it, say so.",
+    id: "rewardsMeaning", kind: "choice", hint: CHOOSE, other: true,
+    options: ["Ways to save money as a member", "Earning points or rewards for buying", "A way to earn income with dōTERRA", "Current offers and promotions", "I am not sure what they meant", "I did not look at them"],
     prompt: "In the menu at the top of the dōTERRA website, what did the links under Rewards mean to you?",
   },
   {
-    id: "solutionsMeaning", kind: "text", hint: "If you did not look at it, say so.",
+    id: "solutionsMeaning", kind: "choice", hint: CHOOSE, other: true,
+    options: ["Products for a health goal or concern", "Answers to a problem I have", "Bundles or kits", "Advice or articles", "I am not sure what it meant", "I did not look at it"],
     prompt: "In the menu at the top of the dōTERRA website, what did the word Solutions mean to you?",
   },
   {
-    id: "changeHome", kind: "text", hint: "A sentence or two is plenty.",
+    id: "changeHome", kind: "choice", hint: CHOOSE, other: true,
+    options: ["Make it clearer what dōTERRA sells", "Make products easier to find", "Show prices sooner", "Show ratings and reviews", "Make the offers easier to understand", "Nothing, I would leave it as it is"],
     prompt: "What would you change first on the dōTERRA homepage?",
   },
   {
-    id: "changeProduct", kind: "text", hint: "A sentence or two is plenty.",
+    id: "changeProduct", kind: "choice", hint: CHOOSE, other: true,
+    options: ["Make the price and the ways to buy clearer", "Show more product information", "Show more photos or a video", "Make the reviews easier to find", "Make the shipping information clearer", "Nothing, I would leave it as it is"],
     prompt: `What would you change first on the ${PRODUCT_A_NAME} page?`,
   },
 ];
@@ -429,8 +446,9 @@ export const DEFAULT_CONTENT: Content = {
   // Version 7: the debrief is put to the participant on screen (closingQuestions) in the participant edition.
   // Version 8: the moderated tool puts the same closing questions to the participant, so the moderator's spoken debrief is a follow-up.
   // Version 9: the product page is the updated PDP for MetaPWR Advantage (US prices), which is also the first best seller on the homepage; C3 asks for it by name.
-  version: 9,
-  updatedAt: "2026-10-26T00:00:00.000Z",
+  // Version 10: the closing questions are multiple choice (with Other), the video question is Yes, No or Don't know, and the ranking is drag and drop.
+  version: 10,
+  updatedAt: "2026-10-27T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,
   debrief: COMBINED_DEBRIEF,

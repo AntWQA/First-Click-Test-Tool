@@ -2,6 +2,7 @@ import { BREAKPOINT_IDS } from "../../shared/protocol.ts";
 import type { Breakpoint } from "../../shared/protocol.ts";
 import { hrefExists } from "../../shared/navIndex.ts";
 import { ARRIVALS, TASK_DEFAULTS } from "./tasks.ts";
+import { OTHER_OPTION } from "./tasks.ts";
 import type { Block, ClosingQuestion, CodeSpec, Content, Task, TargetSpec, TaskKind } from "./tasks.ts";
 
 const EM_DASH = "\u2014";
@@ -154,8 +155,8 @@ function closingQuestions(raw: unknown, taskIds: Set<string>, errors: string[]):
     ids.add(id);
     const prompt = text(q.prompt, 500);
     if (prompt === "") errors.push(`${where}.prompt is empty`);
-    const kind = q.kind === "text" || q.kind === "rank" ? q.kind : null;
-    if (!kind) errors.push(`${where}.kind must be text or rank`);
+    const kind = q.kind === "text" || q.kind === "rank" || q.kind === "choice" ? q.kind : null;
+    if (!kind) errors.push(`${where}.kind must be text, rank or choice`);
     const hint = text(q.hint, 300);
     const question: ClosingQuestion = { id, prompt, kind: kind ?? "text" };
     if (hint !== "") question.hint = hint;
@@ -164,6 +165,25 @@ function closingQuestions(raw: unknown, taskIds: Set<string>, errors: string[]):
       if (items.length < 2 || items.length > 8) errors.push(`${where}.items needs 2 to 8 items to put in order`);
       if (new Set(items).size !== items.length) errors.push(`${where}.items has a repeated item`);
       question.items = items;
+    }
+    if (kind === "choice") {
+      const options = strings(q.options ?? [], `${where}.options`, errors).map((x) => x.slice(0, 120));
+      if (options.length < 2 || options.length > 10) errors.push(`${where}.options needs 2 to 10 options to choose from`);
+      if (new Set(options).size !== options.length) errors.push(`${where}.options has a repeated option`);
+      if (options.includes(OTHER_OPTION)) errors.push(`${where}.options cannot include "${OTHER_OPTION}": set other to true to add it`);
+      question.options = options;
+      if (q.other === true) question.other = true;
+      if (q.follow !== undefined) {
+        if (!isRecord(q.follow)) errors.push(`${where}.follow must map an option to the words that label its box`);
+        else {
+          const follow: Record<string, string> = {};
+          for (const [opt, label] of Object.entries(q.follow)) {
+            if (!options.includes(opt)) errors.push(`${where}.follow names "${opt}", which is not one of the options`);
+            else follow[opt] = text(label, 200);
+          }
+          if (Object.keys(follow).length > 0) question.follow = follow;
+        }
+      }
     }
     if (q.unlessRun !== undefined && q.unlessRun !== "") {
       if (typeof q.unlessRun !== "string" || !taskIds.has(q.unlessRun)) errors.push(`${where}.unlessRun "${String(q.unlessRun)}" is not a task id`);

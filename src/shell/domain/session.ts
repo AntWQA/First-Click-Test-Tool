@@ -1,4 +1,5 @@
 import type { Breakpoint, CapturedEvent } from "../../shared/protocol.ts";
+import { OTHER_OPTION } from "./tasks.ts";
 import type { Arrival, ClosingQuestion, Content, Task } from "./tasks.ts";
 import { applyOverrides, arrivalFor, buildPlan, deviceFor, runsOn, sessionOrder } from "./order.ts";
 import { suggest } from "./scoring.ts";
@@ -426,7 +427,26 @@ export function closingQuestionsFor(s: Pick<Session, "content" | "runs" | "statu
   return (s.content.closingQuestions ?? []).filter((q) => q.unlessRun === undefined || !done.has(q.unlessRun));
 }
 
-/** Keeps only answers to the questions asked: text trimmed and capped, a ranking only if it puts every item in order exactly once. Blank answers are dropped. */
+/**
+ * A choice answer is the option, or the option and what the participant added, "Other: in their words". Only the options the question
+ * offers count, and only Other and the options with a box (follow) can carry words. A text that is no option at all (from a version
+ * that asked it as a typed question) is kept as Other when the question has one.
+ */
+function cleanChoice(q: ClosingQuestion, v: string): string | undefined {
+  const t = v.trim();
+  if (t === "") return undefined;
+  const offered = [...(q.options ?? []), ...(q.other ? [OTHER_OPTION] : [])];
+  for (const opt of offered) {
+    if (t === opt) return opt;
+    if (t.startsWith(opt + ":") && (opt === OTHER_OPTION || q.follow?.[opt] !== undefined)) {
+      const words = t.slice(opt.length + 1).trim().slice(0, 1500);
+      return words === "" ? opt : `${opt}: ${words}`;
+    }
+  }
+  return q.other ? `${OTHER_OPTION}: ${t.slice(0, 1500)}` : undefined;
+}
+
+/** Keeps only answers to the questions asked: text trimmed and capped, a choice only if it is one of the options, a ranking only if it puts every item in order exactly once. Blank answers are dropped. */
 export function cleanClosing(asked: ClosingQuestion[], answers: unknown): Record<string, string | string[]> {
   const out: Record<string, string | string[]> = {};
   if (typeof answers !== "object" || answers === null) return out;
@@ -436,6 +456,9 @@ export function cleanClosing(asked: ClosingQuestion[], answers: unknown): Record
     if (q.kind === "text" && typeof v === "string") {
       const t = v.trim().slice(0, 1500);
       if (t !== "") out[q.id] = t;
+    } else if (q.kind === "choice" && typeof v === "string") {
+      const c = cleanChoice(q, v);
+      if (c !== undefined) out[q.id] = c;
     } else if (q.kind === "rank" && Array.isArray(v) && q.items && v.length === q.items.length && v.every((x) => typeof x === "string") && new Set(v).size === v.length && q.items.every((i) => v.includes(i))) {
       out[q.id] = v as string[];
     }

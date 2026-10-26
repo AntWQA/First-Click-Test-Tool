@@ -360,8 +360,31 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 .p-rank { border: 1px solid var(--line-strong); border-radius: 12px; padding: 14px 16px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .p-rank legend { padding: 0 6px; font-weight: 600; color: var(--ink); }
 .p-rank small { color: var(--muted); }
-.p-rank-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 15px; color: var(--ink); }
-.p-rank-row select { min-height: 40px; min-width: 110px; }
+.p-choice { border: 1px solid var(--line-strong); border-radius: 12px; padding: 14px 16px; margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.p-choice legend { padding: 0 6px; font-weight: 600; color: var(--ink); }
+.p-choice small { color: var(--muted); }
+.p-choice-list { display: flex; flex-direction: column; gap: 8px; }
+.p-choice-row { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--paper-raised); color: var(--ink); font-size: 15px; cursor: pointer; }
+.p-choice-row:hover { border-color: var(--accent); }
+.p-choice-row.is-chosen { border-color: var(--accent); background: var(--accent-tint); }
+.p-choice-row input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex: none; }
+.p-choice-row:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.p-choice-words { margin-top: 2px; }
+.p-order-ends { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.p-order-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; touch-action: pan-y; }
+.p-order-card { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 8px 8px 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--paper-raised); color: var(--ink); font-size: 15px; transition: border-color .15s, box-shadow .15s; }
+.p-order-card.is-dragging { border-color: var(--accent); background: var(--accent-tint); box-shadow: 0 6px 18px var(--accent-glow); }
+.p-order-num { display: inline-grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 50%; background: var(--accent-tint); color: var(--cue); font-weight: 700; font-size: 14px; }
+.p-order-label { flex: 1; min-width: 0; }
+.p-order-tools { display: inline-flex; align-items: center; gap: 4px; flex: none; }
+.p-order-btn, .p-order-grip { display: inline-grid; place-items: center; width: 40px; height: 40px; border: 1px solid transparent; border-radius: 8px; background: none; color: var(--ink); cursor: pointer; padding: 0; }
+.p-order-btn:hover:not(:disabled), .p-order-grip:hover { background: var(--accent-tint); }
+.p-order-btn:disabled { opacity: .3; cursor: default; }
+.p-order-btn:focus-visible, .p-order-grip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.p-order-grip { cursor: grab; touch-action: none; color: var(--muted); }
+.p-order-card.is-dragging .p-order-grip { cursor: grabbing; }
+.p-order-status { min-height: 40px; display: flex; align-items: center; font-size: 14px; color: var(--muted); }
+@media (max-width: 520px) { .p-order-card { flex-wrap: wrap; } .p-order-label { flex: 1 1 calc(100% - 44px); } .p-order-tools { flex: 0 0 100%; justify-content: flex-end; } .p-choice, .p-rank { padding: 12px; } }
 
 /* A small Copy button beside an email address: 28px tall (above the 24px minimum target), with room around it so it never crowds the lines above and below. */
 .p-copy { display: inline-flex; align-items: center; gap: 5px; height: 28px; margin: 4px 0 4px 10px; padding: 0 9px; vertical-align: middle; background: none; border: 1px solid var(--line-strong); border-radius: 7px; font: inherit; font-size: 12px; font-weight: 600; line-height: 1; color: var(--muted); cursor: pointer; }
@@ -378,7 +401,7 @@ kbd.kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pape
 .m-closing-rank { margin: 4px 0 0; padding-left: 20px; }
 
 /* Closing questions are sentences, not field labels: read in normal case. */
-.p-closing .p-field, .p-closing .p-rank legend { text-transform: none; letter-spacing: normal; font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--ink); }
-.p-closing .p-field small, .p-closing .p-rank small { font-size: 13px; font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--muted); }
+.p-closing .p-field, .p-closing .p-rank legend, .p-closing .p-choice legend { text-transform: none; letter-spacing: normal; font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--ink); }
+.p-closing .p-field small, .p-closing .p-rank small, .p-closing .p-choice small { font-size: 13px; font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--muted); }
 .p-closing > p { max-width: none; }
 .p-rank-row select { width: 130px; flex: none; }
