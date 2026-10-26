@@ -77,9 +77,9 @@ The homepage best seller cards, search results and every recommendation open a p
   catalogue record gives the price, so a homepage card, a search result, a recommendation and the page always agree.
   The five homepage best sellers use the shots from the homepage design.
 - **The image bank rule.** A product is served anywhere (search, suggestions, recommendations, homepage, product page) only when we hold an image that really shows it: the homepage shots for the five best sellers, the live catalogue's own photo where that is loaded, or one of the few dummy photos that genuinely show a product (EO Mega+, VMG+, PB Restore). The dummy catalogue reuses a few placeholder photos across dozens of unrelated products, so those products are not served (8 are in the placeholder catalogue). `inImageBank` in `src/search/productView.ts` is the single filter, applied in `searchService.ts`.
-- **Prototype copy.** Lavender has hand-written copy; other products get copy generated from their catalogue fields; the
-  reviews and FAQ are invented stand-ins. Replace them with the PDP team's copy before reading results as evidence about copy.
-- **Account price** is the catalogue wholesale price (25% off retail). The delivery table is from the "How shipping will work" overlay.
+- **Prototype copy.** MetaPWR Advantage (the test product, first best seller on the homepage) takes its details and images from its page on the doTERRA US storefront (item 60222772) inside the updated PDP design (`updated PDP/pdp.html`, the version without the member overlay); only the Can be used labels, the rating and the badges come from the design; other products get copy generated from their catalogue fields; the
+  reviews and FAQ are invented stand-ins (the design's are Lorem ipsum). Replace them with the PDP team's copy before reading results as evidence about copy.
+- **Prices are the US site's.** MetaPWR Advantage is $112.67 retail and $84.50 with an account (25% off); the recommended products carry their US catalogue prices (VMG+ $119.33, EO Mega+ $62.00, PB Restore $63.33, MetaPWR Starter System $260.00). **Account price** is the catalogue wholesale price (25% off retail). The delivery table is from the "How shipping will work" overlay.
 - The button wording sits in one constant (`ADD_LABEL` in `ProductPage.tsx`): the design says "Add item to cart", the homepage team says "Add to bag".
 
 

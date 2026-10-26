@@ -50,7 +50,7 @@ try {
   report(await c.ev("[...document.querySelectorAll('button, select, textarea')].every((b) => b.getBoundingClientRect().height >= 40)"), "every control is at least 40px tall");
   const t = await text();
   report(!/\b(this|these)\b/i.test(t.split("A few last questions")[1].split("Continue")[0]), "the questions never say this or these");
-  report(t.toLowerCase().includes("imagine the gallery on the dōterra lavender essential oil page") && t.toLowerCase().includes("every question is optional"), "each question names what it is about, and the screen says every one is optional");
+  report(t.toLowerCase().includes("imagine the gallery on the dōterra metapwr advantage page") && t.toLowerCase().includes("every question is optional"), "each question names what it is about, and the screen says every one is optional");
 
   // a ranking with a repeated number is refused, with a message
   const selects = await c.ev("[...document.querySelectorAll('select')].map((s) => s.id)");

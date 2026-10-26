@@ -91,6 +91,17 @@ test("a saved copy of an earlier shipped default is replaced by the current defa
 });
 
 
+test("a saved copy of the Lavender-page default (version 8) is replaced by the MetaPWR Advantage default", async () => {
+  const { readFileSync } = await import("node:fs");
+  const old = JSON.parse(readFileSync(new URL("./fixtures/combined-default-v8.json", import.meta.url), "utf8"));
+  assert.match(old.tasks.find((t: { id: string }) => t.id === "C4").scenario, /Lavender/, "the fixture is the Lavender wording");
+  const stale = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
+  const loaded = createStore(stale, () => 1).loadContent();
+  assert.equal(loaded.version, DEFAULT_CONTENT.version);
+  assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C4")!.scenario, /Lavender/);
+  assert.equal(stale.getItem("wc.v1.content"), null, "the stale copy is removed");
+});
+
 test("a session begun on an earlier default takes the current wording for tasks not yet started, and keeps what it already ran", async () => {
   const { readFileSync } = await import("node:fs");
   const { validateContent } = await import("../src/shell/domain/content.ts");

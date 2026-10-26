@@ -22,13 +22,13 @@ const HEADROOM = "hp-anchor";
 const VARIANTS = { slidesPerPage: { xs: 1, sm: 2, md: 3, lg: 5 }, slideGap: "md", peekNext: true } as const;
 
 /**
- * The five best sellers the homepage features. Only the identity lives here: `pages` are the product page slugs
+ * The five best sellers the homepage features. MetaPWR Advantage is first: it is the product the product page tasks use, so a participant can reach its page from here. Only the identity lives here: `pages` are the product page slugs
  * (/shop/products/:slug) to try, best match first (the dummy and live catalogues name products differently). Name, image,
  * price and size come from the catalogue record through productView, so a card always matches its product page and its
  * search result.
  */
 const FEATURED = [
-  { slug: "lavender", pages: ["lavender-essential-oil", "lavender-oil"] },
+  { slug: "metapwr-advantage", pages: ["metapwr-advantage"] },
   { slug: "on-guard", pages: ["on-guard-protecting-blend", "d-terra-on-guard-oil-blend"] },
   { slug: "frankincense", pages: ["frankincense-essential-oil", "15ml-frankincense-essential-oil"] },
   { slug: "deep-blue-rub", pages: ["deep-blue-rub"] },

@@ -14,8 +14,8 @@ One session, one device, three blocks in a fixed order: **homepage** (C1 to C3),
 |---|---|---|---|
 | C1 First view | Homepage | observe | What the participant says the site sells and what is different (coded) |
 | C2 Looking for proof | Homepage | click | First click for evidence of quality, scored by zone |
-| C3 First product | Homepage | observe | Choosing a product; the first menu use is read here |
-| C4 First view and icons | Product page | observe | Understanding the first view and the usage icons; arrival line differs by route |
+| C3 First product | Homepage | observe | Finding MetaPWR Advantage (first best seller) from the homepage; the first menu use is read here |
+| C4 First view and labels | Product page | observe | Understanding the first view and the Can be used labels; arrival line differs by route |
 | C5 What makes you sure | Product page | observe | Reviews, trust and doubt |
 | C6 What would I pay | Product page | click | First click for the shipping information |
 | C7 Two ways to buy, and choose | Product page | click | The account option and Add item to cart count as the intended route; the other buy choice is recorded on its own |

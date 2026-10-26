@@ -3,6 +3,7 @@ import { liveImage } from "./data/liveCatalogue";
 import { imageFor } from "./images";
 import type { Product } from "./types";
 import { homeImages as img } from "../pages/home/images";
+import { pdpImages } from "../pages/pdp/images";
 
 /**
  * One definition of how a product is shown, and of which products may be shown at all.
@@ -11,7 +12,7 @@ import { homeImages as img } from "../pages/home/images";
  * recommendations, the homepage) only when we hold an image that really shows that product. The dummy catalogue reuses
  * a few placeholder photos across dozens of unrelated products, so a product that only has one of those is not served.
  * Three sources count, in this order:
- *   1. the product shots from the homepage design, for the five best sellers it features;
+ *   1. the product shots from the homepage and product page designs, for the best sellers the homepage features and the MetaPWR products;
  *   2. the live catalogue's own photo for the product (matched by item code), where the live catalogue is loaded;
  *   3. the few dummy photos that genuinely show a product (EO Mega+, VMG+, PB Restore).
  * Name and price come from the catalogue record, so a card, a page and a search result always agree.
@@ -25,6 +26,8 @@ const FEATURED_IMAGES: Record<string, string> = {
   "15ml-frankincense-essential-oil": img.productFrankincense,
   "deep-blue-rub": img.productDeepBlueRub,
   "ylang-ylang-essential-oil": img.productYlangYlang,
+  "metapwr-advantage": pdpImages.metapwrAdvantage,
+  "metapwr-starter-system": pdpImages.metapwr,
 };
 
 /** Dummy photos that show exactly the product they are named after, keyed by the product's name slug. */

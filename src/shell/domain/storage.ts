@@ -56,6 +56,7 @@ const SUPERSEDED_DEFAULTS = new Set<string>([
 const SUPERSEDED_CONTENT = new Set<string>([
   "a8baa120", // version 6 (22 Oct 2026): no closing questions for the participant
   "6c6cb6a4", // version 7 (22 Oct 2026): closing questions in the participant edition only, moderator's spoken debrief repeated them
+  "ae6200d7", // version 8 (22 Oct 2026): the moderator's spoken debrief as a follow-up, still the Lavender product page
 ]);
 
 const isSuperseded = (c: Content): boolean => SUPERSEDED_DEFAULTS.has(tasksFingerprint(c.tasks)) || SUPERSEDED_CONTENT.has(contentFingerprint(c));

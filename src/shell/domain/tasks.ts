@@ -230,7 +230,7 @@ export const NAVIGATION_CONTENT: Content = {
 // ---------------------------------------------------------------------------------------------------------------------
 
 const BOTH: Breakpoint[] = ["desktop", "mobile"];
-const PRODUCT_A = "/shop/products/lavender-essential-oil";
+const PRODUCT_A = "/shop/products/metapwr-advantage";
 const PRODUCT_B = "/shop/products/pb-restore";
 
 const fromNavigation = (oldId: string, id: string, extra: Partial<Task>): Task => {
@@ -240,12 +240,12 @@ const fromNavigation = (oldId: string, id: string, extra: Partial<Task>): Task =
 };
 
 /** The two products the product page tasks use, named in full: a scenario is read before the page is on screen, so it cannot say "this", "these" or "here". */
-const PRODUCT_A_NAME = "dōTERRA Lavender essential oil";
+const PRODUCT_A_NAME = "dōTERRA MetaPWR Advantage";
 const PRODUCT_B_NAME = "PB Restore";
 const CONFIDENCE_QUALITY = "How confident are you that the products dōTERRA sells are safe and high quality?";
 const confidenceBuy = (product: string) => `How sure are you about buying ${product}?`;
 const YES_NO = ["Yes", "No"];
-const ICON_CODES = ["Correct", "Partial", "Wrong", "Cannot say"];
+const LABEL_CODES = ["Correct", "Partial", "Wrong", "Cannot say"];
 
 export const COMBINED_TASKS: Task[] = [
   mk({
@@ -275,38 +275,39 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C3", title: "First product", kind: "observe", block: "homepage", minutes: 3, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH4", "CH9"], readsMenu: true,
-    scenario: "You have decided to try dōTERRA for the first time and want to choose something to buy. Show me what you would do, starting from the homepage, and what you would do next.",
-    notesPrompt: "Which product would you choose, and why?",
+    scenario: "You have heard about dōTERRA MetaPWR Advantage, a daily supplement, and want to find out more about it. Show me what you would do, starting from the homepage, and what you would do next.",
+    notesPrompt: "How did you look for dōTERRA MetaPWR Advantage, and what would you do next?",
     primary: [], acceptable: [], separate: [],
     codes: [
       { id: "route", label: "First route", options: ["Hero Shop best sellers", "Best sellers carousel", "Category carousel", "Header Shop menu", "Search", "Offers", "Other"] },
       { id: "action", label: "First action on a product", options: ["Open the product page", "Add to bag", "Other", "Not reached"] },
     ],
-    watchFor: "Scrolls the whole page, then leaves for the header. Looks for filters, ratings or a quiz. Opens Offers first because it is the largest block. Picks on price alone. Opens a header menu without being prompted (also read for navigation H6). Add to bag is not built on the cards yet, so the add step cannot happen.",
-    needBack: ["First meaningful action, and its route code", "The order of every route tried", "First action on a product, and why, in their words", "On mobile: whether the carousel was moved (observed)", "Whether a header menu opened unprompted"],
+    watchFor: "MetaPWR Advantage is the first card in the Best sellers carousel, so this task is whether they find it there. Scrolls the whole page, then leaves for the header. Searches for it by name. Opens Offers first because it is the largest block. Opens a header menu without being prompted (also read for navigation H6). Add to bag is not built on the cards, so the add step cannot happen.",
+    needBack: ["First meaningful action, and its route code", "The order of every route tried", "Whether they reached the MetaPWR Advantage page, and how long it took", "On mobile: whether the carousel was moved (observed)", "Whether a header menu opened unprompted"],
   }),
   mk({
-    id: "C4", title: "First view and icons", kind: "observe", block: "product", minutes: 4, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH5", "CH6", "CH7", "CH9"],
+    id: "C4", title: "First view and labels", kind: "observe", block: "product", minutes: 4, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH5", "CH6", "CH7", "CH9"],
     leadIns: {
       homepage: `You opened the ${PRODUCT_A_NAME} page from the best sellers on the dōTERRA homepage.`,
-      google: "You searched for lavender essential oil and opened the dōTERRA result.",
-      shared: `A friend sent you a link to the ${PRODUCT_A_NAME} page and said: "Lavender is the one I use."`,
+      google: "You searched for MetaPWR Advantage and opened the dōTERRA result.",
+      shared: `A friend sent you a link to the ${PRODUCT_A_NAME} page and said: "MetaPWR Advantage is the one I take."`,
     },
-    scenario: `Before you scroll, tell me what you think ${PRODUCT_A_NAME} is for, whether it would suit you if you wanted something to help you wind down in the evening, and how you would use it.`,
-    questions: ["Then, pointing at the usage icons on the page: tell me what each icon means."],
-    notesPrompt: `What is ${PRODUCT_A_NAME} for, would it suit you, and how would you use it? What do the usage icons mean?`,
+    scenario: `Before you scroll, tell me what you think ${PRODUCT_A_NAME} is for, whether it would suit you if you wanted a daily supplement to support your energy, and how you would use it.`,
+    questions: ["Then, pointing at the labels under Can be used on the page: tell me what each label means."],
+    notesPrompt: `What is ${PRODUCT_A_NAME} for, would it suit you, and how would you use it? What do the Can be used labels mean?`,
     primary: [], acceptable: [], separate: [],
     codes: [
       { id: "purpose", label: "What it is for", options: ["Correct", "Partial", "Not clear", "Wrong"] },
       { id: "suits", label: "Whether it suits the concern", options: ["Yes, with a reason from the page", "Yes, without a reason", "No", "Cannot say"] },
       { id: "howTo", label: "How to use it", options: ["Names a way", "Does not"] },
-      { id: "iconAromatic", label: "Icon: aromatically", options: ICON_CODES },
-      { id: "iconTopical", label: "Icon: topically", options: ICON_CODES },
-      { id: "iconNeat", label: "Icon: no dilution (neat)", options: ICON_CODES },
-      { id: "iconHelp", label: "Hovered or tapped an icon for help", options: YES_NO },
+      { id: "labelEnergise", label: "Label: Energise", options: LABEL_CODES },
+      { id: "labelBodyCare", label: "Label: Body Care", options: LABEL_CODES },
+      { id: "labelActive", label: "Label: Active", options: LABEL_CODES },
+      { id: "labelSeasons", label: "Label: Seasons", options: LABEL_CODES },
+      { id: "labelHelp", label: "Hovered or tapped a label for help", options: YES_NO },
     ],
-    watchFor: "Thinks it is a supplement or a food. Reads a badge (Best seller, 25% off) as the product claim. Cannot say anything about use. Hovers or taps an icon for help (counted as help). Scrolls before answering. The Google and shared link routes are text only for now: the page opens directly, with no search results or message mock-up.",
-    needBack: ["Spoken answers and codes: purpose, suits, how to use, and each icon", "Arrival route, device and customer type", "What they looked at before answering", "Time to first answer", "Doubt log entries, with seconds since arrival"],
+    watchFor: "Thinks it is a food or a drink rather than a supplement. Reads a badge (Best seller, 25% off) as the product claim. Cannot say anything about use. Hovers or taps a label for help (counted as help). Scrolls before answering. The Google and shared link routes are text only for now: the page opens directly, with no search results or message mock-up.",
+    needBack: ["Spoken answers and codes: purpose, suits, how to use, and each label", "Arrival route, device and customer type", "What they looked at before answering", "Time to first answer", "Doubt log entries, with seconds since arrival"],
   }),
   mk({
     id: "C5", title: "What makes you sure", kind: "observe", block: "product", minutes: 3, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH8", "CH9"],
@@ -323,14 +324,14 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C6", title: "What would I pay", kind: "click", block: "product", minutes: 2.5, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH10"],
-    scenario: `You decide to buy one bottle of ${PRODUCT_A_NAME} and have it delivered to your home. Without leaving its page, tell me what you would pay in total.`,
+    scenario: `You decide to buy one box of ${PRODUCT_A_NAME} and have it delivered to your home. Without leaving its page, tell me what you would pay in total.`,
     notesPrompt: "What would you pay in total, and how did you work it out?",
     primary: [{ zone: "shipping", note: "Opens the Shipping options overlay from the shipping line" }], acceptable: [], separate: [],
     codes: [
       { id: "total", label: "Total cost", options: ["Correct", "Price only", "Wrong", "Gave up"] },
       { id: "freeMisread", label: "Read the free shipping line as applying to them", options: YES_NO },
     ],
-    watchFor: "Says shipping is free (reads the loyalty line as applying to them). Gives the item price only. Adds to cart to find out. Leaves for the footer or Help. Cannot say. A correct total from the shipping line alone has no click: set the tier to Acceptable. Answer key: the item price plus the delivery cost for the method they choose, from the Shipping options table as built (Lavender $38.67, Economy $6.99).",
+    watchFor: "Says shipping is free (reads the loyalty line as applying to them). Gives the item price only. Adds to cart to find out. Leaves for the footer or Help. Cannot say. A correct total from the shipping line alone has no click: set the tier to Acceptable. Answer key: the item price plus the delivery cost for the method they choose, from the Shipping options table as built (MetaPWR Advantage $112.67, Economy $6.99, so $119.66).",
     needBack: ["Spoken total, coded: Correct, Price only, Wrong, Gave up", "Path: opened Shipping options, scrolled, left the page", "Time to answer", "Whether they read the free shipping line as applying to them"],
   }),
   mk({
@@ -340,7 +341,7 @@ export const COMBINED_TASKS: Task[] = [
     confidence: "How sure are you about your choice?",
     notesPrompt: "What is each way to buy, how do they differ, and which would you choose?",
     primary: [{ zone: "option-account", note: "Selects the account option to see its price" }, { zone: "add-to-cart", note: "Add item to cart, with their chosen option selected" }],
-    acceptable: [{ zone: "quantity", note: "Changes the quantity first, then adds" }],
+    acceptable: [{ zone: "quantity", note: "Changes the quantity first, then adds" }, { zone: "price-info", note: "Opens the price tooltip (Did you know?) or its Show me the membership price action" }],
     separate: [{ zone: "option-one-time", note: "Either option is a valid choice; the choice is recorded" }],
     codes: [
       { id: "whatItIs", label: "Says what the lower price is (a lower price for account holders)", options: YES_NO },
@@ -349,8 +350,8 @@ export const COMBINED_TASKS: Task[] = [
       { id: "saving", label: "Says the saving", options: ["Correct", "Wrong", "Not mentioned"] },
       { id: "choice", label: "Option chosen", options: ["One time purchase", "Create an account and save", "Neither"] },
     ],
-    watchFor: "Thinks the lower price is a sale or a coupon. Thinks it needs a subscription or a bigger order. Ignores the account option. Adds before choosing, taking the default without noticing. Cannot find the button. Looks for Buy now. Leaves to compare.",
-    needBack: ["Click on the account option (scored)", "Spoken answer, coded on the four elements", "Option chosen, and the Add item to cart click (scored)", "Confidence 1 to 7, and their reason", "Hesitation on the button, 5 seconds or more"],
+    watchFor: "Thinks the lower price is a sale or a coupon. Thinks it needs a subscription or a bigger order. Ignores the account option. Uses the info icon beside the price, or not. Adds before choosing, taking the default without noticing. Cannot find the button. Looks for Buy now. Leaves to compare.",
+    needBack: ["Click on the account option (scored)", "Spoken answer, coded on the four elements", "Option chosen, and the Add item to cart click (scored). The saving to expect is $28.17 for one box", "Confidence 1 to 7, and their reason", "Hesitation on the button, 5 seconds or more"],
   }),
   fromNavigation("T1", "C8", { hypotheses: ["CH12"] }),
   fromNavigation("T2", "C9", { hypotheses: ["CH12"], apartFrom: "C8" }),
@@ -394,7 +395,7 @@ export const COMBINED_CLOSING_QUESTIONS: ClosingQuestion[] = [
   {
     id: "rank", kind: "rank", hint: "Choose 1 for the one that makes you most sure and 4 for the one that makes you least sure. Give each its own number, or leave all four blank to skip.",
     prompt: `Four things can help someone feel sure about buying a product like ${PRODUCT_A_NAME}. Put them in order.`,
-    items: ["Customer reviews", "The CPTG Certified Pure Tested Grade mark", "The story of where the oil is sourced", "A short video of the product (imagine it was on the page)"],
+    items: ["Customer reviews", "The CPTG Certified Pure Tested Grade mark", "The story of where the ingredients are sourced", "A short video of the product (imagine it was on the page)"],
   },
   {
     id: "noReviews", kind: "text", unlessRun: "R2", hint: "A sentence or two is plenty.",
@@ -427,8 +428,9 @@ export const DEFAULT_CONTENT: Content = {
   // Version 6: R2 no longer opens with "Here is".
   // Version 7: the debrief is put to the participant on screen (closingQuestions) in the participant edition.
   // Version 8: the moderated tool puts the same closing questions to the participant, so the moderator's spoken debrief is a follow-up.
-  version: 8,
-  updatedAt: "2026-10-22T00:00:00.000Z",
+  // Version 9: the product page is the updated PDP for MetaPWR Advantage (US prices), which is also the first best seller on the homepage; C3 asks for it by name.
+  version: 9,
+  updatedAt: "2026-10-26T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,
   debrief: COMBINED_DEBRIEF,

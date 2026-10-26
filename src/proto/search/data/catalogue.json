@@ -722,7 +722,7 @@
   },
   {
    "id": "p31",
-   "sku": "31004110",
+   "sku": "60225766",
    "name": "PB Restore",
    "category": "Supplements & Nutrition",
    "productType": "Softgels / Capsules",
@@ -734,8 +734,8 @@
    "applications": [
     "Internal / Dietary Supplement"
    ],
-   "retail": 44.0,
-   "wholesale": 33.0,
+   "retail": 63.33,
+   "wholesale": 47.5,
    "rating": 4,
    "inStock": true,
    "status": [
@@ -743,11 +743,12 @@
    ],
    "keywords": "probiotic gut restore",
    "image": "pb-restore",
-   "suggestionLabel": "In Supplements & Nutrition"
+   "suggestionLabel": "In Supplements & Nutrition",
+   "size": "30 Capsules"
   },
   {
    "id": "p32",
-   "sku": "31004247",
+   "sku": "60229028",
    "name": "EO Mega+",
    "category": "Supplements & Nutrition",
    "productType": "Softgels / Capsules",
@@ -759,8 +760,8 @@
    "applications": [
     "Internal / Dietary Supplement"
    ],
-   "retail": 33.33,
-   "wholesale": 25.0,
+   "retail": 62.0,
+   "wholesale": 46.5,
    "rating": 4,
    "inStock": true,
    "status": [
@@ -768,14 +769,15 @@
    ],
    "keywords": "omega fish oil mega",
    "image": "eo-mega",
-   "suggestionLabel": "In Supplements & Nutrition"
+   "suggestionLabel": "In Supplements & Nutrition",
+   "size": "90 Softgels"
   },
   {
    "id": "p33",
-   "sku": "31004384",
+   "sku": "60230209",
    "name": "VMG+",
    "category": "Supplements & Nutrition",
-   "productType": "Softgels / Capsules",
+   "productType": "Drink Mix / Powder",
    "collection": null,
    "goals": [
     "Immune Support",
@@ -784,8 +786,8 @@
    "applications": [
     "Internal / Dietary Supplement"
    ],
-   "retail": 33.33,
-   "wholesale": 25.0,
+   "retail": 119.33,
+   "wholesale": 89.5,
    "rating": 4,
    "inStock": true,
    "status": [
@@ -793,12 +795,13 @@
    ],
    "keywords": "vitamin mineral greens",
    "image": "vmg-plus",
-   "suggestionLabel": "In Supplements & Nutrition"
+   "suggestionLabel": "In Supplements & Nutrition",
+   "size": "30 Sachets"
   },
   {
    "id": "p34",
-   "sku": "31004521",
-   "name": "MetaPWR Advantage",
+   "sku": "60222772",
+   "name": "MetaPWR™ Advantage",
    "category": "Supplements & Nutrition",
    "productType": "Drink Mix / Powder",
    "collection": "MetaPWR",
@@ -808,14 +811,17 @@
    "applications": [
     "Internal / Dietary Supplement"
    ],
-   "retail": 59.0,
-   "wholesale": 44.25,
-   "rating": 5,
+   "retail": 112.67,
+   "wholesale": 84.5,
+   "rating": 4,
    "inStock": true,
-   "status": [],
-   "keywords": "metapwr metabolic powder",
+   "status": [
+    "Best Sellers"
+   ],
+   "keywords": "metapwr advantage collagen nmn metabolic powder sachets lemon orange",
    "image": "pb-restore",
-   "suggestionLabel": "In Supplements & Nutrition"
+   "suggestionLabel": "In Supplements & Nutrition",
+   "size": "30 sachets"
   },
   {
    "id": "p35",
@@ -1357,6 +1363,27 @@
    "keywords": "ylang floral calm",
    "image": "eo-mega",
    "suggestionLabel": "In Essential Oils"
+  },
+  {
+   "id": "p58",
+   "sku": "60224288",
+   "name": "MetaPWR Starter System",
+   "category": "Bundles & Collections",
+   "productType": "Kit / Collection",
+   "collection": "MetaPWR",
+   "goals": [
+    "Energy & Activity"
+   ],
+   "applications": [],
+   "retail": 260.0,
+   "wholesale": 195.0,
+   "rating": 0,
+   "inStock": true,
+   "status": [],
+   "keywords": "metapwr system starter kit metabolic",
+   "image": "capsules",
+   "suggestionLabel": "In Bundles & Collections",
+   "size": "1 Kit"
   }
  ],
  "articles": [

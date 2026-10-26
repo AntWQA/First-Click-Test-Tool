@@ -25,7 +25,7 @@ const load = async (saved) => {
 };
 try {
   let text = await load({ ...old, version: 5 });
-  report(!text.includes("buy this on the page") && text.includes("dōTERRA Lavender essential oil"), "a saved copy of the earlier default shows the current wording");
+  report(!text.includes("buy this on the page") && text.includes("dōTERRA MetaPWR Advantage"), "a saved copy of the earlier default shows the current wording");
   report((await c.ev("localStorage.getItem('wc.v1.content')")) === null, "and the stale copy is removed from storage");
   text = await load(edited);
   report(text.includes("There are two ways to buy on the page. Describe them."), "an edited copy keeps the researcher's wording");
