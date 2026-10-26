@@ -75,15 +75,13 @@ export interface Store {
   /** False when the browser would not give us storage: everything lives in memory and is lost on reload. */
   persistent: boolean;
   lastSavedAt: number | null;
-  /** True when saved custom content existed but could not be read, so the defaults were used. */
-  contentFellBack: boolean;
   loadSessions(): { sessions: Session[]; skipped: number };
   saveSession(s: Session): SaveResult;
   removeSession(id: string): void;
   /** Removes this test's saved sessions and saved content edit only (keys it wrote itself), leaving the shipped defaults. Never touches other keys, other sites or other browser data. */
   clearAll(): void;
+  /** The shipped test. There is no way to edit the tasks in the moderator tool, so a copy saved by an earlier version (from the removed Content tab) is deleted and never used. */
   loadContent(): Content;
-  saveContent(c: Content): SaveResult;
 }
 
 /**
@@ -108,7 +106,6 @@ export function createStore(backing: Backing | null, now: () => number): Store {
   const store: Store = {
     persistent: backing !== null,
     lastSavedAt: null,
-    contentFellBack: false,
     loadSessions() {
       const sessions: Session[] = [];
       let skipped = 0;
@@ -124,17 +121,9 @@ export function createStore(backing: Backing | null, now: () => number): Store {
     removeSession(id) { b.removeItem(SESSION + id); },
     clearAll() { for (const key of b.keys()) if (key.startsWith(SESSION) || key === CONTENT) b.removeItem(key); },
     loadContent() {
-      const raw = b.getItem(CONTENT);
-      if (raw === null) return DEFAULT_CONTENT;
-      try {
-        const r = validateContent(JSON.parse(raw));
-        if (r.ok && isSuperseded(r.content)) { b.removeItem(CONTENT); return DEFAULT_CONTENT; }
-        if (r.ok) return r.content;
-      } catch { /* fall through to the defaults */ }
-      store.contentFellBack = true;
+      if (b.getItem(CONTENT) !== null) b.removeItem(CONTENT);
       return DEFAULT_CONTENT;
     },
-    saveContent(c) { return write(CONTENT, JSON.stringify(c)); },
   };
   function write(key: string, value: string): SaveResult {
     if (!store.persistent) return { ok: false, reason: "unavailable" };

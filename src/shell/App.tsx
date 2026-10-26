@@ -9,7 +9,6 @@ import { Setup } from "./moderator/Setup.tsx";
 import { Review } from "./moderator/Review.tsx";
 import { Debrief } from "./moderator/Debrief.tsx";
 import { Ledger } from "./moderator/Ledger.tsx";
-import { ContentEditor } from "./moderator/ContentEditor.tsx";
 import { Preview } from "./moderator/Preview.tsx";
 import { useTheme } from "./theme.tsx";
 import { Boundary } from "./Boundary.tsx";
@@ -26,7 +25,7 @@ function Root() {
   const reviewSession = reviewing ? sessions.find((s) => s.id === reviewing.sessionId) : undefined;
   const [theme, toggleTheme] = useTheme();
   if (active && surfaceOf(active.phase) === "participant") return <Participant session={active} theme={theme} onToggleTheme={toggleTheme} />;
-  const wide = reviewing !== null || (active ? false : tab === "ledger" || tab === "content" || tab === "preview");
+  const wide = reviewing !== null || (active ? false : tab === "ledger" || tab === "preview");
   const openReview = (sessionId: string, runId: string) => setReviewing({ sessionId, runId });
   return (
     <ModeratorShell tab={tab} onTab={setTab} inSession={active !== null || reviewing !== null} wide={wide} theme={theme} onToggleTheme={toggleTheme}>
@@ -40,7 +39,7 @@ function Root() {
           {active.phase === "setup" && <Setup session={active} />}
           {(active.phase === "debrief" || active.phase === "ended") && <Debrief session={active} onReview={openReview} />}
         </>
-      ) : tab === "sessions" ? <Home /> : tab === "ledger" ? <Ledger onReview={openReview} /> : tab === "content" ? <ContentEditor /> : <Preview />}
+      ) : tab === "sessions" ? <Home /> : tab === "ledger" ? <Ledger onReview={openReview} /> : <Preview />}
     </ModeratorShell>
   );
 }

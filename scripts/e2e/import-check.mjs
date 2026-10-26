@@ -57,7 +57,7 @@ const dialog = () => c.ev("document.querySelector('dialog[open]')?.innerText ?? 
 
 try {
   await c.goto(file);
-  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000, "tabs");
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000, "tabs");
 
   // 1. A clean participant file: reviewed first, with where it came from, then imported.
   await pick(clean);

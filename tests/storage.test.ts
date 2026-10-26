@@ -43,14 +43,16 @@ test("corrupt entries are skipped and counted, and do not stop good ones loading
   assert.equal(r.skipped, 2);
 });
 
-test("content falls back to the defaults when missing or invalid, and a saved edit becomes the next version", () => {
-  const backing = memoryBacking({ "wc.v1.content": "garbage" });
-  const store = createStore(backing, () => 1);
-  assert.equal(store.loadContent().version, DEFAULT_CONTENT.version);
+test("the moderator tool always uses the shipped test: a copy saved by the removed Content tab, good or garbage, is deleted and never used", () => {
+  const garbage = memoryBacking({ "wc.v1.content": "garbage" });
+  assert.equal(createStore(garbage, () => 1).loadContent().version, DEFAULT_CONTENT.version);
+  assert.equal(garbage.getItem("wc.v1.content"), null);
   const edited = nextContent(NAVIGATION_CONTENT, { ...NAVIGATION_CONTENT, tasks: NAVIGATION_CONTENT.tasks.slice(0, 3) }, "2026-10-14T10:00:00Z");
-  assert.equal(edited.version, NAVIGATION_CONTENT.version + 1);
-  assert.equal(store.saveContent(edited).ok, true);
-  assert.equal(store.loadContent().tasks.length, 3);
+  const saved = memoryBacking({ "wc.v1.content": JSON.stringify(edited) });
+  const loaded = createStore(saved, () => 1).loadContent();
+  assert.equal(loaded.tasks.length, DEFAULT_CONTENT.tasks.length, "an edited or navigation-only copy is not used");
+  assert.equal(saved.getItem("wc.v1.content"), null);
+  assert.equal(createStore(memoryBacking(), () => 1).loadContent(), DEFAULT_CONTENT);
 });
 
 test("removing a session removes it", () => {
@@ -60,46 +62,17 @@ test("removing a session removes it", () => {
   assert.equal(store.loadSessions().sessions.length, 0);
 });
 
-test("the store says when saved content could not be read and the defaults are in use", () => {
-  const clean = createStore(memoryBacking(), () => 1);
-  clean.loadContent();
-  assert.equal(clean.contentFellBack, false, "no saved content is not a fallback");
-  const broken = createStore(memoryBacking({ "wc.v1.content": "garbage" }), () => 1);
-  broken.loadContent();
-  assert.equal(broken.contentFellBack, true);
-});
-
-
-test("a saved copy of an earlier shipped default is replaced by the current default, and an edited copy is kept", async () => {
+test("a saved copy of an earlier shipped default is removed and the current default is used", async () => {
   const { readFileSync } = await import("node:fs");
-  const old = JSON.parse(readFileSync(new URL("./fixtures/combined-default-2026-10-22.json", import.meta.url), "utf8"));
-  assert.match(old.tasks.find((t: { id: string }) => t.id === "C7").scenario, /buy this on the page/, "the fixture is the old wording");
-  const stale = memoryBacking({ "wc.v1.content": JSON.stringify({ ...old, version: 5 }) });
-  const store = createStore(stale, () => 1);
-  assert.equal(store.loadContent().version, DEFAULT_CONTENT.version);
-  assert.doesNotMatch(store.loadContent().tasks.find((t) => t.id === "C7")!.scenario, /buy this/);
-  assert.equal(stale.getItem("wc.v1.content"), null, "the stale copy is removed, so the shipped default is followed from now on");
-  assert.equal(store.contentFellBack, false);
-  // A researcher's own edit to that wording is theirs: it stays.
-  const edited = structuredClone(old);
-  edited.tasks.find((t: { id: string }) => t.id === "C7").scenario = "There are two ways to buy on the page. Describe them.";
-  const kept = createStore(memoryBacking({ "wc.v1.content": JSON.stringify(edited) }), () => 1);
-  assert.match(kept.loadContent().tasks.find((t) => t.id === "C7")!.scenario, /two ways to buy/);
-  // The current default is never treated as stale.
-  const current = createStore(memoryBacking({ "wc.v1.content": JSON.stringify(DEFAULT_CONTENT) }), () => 1);
-  assert.equal(current.loadContent().version, DEFAULT_CONTENT.version);
-});
-
-
-test("a saved copy of the Lavender-page default (version 8) is replaced by the MetaPWR Advantage default", async () => {
-  const { readFileSync } = await import("node:fs");
-  const old = JSON.parse(readFileSync(new URL("./fixtures/combined-default-v8.json", import.meta.url), "utf8"));
-  assert.match(old.tasks.find((t: { id: string }) => t.id === "C4").scenario, /Lavender/, "the fixture is the Lavender wording");
-  const stale = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
-  const loaded = createStore(stale, () => 1).loadContent();
-  assert.equal(loaded.version, DEFAULT_CONTENT.version);
-  assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C4")!.scenario, /Lavender/);
-  assert.equal(stale.getItem("wc.v1.content"), null, "the stale copy is removed");
+  for (const f of ["combined-default-2026-10-22.json", "combined-default-v8.json"]) {
+    const old = JSON.parse(readFileSync(new URL("./fixtures/" + f, import.meta.url), "utf8"));
+    const stale = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
+    const loaded = createStore(stale, () => 1).loadContent();
+    assert.equal(loaded.version, DEFAULT_CONTENT.version, f);
+    assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C7")!.scenario, /buy this/, f);
+    assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C4")!.scenario, /Lavender/, f);
+    assert.equal(stale.getItem("wc.v1.content"), null, f);
+  }
 });
 
 test("a session begun on an earlier default takes the current wording for tasks not yet started, and keeps what it already ran", async () => {
@@ -133,7 +106,7 @@ test("clearAll removes every saved session and the saved content, and nothing el
   const backing = memoryBacking({ "wc.v1.theme": "dark", "other.key": "keep" });
   const store = createStore(backing, () => 1);
   store.saveSession(mk("a")); store.saveSession(mk("b"));
-  store.saveContent({ ...DEFAULT_CONTENT, version: 9 });
+  backing.setItem("wc.v1.content", JSON.stringify({ ...DEFAULT_CONTENT, version: 9 }));
   assert.equal(store.loadSessions().sessions.length, 2);
   store.clearAll();
   assert.equal(store.loadSessions().sessions.length, 0);

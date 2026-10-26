@@ -41,7 +41,7 @@ One session, one device, three blocks in a fixed order: **homepage** (C1 to C3),
 - The Google and shared-link arrivals are text only.
 - Product B (R2) has no reviews on purpose; other product copy, reviews and FAQs are invented stand-ins (see `docs/INSTRUMENTATION-DIFF.md`).
 - Time allowances are estimates until a pilot.
-- Saved content lives in the browser. A saved copy that is exactly an earlier default is replaced by the current default on load; anything you have edited is kept until you press *Reset to the combined test*. Add the fingerprint of the old default to `SUPERSEDED_DEFAULTS` in `src/shell/domain/storage.ts` whenever the default wording changes. A session keeps the content it started with, but a session begun on a superseded default takes the current participant-facing wording for tasks not yet started (tasks already run keep the words the participant read; targets are untouched).
+- The moderator tool has no way to edit the tasks: it always runs the shipped test. A copy of the tasks saved by an earlier version (from the removed Content tab) is deleted on load and never used. Sessions keep a copy of the content they began with; a session begun on an earlier default takes the current participant-facing wording for tasks it has not started (add the fingerprint of the old default to `SUPERSEDED_CONTENT` in `src/shell/domain/storage.ts` when you change the default).
 
 ## Running a session
 
@@ -57,12 +57,12 @@ Open the file in **Chrome or Edge** on a desktop machine. Make the window at lea
 
 **Ctrl+Shift+M** on any participant screen, including while their focus is inside the website, opens a small moderator menu (end the session early), so a session can be stopped without handing the device back. The end buttons in the task banner stay disabled until the website has loaded, so a double-click on Begin cannot end a task by accident.
 
-**Keyboard shortcuts** (the keyboard icon in the header, or **?**, lists them): **1 to 4** switch between Sessions, Ledger, Content and Preview (while the tabs are showing), **T** toggles light and dark, **Ctrl or ⌘+S** saves the Content tab, **Enter** presses the main button, **Esc** closes a dialog. The header is one fixed width on every screen, so it does not move when you change tab. In the Preview tab, choosing a breakpoint restarts the prototype at that size, so the recorder log begins with its own "Menu ready (width x height)".
+**Keyboard shortcuts** (the keyboard icon in the header, or **?**, lists them): **1 to 3** switch between Sessions, Ledger and Preview (while the tabs are showing), **T** toggles light and dark, **Enter** presses the main button, **Esc** closes a dialog. The header is one fixed width on every screen, so it does not move when you change tab. In the Preview tab, choosing a breakpoint restarts the prototype at that size, so the recorder log begins with its own "Menu ready (width x height)".
 
 ### Tabs
 - **Sessions**: every session, resume or view, delete, download all, import.
 - **Ledger**: per task and breakpoint, with a Reviewed column and a list for adding findings (each participant once per task, even if their ID was run more than once: the newest session wins; titles and targets come from what each session actually ran, so editing Content never drops or merges results, and a row says when it mixes content versions), the Level 1 and Level 2 counts, verdict, median time to first interaction, mean ease, confident-wrong count, prompts, final column (for duplicated answers) and misread sections. Exports Markdown, CSV (one row per run) and JSON.
-- **Content**: the 13 tasks of the combined test as JSON (11 core, 2 reserve), plus the debrief prompts and the one-device-per-participant switch. *Load the navigation-only test* and *Reset to the combined test* swap the whole set. In the navigation-only test T11 and T12 are the **footer tasks**: their answers (Contact doTERRA, Returns Policy) live only in the footer, and Help is recorded separately for both. They never come first in a session (the first task is where H6, menus opening unaided, is read), and for roster participants they are placed among the board's ten tasks without changing the board's order for those ten. They are tagged H7, a new hypothesis: support and policy content can be found from the footer. Validated before saving (every target link must exist in the navigation or footer; a zone is a lowercase name; observe tasks have no targets; code ids unique with 2 to 12 options; ids unique; no em dashes) and versioned. Each session keeps a copy of the version it started with, so editing never rescores old sessions.
+- **Tasks**: there is no Content tab. The 13 tasks of the combined test (11 core, 2 reserve), the closing questions and the one-device-per-participant switch are in `src/shell/domain/tasks.ts`; change them there and rebuild. The end-to-end checks open the short four task cut with `?wc-test=reduced-navigation` on the file address (nothing in the tool links to it).
 - **Preview**: the prototype at each breakpoint with a live view of what the recorder reports. Use it to rehearse. Nothing is saved.
 
 ## Participant edition (self-run)
@@ -85,7 +85,7 @@ Differences to keep in mind when you read self-run results: nobody is there to p
 
 Each participant does all their tasks in one session, and the frame **switches breakpoint per task**.
 
-- A task that lists one breakpoint in the Content tab (the four desktop-only tasks, T2, T4, T6, T8) always runs there.
+- A task that lists one breakpoint in its task content (the four desktop-only tasks, T2, T4, T6, T8) always runs there.
 - A task that lists several (T1, T3, T5, T7, T9, T10, T11 and T12 list desktop, tablet and mobile) is rotated across exactly the breakpoints it lists, by the participant's number, so across participants each is seen about equally at each and each person gets an even mix (every participant has two or three of these eight at each breakpoint). There is no tablet switch at setup: a task runs at tablet because its content lists tablet, so change which tasks need it in the Content tab.
 - Nobody does the same task twice, and the plan is fixed with the order when the session starts. The moderator can override any task on the setup screen, but only to a breakpoint the task lists.
 - Each run records its own breakpoint and its place in the session, and the Ledger tallies by each run's breakpoint, never pooling the three. A person can appear in more than one table (different tasks), never twice for the same task.

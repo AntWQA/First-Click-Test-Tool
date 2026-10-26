@@ -125,7 +125,7 @@ try {
   let done = reduce(atHandBack("cl3", "SR3"), { type: "closing", at: T0 + 10_000, answers: { video: "Yes: A video would help.", changeProduct: "Make the price and the ways to buy clearer" } });
   done = reduce(done, { type: "complete", at: T0 + 11_000, notes: "" });
   await plant(mfile, done);
-  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000);
   await clickText(c, "button", "View", { startsWith: true });
   await c.waitPage("!!document.querySelector('.m-closing')", 8000, "the closing answers on the record");
   const rec = await c.ev("document.querySelector('.m-closing').innerText");
@@ -133,7 +133,7 @@ try {
 
   // ---- the moderated tool puts the same questions to the participant, before its hand-back screen
   await plant(mfile, atHandBack("cl4", "P4", false));
-  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000);
   await clickText(c, "button", "Open P4");
   await c.waitPage("document.body.innerText.includes('A few last questions')", 8000, "the closing questions in the moderated tool");
   report(!(await has("Researcher: continue")) && (await c.ev("document.querySelectorAll('.p-choice').length")) === 6 && (await c.ev("document.querySelectorAll('.p-order-card').length")) === 4, "the moderated tool shows the same closing questions, before the hand-back screen");

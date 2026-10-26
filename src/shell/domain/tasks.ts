@@ -222,6 +222,17 @@ const NAVIGATION_TASK_INPUTS: TaskInput[] = [
 
 export const NAVIGATION_TASKS: Task[] = NAVIGATION_TASK_INPUTS.map(mk);
 
+/**
+ * A four task cut of the navigation-only test (T1, T3, T9 and the reserve R1), for the end-to-end checks only: they add ?wc-test=reduced-navigation to the file address to get a short
+ * session. Nothing in the tool links to it, and there is no way to edit or choose the tasks in the moderator tool.
+ */
+export const REDUCED_NAVIGATION_CONTENT: Content = {
+  schemaVersion: 1,
+  version: 1,
+  updatedAt: "2026-10-27T00:00:00.000Z",
+  tasks: NAVIGATION_TASKS.filter((t) => ["T1", "T3", "T9", "R1"].includes(t.id)),
+};
+
 /** The navigation-only test (12 core tasks, 2 reserve, one breakpoint per task). Kept as a preset: the unit and end-to-end tests use it, and the Content tab can load it. */
 export const NAVIGATION_CONTENT: Content = {
   schemaVersion: 1,

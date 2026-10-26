@@ -63,7 +63,7 @@ try {
   // Shortcut keys on a moderator screen: ? lists them, and the header stays put when the tab changes.
   await c.key("?", "Slash"); await c.waitPage("!!document.querySelector('dialog[open]')", 4000, "the shortcuts panel");
   const panel = await c.ev("document.querySelector('dialog[open]').textContent");
-  report(["Switch to Ledger", "Switch to Preview", "Toggle light or dark theme", "Save content changes"].every((x) => panel.includes(x)), "the ? panel lists the tab, theme and save shortcuts");
+  report(["Switch to Ledger", "Switch to Preview", "Toggle light or dark theme"].every((x) => panel.includes(x)) && !panel.includes("Switch to Content") && !panel.includes("Save content changes"), "the ? panel lists the tab and theme shortcuts, and nothing for the removed Content tab");
   await c.key("Escape", "Escape"); await sleep(200);
   c.consoleErrors.splice(0, c.consoleErrors.length); // the blocked probes above are expected
   const outside = c.requests.filter((u) => !/^(file:|data:|blob:|about:)/.test(u));

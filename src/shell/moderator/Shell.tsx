@@ -5,7 +5,9 @@ import type { SaveProblem } from "../state.tsx";
 import { AppHeader } from "../AppHeader.tsx";
 import { Shortcuts } from "../Shortcuts.tsx";
 
-export type Tab = "sessions" | "ledger" | "content" | "preview";
+export type Tab = "sessions" | "ledger" | "preview";
+
+const TABS: Tab[] = ["sessions", "ledger", "preview"];
 
 const PROBLEMS: Record<Exclude<SaveProblem, null>, string> = {
   unavailable: "This browser is not saving anything (a private window, or site data is blocked). Sessions will be lost when you reload. Download a backup after every session, or open the file in a normal window.",
@@ -17,9 +19,8 @@ const PROBLEMS: Record<Exclude<SaveProblem, null>, string> = {
 export function ModeratorShell({ tab, onTab, children, inSession, wide, theme, onToggleTheme }: {
   tab: Tab; onTab: (t: Tab) => void; children: ReactNode; inSession: boolean; wide: boolean; theme: "light" | "dark"; onToggleTheme: () => void;
 }) {
-  const { lastSavedAt, saveProblem, notice, clearNotice, skippedOnLoad, contentFellBack } = useApp();
+  const { lastSavedAt, saveProblem, notice, clearNotice, skippedOnLoad } = useApp();
   const [help, setHelp] = useState(false);
-  const TABS: Tab[] = ["sessions", "ledger", "content", "preview"];
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -29,7 +30,7 @@ export function ModeratorShell({ tab, onTab, children, inSession, wide, theme, o
       if (e.key === "?") { e.preventDefault(); setHelp(true); return; }
       if (e.key.toLowerCase() === "t") { e.preventDefault(); onToggleTheme(); return; }
       // The tabs are hidden while a session or a findings screen is open, so the number keys only work when they are showing.
-      const i = ["1", "2", "3", "4"].indexOf(e.key);
+      const i = ["1", "2", "3"].indexOf(e.key);
       if (i >= 0 && !inSession) { e.preventDefault(); onTab(TABS[i]!); }
     };
     window.addEventListener("keydown", onKey);
@@ -37,8 +38,8 @@ export function ModeratorShell({ tab, onTab, children, inSession, wide, theme, o
   }, [inSession, onTab, onToggleTheme]);
   const nav = inSession ? null : (
     <nav className="views" aria-label="Sections">
-      {(["sessions", "ledger", "content", "preview"] as Tab[]).map((t) => (
-        <button key={t} type="button" className="m-tab" aria-current={tab === t ? "page" : undefined} onClick={() => onTab(t)}>{t === "sessions" ? "Sessions" : t === "ledger" ? "Ledger" : t === "content" ? "Content" : "Preview"}</button>
+      {TABS.map((t) => (
+        <button key={t} type="button" className="m-tab" aria-current={tab === t ? "page" : undefined} onClick={() => onTab(t)}>{t === "sessions" ? "Sessions" : t === "ledger" ? "Ledger" : "Preview"}</button>
       ))}
     </nav>
   );
@@ -48,7 +49,6 @@ export function ModeratorShell({ tab, onTab, children, inSession, wide, theme, o
         status={<span className="m-save" role="status">{saveProblem ? "Not saved" : lastSavedAt ? `Saved ${new Date(lastSavedAt).toLocaleTimeString()}` : "Nothing to save yet"}</span>} />
       {saveProblem && <p className="m-banner m-banner-bad" role="alert">{PROBLEMS[saveProblem]}</p>}
       {skippedOnLoad > 0 && <p className="m-banner m-banner-warn" role="status">{skippedOnLoad} saved session{skippedOnLoad === 1 ? " was" : "s were"} unreadable and skipped. Import a backup to recover.</p>}
-      {contentFellBack && <p className="m-banner m-banner-warn" role="status">The saved task content could not be read, so the plan's original tasks are in use. Check the Content tab before running a session.</p>}
       {notice && <p className="m-banner m-banner-warn" role="alert">{notice} <button type="button" className="btn btn-quiet" onClick={clearNotice}>Dismiss</button></p>}
       {children}
       {help && <Shortcuts onClose={() => setHelp(false)} />}

@@ -58,11 +58,11 @@ const screen = async (label, { h1 = 1 } = {}) => {
 const wait = (s) => c.waitPage(`document.body.innerText.toLowerCase().includes(${JSON.stringify(s.toLowerCase())})`, 8000, s);
 try {
   await c.goto(file);
-  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000);
   report((await c.ev("document.documentElement.lang")) === "en", "the document language is set");
   await screen("Sessions");
   await clickText(c, ".m-tab", "Ledger"); await screen("Ledger");
-  await clickText(c, ".m-tab", "Content"); await screen("Content");
+ 
   await clickText(c, ".m-tab", "Sessions");
   await clickText(c, "button", "New session"); await wait("Hand over to participant"); await screen("Setup");
   const labelled = await c.ev("[...document.querySelectorAll('.m-form input, .m-form select')].every(e=>(e.labels&&e.labels.length>0)||e.getAttribute('aria-label'))");

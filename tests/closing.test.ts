@@ -149,9 +149,6 @@ test("a saved copy of the previous default, and a session begun on it, gain the 
   const store = createStore(backing, () => 1);
   assert.equal(store.loadContent().closingQuestions!.length, 7);
   assert.equal(backing.getItem("wc.v1.content"), null);
-  // an edit that keeps the old parts but adds its own closing question is a researcher's, and stays
-  const edited = { ...old, closingQuestions: [{ id: "mine", prompt: "Anything else?", kind: "text" }] };
-  assert.deepEqual(createStore(memoryBacking({ "wc.v1.content": JSON.stringify(edited) }), () => 1).loadContent().closingQuestions!.map((q) => q.id), ["mine"]);
   const v = validateContent(old);
   assert.ok(v.ok);
   const session = createSession({ id: "old", now: T0, participantId: "SR2", selfRun: true, content: v.content });

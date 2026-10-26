@@ -13,7 +13,7 @@ import { NAVIGATION_CONTENT } from "../../src/shell/domain/tasks.ts";
 import { parseImport } from "../../src/shell/domain/exports.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const file = pathToFileURL(process.env.WC_FILE ?? path.join(root, "dist-single", "wayfinding-check.html")).href;
+const file = pathToFileURL(process.env.WC_FILE ?? path.join(root, "dist-single", "wayfinding-check.html")).href + "?wc-test=reduced-navigation";
 const downloads = fs.mkdtempSync(path.join(os.tmpdir(), "wc-dl-"));
 
 const c = await launch({ width: 1500, height: 1000 });
@@ -92,36 +92,23 @@ async function openFindings(taskId) {
 }
 
 try {
-  // ---------- A: content tab ----------
+  // ---------- A: tabs and shortcut keys ----------
   await c.goto(file);
-  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000, "the moderator tabs");
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000, "the moderator tabs");
   report(true, "the app opens on the moderator Sessions screen from file://");
-  // Shortcut keys: number keys switch tabs, T toggles the theme, ? lists them, Ctrl+S saves in the Content tab.
+  // Shortcut keys: number keys switch tabs, T toggles the theme, ? lists them.
   const current = () => c.ev("document.querySelector('.m-tab[aria-current=page]')?.textContent");
   const headerBox = () => c.ev("JSON.stringify((({ left, width }) => ({ left: Math.round(left), width: Math.round(width) }))(document.querySelector('.top-inner').getBoundingClientRect()))");
   const headerBoxes = [await headerBox()];
-  for (const [k, name] of [["2", "Ledger"], ["3", "Content"], ["4", "Preview"], ["1", "Sessions"]]) { await c.key(k, "Digit" + k); await sleep(250); report((await current()) === name, `the ${k} key switches to ${name}`, String(await current())); headerBoxes.push(await headerBox()); }
-  report(new Set(headerBoxes).size === 1, "the header keeps the same position and width on Sessions, Ledger, Content and Preview", headerBoxes.join(" "));
+  for (const [k, name] of [["2", "Ledger"], ["3", "Preview"], ["1", "Sessions"]]) { await c.key(k, "Digit" + k); await sleep(250); report((await current()) === name, `the ${k} key switches to ${name}`, String(await current())); headerBoxes.push(await headerBox()); }
+  report(new Set(headerBoxes).size === 1, "the header keeps the same position and width on Sessions, Ledger and Preview", headerBoxes.join(" "));
   const theme0 = await c.ev("document.documentElement.getAttribute('data-theme') ?? ''");
   await c.key("t", "KeyT"); await sleep(200);
   const theme1 = await c.ev("document.documentElement.getAttribute('data-theme') ?? ''");
   report(theme1 !== theme0, "the T key toggles light and dark", `${theme0} then ${theme1}`);
   await c.key("t", "KeyT"); await sleep(200);
-  await tab("Content");
-  const reduced = { ...NAVIGATION_CONTENT, tasks: NAVIGATION_CONTENT.tasks.filter((t) => ["T1", "T3", "T9", "R1"].includes(t.id)) };
-  await setValue(c, ".m-code", "{ not json");
-  await c.send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "s", code: "KeyS", modifiers: 2, windowsVirtualKeyCode: 83 });
-  await c.send("Input.dispatchKeyEvent", { type: "keyUp", key: "s", code: "KeyS", modifiers: 2, windowsVirtualKeyCode: 83 });
-  await wait("not valid JSON", 4000);
-  report(true, "Ctrl+S in the Content tab runs the save check (here it rejects the invalid text)");
-  await clickText(c, "button", "Check");
-  report(await has("not valid JSON"), "the Content editor rejects text that is not JSON");
-  const bad = JSON.parse(JSON.stringify(reduced)); bad.tasks[0].primary = [{ href: "/not/a/link" }];
-  await setValue(c, ".m-code", JSON.stringify(bad)); await clickText(c, "button", "Check");
-  report(await has("is not a link in the navigation or footer"), "it rejects a target link that does not exist");
-  await setValue(c, ".m-code", JSON.stringify(reduced)); await clickText(c, "button", "Save as version 13");
-  await wait("Saved as version 13");
-  report(true, "a valid edit saves as the next version");
+  report(!(await c.ev("[...document.querySelectorAll('.m-tab')].some((b) => b.textContent === 'Content')")), "there is no Content tab: the tasks are not editable in the moderator tool");
+  report((await c.ev("[...document.querySelectorAll('.m-tab')].map((b) => b.textContent).join(',')")) === "Sessions,Ledger,Preview", "the tabs are Sessions, Ledger and Preview");
 
   // ---------- B: a full desktop session ----------
   await tab("Sessions");
@@ -266,10 +253,8 @@ try {
 
   // ---------- D: persistence ----------
   await c.send("Page.reload"); await sleep(900);
-  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000);
   report(await has("Finished") && await has("P1"), "after a reload the finished session is still there");
-  await tab("Content");
-  report(await has("Version 13"), "and the saved content version survived the reload");
 
   // ---------- E: resume after an interruption, then end early between tasks ----------
   await tab("Sessions");
@@ -280,7 +265,7 @@ try {
   await skipTour();
   await beginTask();
   await c.send("Page.reload"); await sleep(900);
-  await c.waitPage("document.querySelectorAll('.m-tab').length === 4", 20000);
+  await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000);
   report(await has("In progress"), "an interrupted session is listed as In progress");
   await clickText(c, "button", "Open", { startsWith: true });
   await wait("Ready for the next scenario?");

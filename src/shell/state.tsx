@@ -4,6 +4,7 @@ import { browserBacking, createStore } from "./domain/storage.ts";
 import type { SaveResult } from "./domain/storage.ts";
 import { createSession, IllegalTransition, reduce } from "./domain/session.ts";
 import type { Action, NewSessionParams, RunModerator, Session } from "./domain/session.ts";
+import { REDUCED_NAVIGATION_CONTENT } from "./domain/tasks.ts";
 import type { Content } from "./domain/tasks.ts";
 import { applyReview } from "./domain/importReview.ts";
 import type { ReviewItem } from "./domain/importReview.ts";
@@ -15,10 +16,7 @@ export interface AppApi {
   /** False when the browser would not give us storage: nothing survives a reload, so say so loudly. */
   persistent: boolean;
   skippedOnLoad: number;
-  /** The stored custom content could not be read, so the plan's tasks are in use. */
-  contentFellBack: boolean;
   content: Content;
-  saveContent: (c: Content) => SaveResult;
   sessions: Session[];
   active: Session | null;
   lastSavedAt: number | null;
@@ -32,7 +30,7 @@ export interface AppApi {
   openSession: (id: string) => void;
   closeSession: () => void;
   deleteSession: (id: string) => void;
-  /** Deletes this test's own saved sessions and content edit (nothing else in the browser), then reloads so the shipped defaults load clean. */
+  /** Deletes this test's own saved sessions (nothing else in the browser), then reloads so the shipped defaults load clean. */
   clearAllSaved: () => void;
   /** Adds the reviewed sessions the researcher chose to import, all or none. */
   applyImport: (items: ReviewItem[], source: Omit<Provenance, "at">) => { imported: number; skipped: number; error: string | null };
@@ -55,11 +53,14 @@ const DEBOUNCED: Action["type"][] = ["event", "scale", "reviewRun", "setup", "de
 /** The frame can report an event a moment after the task has ended: that is not an error. */
 const QUIET: Action["type"][] = ["event", "scale"];
 
+/** End-to-end checks only: ?wc-test=reduced-navigation in the file address gives the four task cut. Never reached from the tool's own screens. */
+const testContent = (): Content | null => (typeof location !== "undefined" && new URLSearchParams(location.search).get("wc-test") === "reduced-navigation" ? REDUCED_NAVIGATION_CONTENT : null);
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const store = useMemo(() => createStore(browserBacking(), Date.now), []);
-  const [initial] = useState(() => ({ ...store.loadSessions(), content: store.loadContent() }));
+  const [initial] = useState(() => ({ ...store.loadSessions(), content: testContent() ?? store.loadContent() }));
   const [sessions, setSessions] = useState<Session[]>(initial.sessions);
-  const [content, setContent] = useState<Content>(initial.content);
+  const content: Content = initial.content;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [saveProblem, setSaveProblem] = useState<SaveProblem>(null);
@@ -123,9 +124,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const api: AppApi = {
     persistent: store.persistent,
     skippedOnLoad: initial.skipped,
-    contentFellBack: store.contentFellBack,
     content,
-    saveContent: (c) => { const r = store.saveContent(c); record(r); if (r.ok) setContent(c); return r; },
     sessions,
     active: sessions.find((s) => s.id === activeId) ?? null,
     lastSavedAt,
