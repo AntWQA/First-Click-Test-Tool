@@ -174,3 +174,12 @@ test("a saved copy of version 9 (typed closing answers), and a session begun on 
   st.saveSession(session);
   assert.equal(st.loadSessions().sessions[0]!.content.closingQuestions!.find((q) => q.id === "video")!.kind, "choice");
 });
+
+test("a saved copy of version 10 (promo bar still shown) is replaced by the current default", () => {
+  const old = JSON.parse(readFileSync(new URL("./fixtures/combined-default-v10.json", import.meta.url), "utf8"));
+  assert.match(old.tasks.find((t: { id: string }) => t.id === "C1").watchFor, /promo banner/, "the fixture is the version that mentions the promo bar");
+  const backing = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
+  const loaded = createStore(backing, () => 1).loadContent();
+  assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C1")!.watchFor, /promo banner/);
+  assert.equal(backing.getItem("wc.v1.content"), null);
+});

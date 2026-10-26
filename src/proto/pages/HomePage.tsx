@@ -18,6 +18,9 @@ import { productImage, productMeta } from "../search/productView";
  * (as "other", which never ends a task) and no page is opened, except the three in-page jumps below.
  */
 
+/** The global promo bar above the hero is hidden for the test (26 Oct 2026). Set to true to bring it back. */
+const SHOW_PROMO_BANNER = false;
+
 const HEADROOM = "hp-anchor";
 const VARIANTS = { slidesPerPage: { xs: 1, sm: 2, md: 3, lg: 5 }, slideGap: "md", peekNext: true } as const;
 
@@ -92,14 +95,16 @@ export function HomePage() {
   const navigate = useNavigate();
   return (
     <Main>
-      <Banner level="brand-primary">
-        <Flex align="center" spacing="xs" wrap>
-          <Text as="span" size="textMd">[Live event name]: [sitewide offer], ends [date] ·</Text>
-          <Link href="#offers" underline="always" data-testid="promo-banner-link">
-            <Flex as="span" align="center" spacing="xs"><span>Get details</span><Icon name="arrow-right" size="sm" /></Flex>
-          </Link>
-        </Flex>
-      </Banner>
+      {SHOW_PROMO_BANNER && (
+        <Banner level="brand-primary">
+          <Flex align="center" spacing="xs" wrap>
+            <Text as="span" size="textMd">[Live event name]: [sitewide offer], ends [date] ·</Text>
+            <Link href="#offers" underline="always" data-testid="promo-banner-link">
+              <Flex as="span" align="center" spacing="xs"><span>Get details</span><Icon name="arrow-right" size="sm" /></Flex>
+            </Link>
+          </Flex>
+        </Banner>
+      )}
 
       <Section size="xs">
         <Container width="wide">

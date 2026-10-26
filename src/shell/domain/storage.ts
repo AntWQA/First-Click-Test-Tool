@@ -58,6 +58,7 @@ const SUPERSEDED_CONTENT = new Set<string>([
   "6c6cb6a4", // version 7 (22 Oct 2026): closing questions in the participant edition only, moderator's spoken debrief repeated them
   "ae6200d7", // version 8 (22 Oct 2026): the moderator's spoken debrief as a follow-up, still the Lavender product page
   "121db427", // version 9 (26 Oct 2026): the MetaPWR Advantage product page, closing questions all typed answers and a ranking by number
+  "10b43a6", // version 10 (27 Oct 2026): multiple choice closing questions, promo bar still shown (C1 notes mention it)
 ]);
 
 const isSuperseded = (c: Content): boolean => SUPERSEDED_DEFAULTS.has(tasksFingerprint(c.tasks)) || SUPERSEDED_CONTENT.has(contentFingerprint(c));

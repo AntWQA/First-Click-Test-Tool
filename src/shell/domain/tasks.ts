@@ -269,7 +269,7 @@ export const COMBINED_TASKS: Task[] = [
       { id: "sells", label: "What it sells", options: ["Correct", "Partial", "Not clear"] },
       { id: "different", label: "What makes it different", options: ["Testing or purity", "Sourcing", "Plant-based", "Offer or price", "Generic", "Nothing"] },
     ],
-    watchFor: "Thinks it sells medicine, food or something else. \"I don't know.\" Reads the promo banner as the headline. Existing customers: question 2 becomes \"What would you do first here, and is anything missing that you would expect?\" Code and report them apart.",
+    watchFor: "Thinks it sells medicine, food or something else. \"I don't know.\" Existing customers: question 2 becomes \"What would you do first here, and is anything missing that you would expect?\" Code and report them apart.",
     needBack: ["Spoken answers, word for word, and their codes", "Confidence 1 to 7 (the first reading for CH3)", "What they looked at before speaking (observed)", "Any doubt moment, with its zone"],
   }),
   mk({
@@ -447,7 +447,8 @@ export const DEFAULT_CONTENT: Content = {
   // Version 8: the moderated tool puts the same closing questions to the participant, so the moderator's spoken debrief is a follow-up.
   // Version 9: the product page is the updated PDP for MetaPWR Advantage (US prices), which is also the first best seller on the homepage; C3 asks for it by name.
   // Version 10: the closing questions are multiple choice (with Other), the video question is Yes, No or Don't know, and the ranking is drag and drop.
-  version: 10,
+  // Version 11: the global promo bar is hidden on the homepage, so the C1 notes no longer mention it.
+  version: 11,
   updatedAt: "2026-10-27T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,
