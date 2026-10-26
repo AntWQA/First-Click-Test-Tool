@@ -357,11 +357,13 @@ function Gallery2({ images }: { images: PdpImage[] }) {
       <div className="pdp-stage" style={{ ["--bg" as string]: `url("${images[i].src}")` }}>
         {images.map((im, j) => <img key={im.src + j} className={j === i ? "is-active" : undefined} src={im.src} alt={im.alt} loading={j === 0 ? undefined : "lazy"} />)}
       </div>
-      <div className="pdp-thumbs" role="group" aria-label="Product images">
-        {images.map((im, j) => (
-          <button key={im.src + j} type="button" aria-current={j === i} aria-label={`Image ${j + 1}`} onClick={() => setI(j)}><img src={im.thumb ?? im.src} alt="" /></button>
-        ))}
-      </div>
+      {images.length > 1 && (
+        <div className="pdp-thumbs" role="group" aria-label="Product images">
+          {images.map((im, j) => (
+            <button key={im.src + j} type="button" aria-current={j === i} aria-label={`Image ${j + 1}`} onClick={() => setI(j)}><img src={im.thumb ?? im.src} alt="" /></button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -19,6 +19,8 @@
 .hp-hero--has-media .hp-hero__container{flex:1;align-self:stretch;width:100%}
 .hp-hero--has-media.hp-hero--dark .hp-hero__main,.hp-hero--has-media.hp-hero--light .hp-hero__main{text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .hp-hero--has-media.hp-hero--light .hp-hero__main{text-shadow:0 1px 2px rgb(255,255,255)}
+/* The hero text shadow is for text on the photo. The white tertiary button label inherits it, so it is switched off there (27 Oct 2026). */
+.hp-hero__main .dtds-button--tertiary,.hp-hero__main .dtds-button--tertiary *{text-shadow:none}
 .hp-hero__background{position:relative;z-index:0;width:100%;height:var(--hero-background-height);isolation:isolate}
 .hp-hero__background-image,.hp-hero__background-video{position:relative;z-index:0;display:block;background-size:cover;background-position:center;width:100%;height:100%;object-fit:cover;object-position:center}
 .hp-hero__background-image{max-width:none}

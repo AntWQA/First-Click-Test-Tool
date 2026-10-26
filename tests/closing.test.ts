@@ -183,3 +183,12 @@ test("a saved copy of version 10 (promo bar still shown) is replaced by the curr
   assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C1")!.watchFor, /promo banner/);
   assert.equal(backing.getItem("wc.v1.content"), null);
 });
+
+test("a saved copy of version 11 (C9 notes say T1) is replaced by the current default", () => {
+  const old = JSON.parse(readFileSync(new URL("./fixtures/combined-default-v11.json", import.meta.url), "utf8"));
+  assert.match(old.tasks.find((t: { id: string }) => t.id === "C9").needBack.join(" "), /Compare with T1/, "the fixture is the version that names T1");
+  const backing = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
+  const loaded = createStore(backing, () => 1).loadContent();
+  assert.match(loaded.tasks.find((t) => t.id === "C9")!.needBack.join(" "), /Compare with C8/);
+  assert.equal(backing.getItem("wc.v1.content"), null);
+});

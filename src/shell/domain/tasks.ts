@@ -364,8 +364,14 @@ export const COMBINED_TASKS: Task[] = [
     needBack: ["Click on the account option (scored)", "Spoken answer, coded on the four elements", "Option chosen, and the Add item to cart click (scored). The saving to expect is $28.17 for one box", "Confidence 1 to 7, and their reason", "Hesitation on the button, 5 seconds or more"],
   }),
   fromNavigation("T1", "C8", { hypotheses: ["CH12"] }),
-  fromNavigation("T2", "C9", { hypotheses: ["CH12"], apartFrom: "C8" }),
-  fromNavigation("T9", "C10", { hypotheses: ["CH13"] }),
+  fromNavigation("T2", "C9", {
+    hypotheses: ["CH12"], apartFrom: "C8",
+    needBack: ["Scan behaviour across the 11 goals: time from menu open to click, and whether the pointer passed over the target", "Compare with C8: does symptom wording score lower than goal wording?"],
+  }),
+  fromNavigation("T9", "C10", {
+    hypotheses: ["CH13"],
+    needBack: ["Which Rewards link, and why. The closing question on screen asks what the Rewards links mean; do not explain them first", "Whether the dropdown opened without a prompt", "Member (WA, WC) and non-member results shown separately"],
+  }),
   fromNavigation("T10", "C11", { hypotheses: ["CH13"], acceptable: [{ href: "/learn/business/path-to-500" }] }),
   mk({
     id: "R1", title: "Reserve: best sellers", kind: "observe", block: "homepage", minutes: 1.5, breakpoints: ["mobile"], reserve: true, highRisk: false, hypotheses: ["CH4"],
@@ -448,7 +454,8 @@ export const DEFAULT_CONTENT: Content = {
   // Version 9: the product page is the updated PDP for MetaPWR Advantage (US prices), which is also the first best seller on the homepage; C3 asks for it by name.
   // Version 10: the closing questions are multiple choice (with Other), the video question is Yes, No or Don't know, and the ranking is drag and drop.
   // Version 11: the global promo bar is hidden on the homepage, so the C1 notes no longer mention it.
-  version: 11,
+  // Version 12: the moderator notes of C9 and C10 name the tasks of this test (C8, the closing question on screen) instead of the navigation-only test's.
+  version: 12,
   updatedAt: "2026-10-27T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,

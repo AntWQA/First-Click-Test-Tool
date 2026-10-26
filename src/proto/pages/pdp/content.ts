@@ -3,8 +3,7 @@ import { slugify } from "../../search/format";
 import { productImage, productSize } from "../../search/productView";
 import { allProducts, findProductBySlug } from "../../search/service/searchService";
 import type { Product } from "../../search/types";
-import { homeImages as img } from "../home/images";
-import { METAPWR_GALLERY, PB_RESTORE_GALLERY } from "./images";
+import { METAPWR_GALLERY, PB_RESTORE_GALLERY, productGalleryFor } from "./images";
 
 /**
  * Product page content. The layout is the updated PDP design ("updated PDP/pdp.html", the version without the member
@@ -47,8 +46,6 @@ export interface Pdp {
   faq: PdpFaq[];
   related: Product[];
 }
-
-const FILLERS = [img.credibility, img.hero, img.catSkin, img.catWellness, img.campaignAbode];
 
 /** The catalogue only: a product that is not served has no page. */
 export const findPdpProduct = (slug: string): Product | undefined => findProductBySlug(slug);
@@ -220,7 +217,7 @@ export function buildPdp(slug: string): Pdp | undefined {
     reviewCount: noReviews ? 0 : meta || lavender ? 220 : 40 + (h % 360),
     bestSeller: !noReviews && product.status.includes("Best Sellers"),
     soldThisWeek: !noReviews && product.status.includes("Best Sellers"),
-    images: meta ? METAPWR_GALLERY : pb ? PB_RESTORE_GALLERY : [{ src: own, alt: product.name }, ...FILLERS.map((src, i) => ({ src, alt: `${product.name}, image ${i + 2}` }))],
+    images: meta ? METAPWR_GALLERY : pb ? PB_RESTORE_GALLERY : productGalleryFor(key) ?? [{ src: own, alt: product.name }],
     blurb: meta ? METAPWR.blurb : pb ? PB_RESTORE.blurb : lavender ? LAVENDER.blurb : `A ${product.productType.toLowerCase()} from our ${product.category.toLowerCase()} range, popular with customers looking for ${goals || "everyday support"}.`,
     things: meta ? METAPWR.things : pb ? PB_RESTORE.things : lavender ? LAVENDER.things : [...apps.map((a) => a.use), "Store in a cool, dry place.", "Keep out of reach of children."],
     cautions: meta ? METAPWR.cautions : pb ? PB_RESTORE.cautions : lavender ? LAVENDER.cautions : "Keep out of reach of children. If you are pregnant, nursing or under a doctor’s care, consult your physician before use. Avoid contact with eyes and sensitive areas.",

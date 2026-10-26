@@ -11,11 +11,6 @@ import catWellness from "./images/cat-wellness.webp";
 import credibility from "./images/credibility.webp";
 import hero from "./images/hero.webp";
 import newsletter from "./images/newsletter.webp";
-import productDeepBlueRub from "./images/product-deep-blue-rub.webp";
-import productFrankincense from "./images/product-frankincense.webp";
-import productLavender from "./images/product-lavender.webp";
-import productOnGuard from "./images/product-on-guard.webp";
-import productYlangYlang from "./images/product-ylang-ylang.webp";
 
 export const homeImages = {
   hero,
@@ -34,9 +29,4 @@ export const homeImages = {
   catSport: campaignDeepBlue,
   catHome: campaignAbode,
   catDiffusers: newsletter,
-  productLavender,
-  productOnGuard,
-  productFrankincense,
-  productDeepBlueRub,
-  productYlangYlang,
 } as const;

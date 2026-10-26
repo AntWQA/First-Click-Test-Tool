@@ -13,7 +13,8 @@ const edition = process.argv[2] === "participant" ? "participant" : "moderator";
 const shellConfig = edition === "participant" ? "vite.participant.config.ts" : "vite.shell.config.ts";
 const shellOut = edition === "participant" ? "dist-participant" : "dist-shell";
 // Raised from 4 MB on 19 Oct 2026 for the homepage images and the 0.8 MB featured-tile video (the artefact host allows 16 MB).
-const BUDGET_BYTES = 6 * 1024 * 1024;
+// Raised to 8 MB on 27 Oct 2026 for the US storefront product photos (the host allows 16 MB).
+const BUDGET_BYTES = 8 * 1024 * 1024;
 const fail = (msg) => { console.error("BUILD FAILED: " + msg); process.exit(1); };
 const MB = (n) => (n / 1048576).toFixed(2) + " MB";
 
