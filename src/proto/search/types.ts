@@ -63,7 +63,7 @@ export interface SearchResponse {
   related: string[];
 }
 
-export interface Suggestion { text: string; label?: string; /** What to search when picked, if different from the text (for example a correction) */ value?: string }
+export interface Suggestion { text: string; label?: string; /** Where picking the suggestion goes, when it is a product: its page. Otherwise picking it runs a search. */ href?: string; /** What to search when picked, if different from the text (for example a correction) */ value?: string }
 export interface SuggestResponse {
   query: string;
   suggestions: Suggestion[];

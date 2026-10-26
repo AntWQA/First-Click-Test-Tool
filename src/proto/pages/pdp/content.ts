@@ -4,7 +4,7 @@ import { productImage, productSize } from "../../search/productView";
 import { allProducts, findProductBySlug } from "../../search/service/searchService";
 import type { Product } from "../../search/types";
 import { homeImages as img } from "../home/images";
-import { METAPWR_GALLERY } from "./images";
+import { METAPWR_GALLERY, PB_RESTORE_GALLERY } from "./images";
 
 /**
  * Product page content. The layout is the updated PDP design ("updated PDP/pdp.html", the version without the member
@@ -64,7 +64,7 @@ export const pdpSlugFor = (candidates: string[]): string => candidates.find((c) 
 type Rec = Product & { size?: string; description?: string };
 
 /** Products shown with no reviews yet (a newer product): an empty reviews section and no rating, for the "no reviews yet" scenario. */
-const NO_REVIEWS = new Set(["pb-restore"]);
+const NO_REVIEWS = new Set(["pb-restore", "pb-restore-probiome-complex"]);
 
 const hash = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
 
@@ -140,6 +140,27 @@ const METAPWR = {
   ],
 };
 
+const PB_RESTORE = {
+  blurb: "This probiotic supplement offers 30 bioactive strains in a dual-chamber, time-released delivery system.",
+  /** "Primary Benefits" on the product page. */
+  things: [
+    "Supports digestive health and gut barrier integrity.*",
+    "Helps in micronutrient synthesis.*",
+    "May support skin health, the respiratory and immune systems, and a healthy inflammatory response.*",
+    "Provides a unique formulation of 30 pre-, pro-, and postbiotics and bacteriophages that help restore microbial diversity and balance for optimal microbiome health, all in an easy-to-use capsule.*",
+  ],
+  cautions: "Keep out of reach of children. If pregnant, nursing, diabetic, or under a doctor’s care, consult your physician. Store in the refrigerator after opening.",
+  description: [
+    "Your microbiome functions like an invisible organ. It’s a vast and diverse ecosystem of microbes that are essential to wellness. Key to microbiome function is proper microbial diversity and balance, with a high ratio of good bacteria to bad. The body’s natural aging process can disrupt your microbiome, along with an unbalanced diet, lack of exercise, poor sleep schedule, and stressful lifestyle. Augmenting a wellness lifestyle with supplementation can help restore microbiome health.",
+    "doTERRA PB Restore ProBiome Complex is a unique formulation of 30 pre-, pro-, and postbiotics and bacteriophages that help restore microbial diversity and balance for optimal microbiome health and overall wellness.* The 18 billion colony-forming units (CFUs) of probiotics, or good bacteria, consist of 24 active cultures, an unparalleled variety of carefully selected strains from 22 different species, for exceptional microbial diversity.* The prebiotic fructooligosaccharides (FOS) and bacteriophages help achieve and maintain microbial balance by encouraging the growth of good bacteria and selectively attacking the bad.* The postbiotic, made up of bioactive compounds produced from healthy bacteria, provides additional health benefits.*",
+    "The doTERRA PB Restore dual-chamber, time-released delivery system supports the body throughout the day.* It aids digestive comfort, micronutrient synthesis, gut barrier integrity, and healthy metabolism.*",
+  ],
+  howTo: [
+    "Take one capsule daily with water before a meal. Avoid taking with high-temperature foods or beverages (above body temperature).",
+    "It’s common and completely normal to experience temporary changes in your digestive system or your stool when taking this product. These reactions show doTERRA PB Restore is active and your body is adapting to it. Most discomfort you may feel will resolve within the first couple weeks.",
+  ],
+};
+
 const LAVENDER = {
   blurb: "A calming, floral essential oil with a sweet herbaceous aroma. Diffuse it in the evening, or apply it to the skin, to help you wind down.",
   things: [
@@ -173,6 +194,7 @@ export function buildPdp(slug: string): Pdp | undefined {
   const key = slugify(product.name);
   const lavender = key === "lavender-essential-oil" || key === "lavender-oil";
   const meta = key === METAPWR.slug;
+  const pb = key === "pb-restore" || key === "pb-restore-probiome-complex";
   const isOil = product.category === "Essential Oils";
   const h = hash(key);
   const noReviews = NO_REVIEWS.has(key);
@@ -198,14 +220,14 @@ export function buildPdp(slug: string): Pdp | undefined {
     reviewCount: noReviews ? 0 : meta || lavender ? 220 : 40 + (h % 360),
     bestSeller: !noReviews && product.status.includes("Best Sellers"),
     soldThisWeek: !noReviews && product.status.includes("Best Sellers"),
-    images: meta ? METAPWR_GALLERY : [{ src: own, alt: product.name }, ...FILLERS.map((src, i) => ({ src, alt: `${product.name}, image ${i + 2}` }))],
-    blurb: meta ? METAPWR.blurb : lavender ? LAVENDER.blurb : `A ${product.productType.toLowerCase()} from our ${product.category.toLowerCase()} range, popular with customers looking for ${goals || "everyday support"}.`,
-    things: meta ? METAPWR.things : lavender ? LAVENDER.things : [...apps.map((a) => a.use), "Store in a cool, dry place.", "Keep out of reach of children."],
-    cautions: meta ? METAPWR.cautions : lavender ? LAVENDER.cautions : "Keep out of reach of children. If you are pregnant, nursing or under a doctor’s care, consult your physician before use. Avoid contact with eyes and sensitive areas.",
-    usage: meta ? [] : lavender ? LAVENDER.usage : apps.map((a) => a.icon),
+    images: meta ? METAPWR_GALLERY : pb ? PB_RESTORE_GALLERY : [{ src: own, alt: product.name }, ...FILLERS.map((src, i) => ({ src, alt: `${product.name}, image ${i + 2}` }))],
+    blurb: meta ? METAPWR.blurb : pb ? PB_RESTORE.blurb : lavender ? LAVENDER.blurb : `A ${product.productType.toLowerCase()} from our ${product.category.toLowerCase()} range, popular with customers looking for ${goals || "everyday support"}.`,
+    things: meta ? METAPWR.things : pb ? PB_RESTORE.things : lavender ? LAVENDER.things : [...apps.map((a) => a.use), "Store in a cool, dry place.", "Keep out of reach of children."],
+    cautions: meta ? METAPWR.cautions : pb ? PB_RESTORE.cautions : lavender ? LAVENDER.cautions : "Keep out of reach of children. If you are pregnant, nursing or under a doctor’s care, consult your physician before use. Avoid contact with eyes and sensitive areas.",
+    usage: meta || pb ? [] : lavender ? LAVENDER.usage : apps.map((a) => a.icon),
     usageTags: meta ? METAPWR.usageTags : undefined,
-    description: meta ? METAPWR.description : lavender ? LAVENDER.description : product.description ? [product.description] : [`${product.name} is part of our ${product.category} range and is made to be part of a daily routine.`, "Every batch is tested to the CPTG Certified Pure Tested Grade® standard."],
-    howTo: meta ? METAPWR.howTo : lavender ? LAVENDER.howTo : apps.length ? apps.map((a) => a.how) : ["Follow the directions on the label."],
+    description: meta ? METAPWR.description : pb ? PB_RESTORE.description : lavender ? LAVENDER.description : product.description ? [product.description] : [`${product.name} is part of our ${product.category} range and is made to be part of a daily routine.`, "Every batch is tested to the CPTG Certified Pure Tested Grade® standard."],
+    howTo: meta ? METAPWR.howTo : pb ? PB_RESTORE.howTo : lavender ? LAVENDER.howTo : apps.length ? apps.map((a) => a.how) : ["Follow the directions on the label."],
     reviews: noReviews ? [] : meta ? METAPWR.reviews : lavender ? LAVENDER.reviews : REVIEW_NAMES.map((name, i) => ({ stars: i % 2 ? 4 : 5, body: i % 2 ? `A solid choice. ${product.name} does what I wanted and I will order it again.` : `I use ${product.name} most days and it has become part of my routine.`, name, title: "Customer" })),
     faq: meta ? METAPWR.faq : isOil ? OIL_FAQ : GENERAL_FAQ,
     related,

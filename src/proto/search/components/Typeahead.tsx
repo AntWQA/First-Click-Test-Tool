@@ -31,7 +31,7 @@ const Label = ({ children, tone = "light" }: { children: string; tone?: BandTone
   </Box>
 );
 
-function Suggestions({ items, onPick }: { items: SuggestResponse["suggestions"]; onPick: (q: string) => void }) {
+function Suggestions({ items, onPick, onNavigate }: { items: SuggestResponse["suggestions"]; onPick: (q: string) => void; onNavigate: () => void }) {
   return (
     <Stack spacing="md" align="stretch" data-testid="typeahead-suggestions">
       <Label tone="primary-extra-light">SUGGESTED SEARCHES</Label>
@@ -42,7 +42,9 @@ function Suggestions({ items, onPick }: { items: SuggestResponse["suggestions"];
               <Flex align="center" spacing="sm">
                 <Icon name="search-md" size="md" />
                 <Stack spacing={0} align="start">
-                  <Link as="button" type="button" underline="hover" variant="inherit" size="textMd" onClick={() => onPick(s.value ?? s.text)}>{s.text}</Link>
+                  {s.href
+                    ? <Link as={RouterLink} to={s.href} underline="hover" variant="inherit" size="textMd" onClick={onNavigate} data-testid="suggestion-product-link">{s.text}</Link>
+                    : <Link as="button" type="button" underline="hover" variant="inherit" size="textMd" onClick={() => onPick(s.value ?? s.text)}>{s.text}</Link>}
                   {s.label && <Text size="textXs" color="text-subtle">{s.label}</Text>}
                 </Stack>
               </Flex>
@@ -77,18 +79,20 @@ function Recent({ recent, onPick, onRemove, onClear }: { recent: string[]; onPic
 /** Compact bordered result card from the empty-focus design (not a Pure component, composed from Pure primitives). */
 function CompactProductCard({ product }: { product: Product }) {
   return (
-    <Box borderWidth="xs" borderStyle="solid" borderColor="base" radius="lg" data-testid={`search-result-product-${product.sku}`}>
-      <Flex align="center" spacing={0}>
-        <Image src={productImage(product)} alt={product.name} width={96} radius="lg" />
-        <Box padding="md">
-          <Stack spacing="xs" align="start" justify="center">
-            <Link as={RouterLink} to={`/shop/products/${slugify(product.name)}`} underline="hover" variant="inherit" size="textSm">{product.name}</Link>
-            <Text size="textXs" color="text-subtle">Retail: <Text as="span" size="textXs" decoration="line-through">{money(product.retail)}</Text></Text>
-            <Text weight="semiBold" size="textSm" color="text-base">Wholesale: {money(product.wholesale)}</Text>
-          </Stack>
-        </Box>
-      </Flex>
-    </Box>
+    <Link as={RouterLink} to={`/shop/products/${slugify(product.name)}`} underline="never" variant="inherit" data-testid={`search-result-product-${product.sku}`}>
+      <Box borderWidth="xs" borderStyle="solid" borderColor="base" radius="lg">
+        <Flex align="center" spacing={0}>
+          <Image src={productImage(product)} alt="" width={96} radius="lg" />
+          <Box padding="md">
+            <Stack spacing="xs" align="start" justify="center">
+              <Text as="span" size="textSm" weight="semiBold" color="text-base">{product.name}</Text>
+              <Text size="textXs" color="text-subtle">Retail: <Text as="span" size="textXs" decoration="line-through">{money(product.retail)}</Text></Text>
+              <Text weight="semiBold" size="textSm" color="text-base">Wholesale: {money(product.wholesale)}</Text>
+            </Stack>
+          </Box>
+        </Flex>
+      </Box>
+    </Link>
   );
 }
 
@@ -214,7 +218,7 @@ export function Typeahead({ query, recent, onPick, onSubmit, onRemoveRecent, onC
     <Grid gap={{ xs: "md", lg: "xl" }} data-testid="typeahead-panel">
       <Grid.Column span={{ xs: 12, lg: 3 }}>
         <Stack spacing="xl" align="stretch">
-          {data && data.suggestions.length > 0 && <Suggestions items={data.suggestions} onPick={onPick} />}
+          {data && data.suggestions.length > 0 && <Suggestions items={data.suggestions} onPick={onPick} onNavigate={onNavigate} />}
           <Recent recent={recent} onPick={onPick} onRemove={onRemoveRecent} onClear={onClearRecent} />
         </Stack>
       </Grid.Column>

@@ -192,7 +192,7 @@ export async function search(params: SearchParams): Promise<SearchResponse> {
   };
 }
 
-const phrases = [...products.map((p) => ({ text: p.name, label: p.suggestionLabel })), ...Array.from(new Set(products.map((p) => p.collection).filter(Boolean) as string[])).map((c) => ({ text: c, label: "Collection" })), ...popularSearches.map((t) => ({ text: t, label: undefined as string | undefined }))];
+const phrases: Array<{ text: string; label?: string; href?: string }> = [...products.map((p) => ({ text: p.name, label: p.suggestionLabel, href: `/shop/products/${slugify(p.name)}` })), ...Array.from(new Set(products.map((p) => p.collection).filter(Boolean) as string[])).map((c) => ({ text: c, label: "Collection" })), ...popularSearches.map((t) => ({ text: t, label: undefined as string | undefined }))];
 
 export async function suggest(raw: string): Promise<SuggestResponse> {
   const q = await scenario(raw, latency.suggest);

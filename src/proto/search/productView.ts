@@ -28,13 +28,14 @@ const FEATURED_IMAGES: Record<string, string> = {
   "ylang-ylang-essential-oil": img.productYlangYlang,
   "metapwr-advantage": pdpImages.metapwrAdvantage,
   "metapwr-starter-system": pdpImages.metapwr,
+  "pb-restore": pdpImages.pbRestore,
+  "pb-restore-probiome-complex": pdpImages.pbRestore,
 };
 
 /** Dummy photos that show exactly the product they are named after, keyed by the product's name slug. */
 const DUMMY_OWN_IMAGES: Record<string, string> = {
   "eo-mega": imageFor("eo-mega"),
   "vmg": imageFor("vmg-plus"),
-  "pb-restore": imageFor("pb-restore"),
 };
 
 const imageOrUndefined = (p: Product): string | undefined =>
