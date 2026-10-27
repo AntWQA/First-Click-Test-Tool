@@ -10,7 +10,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
  * other people must never carry it, so this module is hard-wired to the empty fallback. There is deliberately no path
  * to any live data folder in this config.
  */
-function emptyLiveCatalogue(): Plugin {
+export function emptyLiveCatalogue(): Plugin {
   const id = "virtual:live-catalogue";
   const resolved = "\0" + id;
   return {

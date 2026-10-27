@@ -74,8 +74,8 @@ function SelfSetup() {
   useEnterPrimary(".p-setup button[type=submit]");
   const core = DEFAULT_CONTENT.tasks.filter((t) => !t.reserve);
   const scenarios = core.length;
-  // Task allowances plus a few minutes for the welcome and the final page, rounded to the nearest 5.
-  const minutes = Math.max(5, Math.round((core.reduce((n, t) => n + t.minutes, 0) + 6) / 5) * 5);
+  // Task allowances plus time for the welcome, the notes after each task, the closing questions and the final page (16 minutes, so the 12 core tasks read as 50), rounded to the nearest 5.
+  const minutes = Math.max(5, Math.round((core.reduce((n, t) => n + t.minutes, 0) + 16) / 5) * 5);
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const pid = id.trim();
@@ -100,10 +100,10 @@ function SelfSetup() {
         </ul>
         <section className="p-notice" aria-labelledby="notice-h">
           <h2 id="notice-h">How your results are used</h2>
-          <p>This study is run by <strong>{NOTICE.controller || "[organization not set]"}</strong>, who decides how your results are used.</p>
+          <p>This study is run by <strong>{NOTICE.controller}</strong>, who decides how your results are used.</p>
           <p>We record your code, whether you are a member, where you click, how long each step takes, the size of your browser window, and anything you type in the search box or the notes. We do not ask for your name. Nothing leaves your computer until you email us your results file, so we will also see the email address you send it from.</p>
           <p>We use it to find out how easy the website is to understand and use, and we report results together, not about individuals.</p>
-          <p>We keep your results for <strong>{NOTICE.retention || "[retention not set]"}</strong>. You can stop at any time. To see or delete your results, email <strong>{SEND_TO || "the researcher who gave you this tool"}</strong>.</p>
+          <p>We keep your results for <strong>{NOTICE.retention}</strong>. You can stop at any time. To see or delete your results, email <strong>{SEND_TO}</strong>.</p>
           <p>Please do not put your name, contact details or anything about your health in the search box or the notes.</p>
         </section>
         <label className="p-field p-setup-field" htmlFor="pid">Your code
@@ -174,7 +174,7 @@ function Finished({ session }: { session: Session }) {
         </label>
         <ol className="p-finish-steps">
           <li>Save your results file with the button below.</li>
-          <li>{SEND_TO ? <>Send it to <CopyEmail address={SEND_TO} after="." /></> : "Send it to the researcher who gave you this tool."}</li>
+          <li>Send it to <CopyEmail address={SEND_TO} after="." /></li>
         </ol>
         <div className="p-offer-actions">
           <button type="button" className="btn btn-primary btn-lg" onClick={save}><DownloadIcon />Save my results</button>

@@ -14,10 +14,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const file = pathToFileURL(process.env.WC_FILE ?? path.join(root, "dist-single", "wayfinding-check.html")).href;
 const old = JSON.parse(fs.readFileSync(path.join(root, "tests/fixtures/combined-default-2026-10-22.json"), "utf8"));
 const edited = structuredClone(old);
-edited.tasks.find((t) => t.id === "C7").scenario = "There are two ways to buy on the page. Describe them.";
+edited.tasks.find((t) => t.id === "C8").scenario = "There are two ways to buy on the page. Describe them.";
 
 const c = await launch({ width: 1500, height: 1000 });
-// The tasks the setup screen lists for a new session: the shipped test has eleven core tasks, C1 to C11.
+// The tasks the setup screen lists for a new session: the shipped test has twelve core tasks, C1 to C12.
 const planRows = async () => {
   await clickText(c, "button", "New session"); await c.waitPage("!!document.querySelector('.m-plan')", 8000, "the setup plan");
   const rows = await c.ev("[...document.querySelectorAll('.m-plan tbody tr')].map((r) => r.textContent.trim().slice(0, 7)).join('|')");
@@ -36,12 +36,12 @@ const load = async (saved) => {
 try {
   report(!(await (async () => { await c.goto(file); await c.waitPage("document.querySelectorAll('.m-tab').length === 3", 20000); return c.ev("[...document.querySelectorAll('.m-tab')].some((b) => b.textContent === 'Content')"); })()), "there is no Content tab");
   let rows = await load({ ...old, version: 5 });
-  report(/C1\b/.test(rows) && rows.split("|").length === 11, "a saved copy of an earlier default is not used: the setup lists the eleven tasks of the shipped test", rows);
+  report(/C1\b/.test(rows) && rows.split("|").length === 12, "a saved copy of an earlier default is not used: the setup lists the twelve tasks of the shipped test", rows);
   report((await c.ev("localStorage.getItem('wc.v1.content')")) === null, "and the saved copy is deleted");
   rows = await load(NAVIGATION_CONTENT);
-  report(!/T1\b/.test(rows) && rows.split("|").length === 11, "a saved navigation-only test is not used either (no T1 to T12 rows)", rows);
+  report(!/T1\b/.test(rows) && rows.split("|").length === 12, "a saved navigation-only test is not used either (no T-rows)", rows);
   rows = await load(edited);
-  report(rows.split("|").length === 11 && (await c.ev("localStorage.getItem('wc.v1.content')")) === null, "and neither is an edited copy, which is deleted too");
+  report(rows.split("|").length === 12 && (await c.ev("localStorage.getItem('wc.v1.content')")) === null, "and neither is an edited copy, which is deleted too");
   // A session that began on the earlier default, with nothing run yet, shows the current wording when it is resumed.
   const oldContent = validateContent(old);
   let sess = createSession({ id: "stale1", now: Date.now() - 60_000, participantId: "P1", content: oldContent.content });

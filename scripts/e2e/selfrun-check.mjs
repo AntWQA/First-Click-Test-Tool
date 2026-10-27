@@ -1,6 +1,6 @@
 // Acceptance for the participant edition (dist-single/wayfinding-check-participant.html): a participant sets themselves up,
 // works through scenarios with no moderator anywhere, ends, and saves a results file that the moderator tool can import.
-// Build first: npm run build:participant (add WC_SEND_TO=you@example.com to check an address, and set the same variable here).
+// Build first: npm run build:participant.
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -11,10 +11,9 @@ import { parseImport } from "../../src/shell/domain/exports.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const file = pathToFileURL(process.env.WC_FILE ?? path.join(root, "dist-single", "wayfinding-check-participant.html")).href;
-// Set WC_SEND_TO to the address the file was built with; leave it unset to check the file built without one.
-const SEND_TO = process.env.WC_SEND_TO ?? "";
-const CONTROLLER = process.env.WC_CONTROLLER ?? "";
-const RETENTION = process.env.WC_RETENTION ?? "";
+// The values the file carries are fixed in src/shell/edition.ts.
+import { NOTICE, SEND_TO } from "../../src/shell/edition.ts";
+const CONTROLLER = NOTICE.controller, RETENTION = NOTICE.retention;
 const downloads = fs.mkdtempSync(path.join(os.tmpdir(), "wc-sr-"));
 
 const c = await launch({ width: 1500, height: 1000 });
@@ -27,6 +26,7 @@ const setField = (sel, v) => c.ev(`(()=>{const el=document.querySelector(${JSON.
 const basics = "document.querySelectorAll('h1').length === 1 && [...document.querySelectorAll('input, select, textarea')].every((e) => e.labels && e.labels.length > 0) && [...document.querySelectorAll('button:not(.p-copy), .p-textlink, .p-admin-btn')].every((b) => b.getBoundingClientRect().height >= 40)";
 const admin = async (item) => { await clickText(c, ".p-admin-btn", "Admin", { startsWith: true }); await clickText(c, ".p-admin-item", item); };
 async function skipTour() { try { await c.waitPage("!!document.querySelector('.tour-tip')", 4000, "the tour"); await clickText(c, ".tour-tip button", "Skip"); await sleep(150); } catch { /* not shown */ } }
+const recaps = [];
 async function doScenario(ease) {
   await c.clearMsgs();
   await c.ev("[...document.querySelectorAll('.p-task-card .btn')].find(b=>b.textContent.trim().startsWith('Begin')).click()");
@@ -35,6 +35,7 @@ async function doScenario(ease) {
   await sleep(200);
   await c.ev("[...document.querySelectorAll('.p-actions .btn')].find(b=>b.textContent==='I can\\'t find it'||b.textContent.trim()==='Done').click()");
   await wait("overall, how easy was it");
+  recaps.push(await c.ev("document.querySelector('[data-testid=questions-again]')?.innerText ?? ''"));
   await c.ev(`document.querySelector('input[name=ease][value="${ease}"]').click()`);
   await c.ev(`document.querySelector('input[name=confidence][value="5"]')?.click()`);
   await clickText(c, "button", "Done");
@@ -47,7 +48,7 @@ try {
   const headerOnlyTheme = "document.querySelectorAll('header button').length === 1 && /mode/i.test(document.querySelector('header button').getAttribute('aria-label') ?? '') && document.querySelectorAll('header a, .m-tab').length === 0";
   report(await c.ev(headerOnlyTheme), "the header carries the brand and one light/dark button: no tabs, no shortcuts button");
   report(!(await has("Ledger")) && !(await has("Content")) && !(await has("Preview")) && !(await has("moderator")), "no moderator wording or screens are anywhere on it");
-  report(await has("11 short scenarios"), "it says how many scenarios there are");
+  report(await has("12 short scenarios"), "it says how many scenarios there are");
   report(await has("We are testing the website, not you."), "the intro says the website is being tested, not the participant");
   report(await c.ev(basics), "setup: one h1, every field has a visible label, every control is at least 40px tall");
 
@@ -79,8 +80,8 @@ try {
   await setField("#pid", "P 7"); await clickText(c, "button[type=submit]", "Start", { startsWith: true });
   report(await has("letters and numbers only"), "a code with a space is refused");
   await setField("#pid", "SR1");
-  report(await has("How your results are used") && (CONTROLLER ? await has(CONTROLLER) : await has("[organization not set]")) && (RETENTION ? await has(RETENTION) : await has("[retention not set]")), "setup shows a privacy notice naming who runs the study and how long results are kept", `${CONTROLLER} / ${RETENTION}`);
-  report((SEND_TO ? await has(SEND_TO) : await has("the researcher who gave you this tool")) && (await has("do not put your name")), "the notice says where to send or ask for deletion, and warns against names and health details");
+  report(await has("How your results are used") && (await has(CONTROLLER)) && (await has(RETENTION)) && !(await has("not set]")), "setup shows a privacy notice naming who runs the study and how long results are kept", `${CONTROLLER} / ${RETENTION}`);
+  report((await has(SEND_TO)) && (await has("do not put your name")), "the notice says where to send or ask for deletion, and warns against names and health details");
   report(await c.ev("document.querySelector('#adult')?.type === 'checkbox' && !document.querySelector('#adult').checked"), "there is an unticked age statement, I am 18 or over");
   // On a short laptop screen the setup card is taller than the window: its top must still be reachable, and so must Start.
   await c.resize(1100, 640);
@@ -106,13 +107,14 @@ try {
   report(await c.ev(headerOnlyTheme), "the scenario screens have the same single light/dark button and nothing else");
   await clickText(c, ".tour-tip button", "Skip"); await sleep(200);
   await doScenario(3);
+  report(/questions again/i.test(recaps[0] ?? "") && /What does dōTERRA sell\?/.test(recaps[0]) && /Who are its products for\?/.test(recaps[0]) && /What makes dōTERRA different/.test(recaps[0]), "after the first scenario the notes screen repeats its three questions above the notes box", (recaps[0] ?? "").replace(/\s+/g, " "));
   await wait("Ready for the next scenario?");
-  report((await has("Scenario 2 of 11")) && !(await has("Researcher: continue")), "after a scenario the next one is offered at once, with no hand-back");
+  report((await has("Scenario 2 of 12")) && !(await has("Researcher: continue")), "after a scenario the next one is offered at once, with no hand-back");
 
   // Closing the window part-way through must not lose anything.
   await c.send("Page.reload"); await sleep(900);
   await wait("Ready for the next scenario?", 20000);
-  report(await has("Scenario 2 of 11"), "reloading part-way through carries on at the same place");
+  report(await has("Scenario 2 of 12"), "reloading part-way through carries on at the same place");
 
   // Ctrl+Shift+M is the moderator's end-early menu; it does not exist here.
   await c.send("Input.dispatchKeyEvent", { type: "keyDown", key: "M", code: "KeyM", modifiers: 10 });
@@ -134,7 +136,7 @@ try {
   report(!(await has("Researcher: continue")) && !(await has("hand the device")), "ending early lands on the results page, not a hand-back screen");
   report(await has("You finished 2 scenarios"), "it says how many scenarios were finished");
   report(await c.ev(basics), "results page: one h1, every field has a visible label, every control is at least 40px tall");
-  report(SEND_TO ? await has(SEND_TO) : await has("Send it to the researcher who gave you this tool"), "it tells the participant where to send the file", SEND_TO || "no address built in");
+  report(await has(SEND_TO), "it tells the participant where to send the file", SEND_TO);
   report(await c.ev(headerOnlyTheme), "the results page has the same single light/dark button and nothing else");
 
   await setField("#fin-notes", "The Learn menu was not what I expected.");

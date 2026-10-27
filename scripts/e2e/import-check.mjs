@@ -18,10 +18,10 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wc-imp-"));
 const T0 = Date.now() - 60_000;
 let n = 0;
 
-/** A participant-edition session with C8 (Sleep) done: a correct click when `right`, otherwise a wrong one. */
+/** A participant-edition session with C9 (Sleep) done: a correct click when `right`, otherwise a wrong one. */
 function selfRun(id, code, right) {
   let s = createSession({ id, now: T0, participantId: code, selfRun: true, content: DEFAULT_CONTENT });
-  s = { ...s, order: ["C8"], plan: { C8: "desktop" } };
+  s = { ...s, order: ["C9"], plan: { C9: "desktop" } };
   s = reduce(s, { type: "start", at: T0 });
   s = reduce(s, { type: "present", at: T0, runId: "r" + ++n });
   s = reduce(s, { type: "begin", at: T0 + 1000, scale: 1 });
@@ -39,7 +39,7 @@ const write = (name, sessions, tweak) => {
 };
 const clean = write("doterra_research_SR1_2026-10-16.json", [selfRun("ok1", "SR1", true)]);
 const clash = write("doterra_research_SR1_clash.json", [selfRun("evil1", "sr1", false)], (b) => { b.sessions[0].createdAt = Date.now() + 80_000_000; });
-const forged = write("doterra_research_SR2.json", [selfRun("forge", "SR2", false)], (b) => { b.sessions[0].content.tasks.find((t) => t.id === "C8").primary = [{ href: "/learn/essential-oils/discover-solutions" }]; b.sessions[0].runs[0].moderator = { menu: "U", observed: "forged", interpretation: "", expected: "", secondChance: "", overrideReason: "", reviewed: true, tier: "P", code: null, level1: true }; });
+const forged = write("doterra_research_SR2.json", [selfRun("forge", "SR2", false)], (b) => { b.sessions[0].content.tasks.find((t) => t.id === "C9").primary = [{ href: "/learn/essential-oils/discover-solutions" }]; b.sessions[0].runs[0].moderator = { menu: "U", observed: "forged", interpretation: "", expected: "", secondChance: "", overrideReason: "", reviewed: true, tier: "P", code: null, level1: true }; });
 const weirdCode = write("doterra_research_weird.json", [selfRun("w1", "SR3", true)], (b) => { b.sessions[0].participantId = "SР3"; });
 const flood = write("flood.json", [selfRun("f0", "F0", true)], (b) => { const one = b.sessions[0]; b.sessions = Array.from({ length: 101 }, (_, i) => ({ ...structuredClone(one), id: "f" + i, participantId: "F" + i })); });
 
@@ -83,7 +83,7 @@ try {
   await pick(forged);
   await c.waitPage("!!document.querySelector('dialog[open]')", 6000, "the third review");
   d = await dialog();
-  report(/Scored against your tasks/.test(d) && /C8/.test(d), "a forged answer key is replaced by this tool's, and the review says so");
+  report(/Scored against your tasks/.test(d) && /C9/.test(d), "a forged answer key is replaced by this tool's, and the review says so");
   await clickText(c, "dialog button", "Import 1 session"); await wait("Imported 1 session");
   await clickText(c, ".m-tab", "Ledger"); await wait("Add or edit findings");
   const ledger = await c.ev("[...document.querySelectorAll('.m-ledger tbody tr')].map((tr) => tr.innerText.replace(/\\s+/g, ' ')).join(' | ')");

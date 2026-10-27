@@ -12,10 +12,10 @@ import { leaf, open, ready } from "./helpers.ts";
 const T0 = 1_700_000_000_000;
 const Q = (id: string) => DEFAULT_CONTENT.closingQuestions!.find((q) => q.id === id)!;
 
-/** A self-run session with C8 done and the reserves declined: at the hand-back screen, where the closing questions come. */
+/** A self-run session with C9 done and the reserves declined: at the hand-back screen, where the closing questions come. */
 function atHandBack(id = "s1", pid = "SR1"): Session {
   let s = createSession({ id, now: T0, participantId: pid, selfRun: true, content: DEFAULT_CONTENT });
-  s = { ...s, order: ["C8"], plan: { C8: "desktop" } };
+  s = { ...s, order: ["C9"], plan: { C9: "desktop" } };
   s = reduce(s, { type: "start", at: T0 });
   s = reduce(s, { type: "present", at: T0, runId: "r" + id });
   s = reduce(s, { type: "begin", at: T0 + 1000, scale: 1 });
@@ -183,9 +183,9 @@ test("a saved copy of version 10 (promo bar still shown) is replaced by the curr
 
 test("a saved copy of version 11 (C9 notes say T1) is replaced by the current default", () => {
   const old = JSON.parse(readFileSync(new URL("./fixtures/combined-default-v11.json", import.meta.url), "utf8"));
-  assert.match(old.tasks.find((t: { id: string }) => t.id === "C9").needBack.join(" "), /Compare with T1/, "the fixture is the version that names T1");
+  assert.match(old.tasks.find((t: { title: string }) => t.title === "Cough").needBack.join(" "), /Compare with T1/, "the fixture is the version that names T1");
   const backing = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
   const loaded = createStore(backing, () => 1).loadContent();
-  assert.match(loaded.tasks.find((t) => t.id === "C9")!.needBack.join(" "), /Compare with C8/);
+  assert.match(loaded.tasks.find((t) => t.title === "Cough")!.needBack.join(" "), /Compare with C9/);
   assert.equal(backing.getItem("wc.v1.content"), null);
 });

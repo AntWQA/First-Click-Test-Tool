@@ -246,7 +246,7 @@ export const NAVIGATION_CONTENT: Content = {
 // ---------------------------------------------------------------------------------------------------------------------
 // The combined test: homepage, product page and navigation in one session of no more than 50 minutes (44 core, up to 4 for
 // reserves, 2 spare). Task ids, wording, allowances and hypotheses (CH1 to CH13) come from the "Combined test" plan in Figma.
-// C1 to C3 (homepage) and C4 to C7 (product page) run in this order; C8 to C11 (navigation) run in a seeded order with Sleep and
+// C1 to C3 (homepage) and C4 to C8 (product page) run in this order; C9 to C12 (navigation) run in a seeded order with Sleep and
 // Cough never adjacent. Reserves are offered to the participant only if time allows.
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -296,8 +296,8 @@ export const COMBINED_TASKS: Task[] = [
   }),
   mk({
     id: "C3", title: "First product", kind: "observe", block: "homepage", minutes: 3, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH4", "CH9"], readsMenu: true,
-    scenario: "You have heard about dōTERRA MetaPWR Advantage, a daily supplement, and want to find out more about it. Show me what you would do, starting from the homepage, and what you would do next.",
-    notesPrompt: "How did you look for dōTERRA MetaPWR Advantage, and what would you do next?",
+    scenario: "You have heard about dōTERRA MetaPWR Advantage, a daily supplement, and want to find out more about it. Show me what you would do, starting from the homepage.",
+    notesPrompt: "How did you look for dōTERRA MetaPWR Advantage?",
     primary: [], acceptable: [], separate: [],
     codes: [
       { id: "route", label: "First route", options: ["Hero Shop best sellers", "Best sellers carousel", "Category carousel", "Header Shop menu", "Search", "Offers", "Other"] },
@@ -307,31 +307,40 @@ export const COMBINED_TASKS: Task[] = [
     needBack: ["First meaningful action, and its route code", "The order of every route tried", "Whether they reached the MetaPWR Advantage page, and how long it took", "On mobile: whether the carousel was moved (observed)", "Whether a header menu opened unprompted"],
   }),
   mk({
-    id: "C4", title: "First view and labels", kind: "observe", block: "product", minutes: 4, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH5", "CH6", "CH7", "CH9"],
+    id: "C4", title: "Product first view", kind: "observe", block: "product", minutes: 3, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH5", "CH7", "CH9"],
     leadIns: {
       homepage: `You opened the ${PRODUCT_A_NAME} page from the best sellers on the dōTERRA homepage.`,
       google: "You searched for MetaPWR Advantage and opened the dōTERRA result.",
       shared: `A friend sent you a link to the ${PRODUCT_A_NAME} page and said: "MetaPWR Advantage is the one I take."`,
     },
-    scenario: `Before you scroll, tell me what you think ${PRODUCT_A_NAME} is for, whether it would suit you if you wanted a daily supplement to support your energy, and how you would use it.`,
-    questions: ["Then, pointing at the labels under Can be used on the page: tell me what each label means."],
-    notesPrompt: `What is ${PRODUCT_A_NAME} for, would it suit you, and how would you use it? What do the Can be used labels mean?`,
+    scenario: `Tell me what you think ${PRODUCT_A_NAME} is for, how you would use it, and whether or not you would take it daily to support your energy.`,
+    notesPrompt: `What is ${PRODUCT_A_NAME} for, how would you use it, and would you take it daily to support your energy?`,
     primary: [], acceptable: [], separate: [],
     codes: [
       { id: "purpose", label: "What it is for", options: ["Correct", "Partial", "Not clear", "Wrong"] },
-      { id: "suits", label: "Whether it suits the concern", options: ["Yes, with a reason from the page", "Yes, without a reason", "No", "Cannot say"] },
       { id: "howTo", label: "How to use it", options: ["Names a way", "Does not"] },
+      { id: "suits", label: "Whether they would take it daily to support their energy", options: ["Yes, with a reason from the page", "Yes, without a reason", "No", "Cannot say"] },
+    ],
+    watchFor: "Thinks it is a food or a drink rather than a supplement. Reads a badge (Best seller, 25% off) as the product claim. Cannot say anything about use. Answers without looking at the page, or scrolls before answering. The Google and shared link routes are text only for now: the page opens directly, with no search results or message mock-up.",
+    needBack: ["Spoken answers and codes: purpose, how to use, and whether they would take it daily", "Arrival route, device and customer type", "What they looked at before answering", "Time to first answer", "Doubt log entries, with seconds since arrival"],
+  }),
+  mk({
+    id: "C5", title: "Can be used labels", kind: "observe", block: "product", minutes: 2, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH6"],
+    scenario: `On the page for ${PRODUCT_A_NAME}, find the labels under Can be used and tell me what each label means.`,
+    notesPrompt: "What does each of the Can be used labels mean?",
+    primary: [], acceptable: [], separate: [],
+    codes: [
       { id: "labelEnergise", label: "Label: Energise", options: LABEL_CODES },
       { id: "labelBodyCare", label: "Label: Body Care", options: LABEL_CODES },
       { id: "labelActive", label: "Label: Active", options: LABEL_CODES },
       { id: "labelSeasons", label: "Label: Seasons", options: LABEL_CODES },
       { id: "labelHelp", label: "Hovered or tapped a label for help", options: YES_NO },
     ],
-    watchFor: "Thinks it is a food or a drink rather than a supplement. Reads a badge (Best seller, 25% off) as the product claim. Cannot say anything about use. Hovers or taps a label for help (counted as help). Scrolls before answering. The Google and shared link routes are text only for now: the page opens directly, with no search results or message mock-up.",
-    needBack: ["Spoken answers and codes: purpose, suits, how to use, and each label", "Arrival route, device and customer type", "What they looked at before answering", "Time to first answer", "Doubt log entries, with seconds since arrival"],
+    watchFor: "Cannot find the labels (they sit in Things to know, under Cautions). Guesses from the word alone. Hovers or taps a label for help (counted as help). Says a label is not a button. Thinks the labels are filters or product categories.",
+    needBack: ["Each label's spoken meaning, coded Correct, Partial, Wrong or Cannot say", "Help taken on labels (hover or tap)", "How long it took to find the labels", "Doubt log entries, with seconds since arrival"],
   }),
   mk({
-    id: "C5", title: "What makes you sure", kind: "observe", block: "product", minutes: 3, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH8", "CH9"],
+    id: "C6", title: "What makes you sure", kind: "observe", block: "product", minutes: 3, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: false, hypotheses: ["CH8", "CH9"],
     scenario: `You are thinking about buying ${PRODUCT_A_NAME}. Have a look around its page and tell me, out loud, anything that makes you more sure or less sure.`,
     confidence: confidenceBuy(PRODUCT_A_NAME),
     notesPrompt: "What made you more sure, and what made you less sure?",
@@ -344,7 +353,7 @@ export const COMBINED_TASKS: Task[] = [
     needBack: ["Signals touched, in order, with the words used", "Unprompted doubt, logged with its zone and seconds since arrival", "Confidence 1 to 7 at the end", "Whether they left the page to check elsewhere"],
   }),
   mk({
-    id: "C6", title: "What would I pay", kind: "click", block: "product", minutes: 2.5, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH10"],
+    id: "C7", title: "What would I pay", kind: "click", block: "product", minutes: 2.5, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH10"],
     scenario: `You decide to buy one box of ${PRODUCT_A_NAME} and have it delivered to your home. Without leaving its page, tell me what you would pay in total.`,
     notesPrompt: "What would you pay in total, and how did you work it out?",
     primary: [{ zone: "shipping", note: "Opens the Shipping options overlay from the shipping line" }], acceptable: [], separate: [],
@@ -356,34 +365,31 @@ export const COMBINED_TASKS: Task[] = [
     needBack: ["Spoken total, coded: Correct, Price only, Wrong, Gave up", "Path: opened Shipping options, scrolled, left the page", "Time to answer", "Whether they read the free shipping line as applying to them"],
   }),
   mk({
-    id: "C7", title: "Two ways to buy, and choose", kind: "click", block: "product", minutes: 4, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH11"],
+    id: "C8", title: "Two ways to buy", kind: "click", block: "product", minutes: 3, start: PRODUCT_A, breakpoints: BOTH, reserve: false, highRisk: true, hypotheses: ["CH11"],
     scenario: `There is more than one way to buy ${PRODUCT_A_NAME} on its page. Tell me what you think each way is and how they differ. What would you have to do to get the lower price, and how much would you save?`,
-    questions: [`Then decide which way you would buy ${PRODUCT_A_NAME}, get it ready to buy, and tell me how sure you feel.`],
-    confidence: "How sure are you about your choice?",
-    notesPrompt: "What is each way to buy, how do they differ, and which would you choose?",
-    primary: [{ zone: "option-account", note: "Selects the account option to see its price" }, { zone: "add-to-cart", note: "Add item to cart, with their chosen option selected" }],
-    acceptable: [{ zone: "quantity", note: "Changes the quantity first, then adds" }, { zone: "price-info", note: "Opens the price tooltip (Did you know?) or its Show me the membership price action" }],
-    separate: [{ zone: "option-one-time", note: "Either option is a valid choice; the choice is recorded" }],
+    notesPrompt: "What is each way to buy, and how do they differ?",
+    primary: [{ zone: "option-account", note: "Selects the account option to see its price" }],
+    acceptable: [{ zone: "quantity", note: "Changes the quantity first" }, { zone: "price-info", note: "Opens the price tooltip (Did you know?) or its Show me the membership price action" }],
+    separate: [{ zone: "option-one-time", note: "Looks at the one time option first or again" }, { zone: "add-to-cart", note: "Adds to the cart: the task does not ask for it, so it is recorded only" }],
     codes: [
       { id: "whatItIs", label: "Says what the lower price is (a lower price for account holders)", options: YES_NO },
       { id: "howToGet", label: "Says how to get it (create an account)", options: YES_NO },
       { id: "costToJoin", label: "Says whether it costs anything to join", options: ["Correct", "Wrong", "Not mentioned"] },
       { id: "saving", label: "Says the saving", options: ["Correct", "Wrong", "Not mentioned"] },
-      { id: "choice", label: "Option chosen", options: ["One time purchase", "Create an account and save", "Neither"] },
     ],
-    watchFor: "Thinks the lower price is a sale or a coupon. Thinks it needs a subscription or a bigger order. Ignores the account option. Uses the info icon beside the price, or not. Adds before choosing, taking the default without noticing. Cannot find the button. Looks for Buy now. Leaves to compare.",
-    needBack: ["Click on the account option (scored)", "Spoken answer, coded on the four elements", "Option chosen, and the Add item to cart click (scored). The saving to expect is $28.17 for one box", "Confidence 1 to 7, and their reason", "Hesitation on the button, 5 seconds or more"],
+    watchFor: "Thinks the lower price is a sale or a coupon. Thinks it needs a subscription or a bigger order. Ignores the account option. Uses the info icon beside the price, or not. Adds to the cart without being asked. Leaves to compare.",
+    needBack: ["Click on the account option (scored)", "Spoken answer, coded on the four elements. The saving to expect is $28.17 for one box", "Hesitation before the first click, 5 seconds or more"],
   }),
-  fromNavigation("T1", "C8", { hypotheses: ["CH12"] }),
-  fromNavigation("T2", "C9", {
-    hypotheses: ["CH12"], apartFrom: "C8",
-    needBack: ["Scan behaviour across the 11 goals: time from menu open to click, and whether the pointer passed over the target", "Compare with C8: does symptom wording score lower than goal wording?"],
+  fromNavigation("T1", "C9", { hypotheses: ["CH12"] }),
+  fromNavigation("T2", "C10", {
+    hypotheses: ["CH12"], apartFrom: "C9",
+    needBack: ["Scan behaviour across the 11 goals: time from menu open to click, and whether the pointer passed over the target", "Compare with C9: does symptom wording score lower than goal wording?"],
   }),
-  fromNavigation("T9", "C10", {
+  fromNavigation("T9", "C11", {
     hypotheses: ["CH13"],
     needBack: ["Which Rewards link, and why. The closing question on screen asks what the Rewards links mean; do not explain them first", "Whether the dropdown opened without a prompt", "Member (WA, WC) and non-member results shown separately"],
   }),
-  fromNavigation("T10", "C11", { hypotheses: ["CH13"], acceptable: [{ href: "/learn/business/path-to-500" }] }),
+  fromNavigation("T10", "C12", { hypotheses: ["CH13"], acceptable: [{ href: "/learn/business/path-to-500" }] }),
   mk({
     id: "R1", title: "Reserve: best sellers", kind: "observe", block: "homepage", minutes: 1.5, breakpoints: ["mobile"], reserve: true, highRisk: false, hypotheses: ["CH4"],
     scenario: "You would like to see which dōTERRA products other people buy most. Look through those products and tell me which two you would look at first.",
@@ -465,8 +471,9 @@ export const DEFAULT_CONTENT: Content = {
   // Version 9: the product page is the updated PDP for MetaPWR Advantage (US prices), which is also the first best seller on the homepage; C3 asks for it by name.
   // Version 10: the closing questions are multiple choice (with Other), the video question is Yes, No or Don't know, and the ranking is drag and drop.
   // Version 11: the global promo bar is hidden on the homepage, so the C1 notes no longer mention it.
-  // Version 12: the moderator notes of C9 and C10 name the tasks of this test (C8, the closing question on screen) instead of the navigation-only test's.
-  version: 12,
+  // Version 12: the moderator notes of C10 and C11 name the tasks of this test (C9, the closing question on screen) instead of the navigation-only test's.
+  // Version 13: facilitator feedback. C3 no longer adds "and what you would do next". C4 is the shorter "Tell me what you think MetaPWR Advantage is for, how you would use it, and whether or not you would take it daily to support your energy". The Can be used labels are their own task (C5), so C5 to C11 became C6 to C12, and the two ways to buy task (now C8) no longer asks them to choose and add, so it has no confidence rating.
+  version: 13,
   updatedAt: "2026-10-27T00:00:00.000Z",
   tasks: COMBINED_TASKS,
   devicePerParticipant: true,

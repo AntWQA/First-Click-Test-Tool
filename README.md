@@ -8,18 +8,19 @@ Participants see the name **Wayfinding Check**, which keeps the method out of vi
 
 ## The combined test
 
-One session, one device, three blocks in a fixed order: **homepage** (C1 to C3), **product page** (C4 to C7), **navigation** (C8 to C11). Task allowances add to 34 minutes; with the welcome, debrief and buffer the plan is 44 core minutes, and the setup screen shows the estimate.
+One session, one device, three blocks in a fixed order: **homepage** (C1 to C3), **product page** (C4 to C8), **navigation** (C9 to C12). Task allowances add to 34 minutes; with the welcome, debrief and buffer the plan is 44 core minutes, and the setup screen shows the estimate.
 
 | Task | Block | Kind | What it reads |
 |---|---|---|---|
 | C1 First view | Homepage | observe | What the participant says the site sells and what is different (coded) |
 | C2 Looking for proof | Homepage | click | First click for evidence of quality, scored by zone |
 | C3 First product | Homepage | observe | Finding MetaPWR Advantage (first best seller) from the homepage; the first menu use is read here |
-| C4 First view and labels | Product page | observe | Understanding the first view and the Can be used labels; arrival line differs by route |
-| C5 What makes you sure | Product page | observe | Reviews, trust and doubt |
-| C6 What would I pay | Product page | click | First click for the shipping information |
-| C7 Two ways to buy, and choose | Product page | click | The account option and Add item to cart count as the intended route; the other buy choice is recorded on its own |
-| C8 to C11 | Navigation | nav | Sleep, Cough, Savings, Income (the old T1, T2, T9, T10), scored as before on two levels |
+| C4 Product first view | Product page | observe | What it is for, how they would use it, and whether they would take it daily; arrival line differs by route |
+| C5 Can be used labels | Product page | observe | What each Can be used label means, without help |
+| C6 What makes you sure | Product page | observe | Reviews, trust and doubt |
+| C7 What would I pay | Product page | click | First click for the shipping information |
+| C8 Two ways to buy | Product page | click | The account option is the intended click; adding to the cart is recorded on its own |
+| C9 to C12 | Navigation | nav | Sleep, Cough, Savings, Income (the old T1, T2, T9, T10), scored as before on two levels |
 | R1 best sellers, R2 no reviews yet | Reserves | observe | R1 is for mobile participants only; R2 uses the product with no reviews |
 
 **Task kinds.** *nav* is scored on the link chosen (two levels). *click* is scored on the **first click**, by named zone of the page (the prototype tags each part of the homepage and product page with `data-zone`; the recorder reports the nearest one) or by a header route or the footer. *observe* is not scored: the first click is kept, and the participant's answers are coded by the moderator afterwards from short agreed lists (the Review screen). Observe tasks show only **Done** on screen, no "I found it" and no "I can't find it".
@@ -62,12 +63,12 @@ Open the file in **Chrome or Edge** on a desktop machine. Make the window at lea
 ### Tabs
 - **Sessions**: every session, resume or view, delete, download all, import.
 - **Ledger**: per task and breakpoint, with a Reviewed column and a list for adding findings (each participant once per task, even if their ID was run more than once: the newest session wins; titles and targets come from what each session actually ran, so editing Content never drops or merges results, and a row says when it mixes content versions), the Level 1 and Level 2 counts, verdict, median time to first interaction, mean ease, confident-wrong count, prompts, final column (for duplicated answers) and misread sections. Exports Markdown, CSV (one row per run) and JSON.
-- **Tasks**: there is no Content tab. The 13 tasks of the combined test (11 core, 2 reserve), the closing questions and the one-device-per-participant switch are in `src/shell/domain/tasks.ts`; change them there and rebuild. The end-to-end checks open the short four task cut with `?wc-test=reduced-navigation` on the file address (nothing in the tool links to it).
+- **Tasks**: there is no Content tab. The 14 tasks of the combined test (12 core, 2 reserve), the closing questions and the one-device-per-participant switch are in `src/shell/domain/tasks.ts`; change them there and rebuild. The end-to-end checks open the short four task cut with `?wc-test=reduced-navigation` on the file address (nothing in the tool links to it).
 - **Preview**: the prototype at each breakpoint with a live view of what the recorder reports. Use it to rehearse. Nothing is saved.
 
 ## Participant edition (self-run)
 
-`npm run build:participant` builds a second file, `dist-single/wayfinding-check-participant.html`, for sending to a participant to do on their own. A public file needs three settings, and the build refuses to make one without them: `WC_SEND_TO` (where participants send the file and ask to see or delete their results), `WC_CONTROLLER` (who runs the study) and `WC_RETENTION` (how long results are kept), for example `WC_SEND_TO=research@example.com WC_CONTROLLER="Example Ltd" WC_RETENTION="12 months" npm run build:participant`. They appear in the privacy notice on the setup screen and on the finish page. Setup also asks the participant to confirm they are 18 or over. For local testing only, `WC_ALLOW_MISSING=1` builds without them and shows "[organization not set]" placeholders.
+`npm run build:participant` builds a second file, `dist-single/wayfinding-check-participant.html`, for sending to a participant to do on their own. It needs no settings: the privacy notice and the finish page carry fixed values, who runs the study (doTERRA International, LLC), how long results are kept (12 months) and where to send the file (usability@doterra.com), set once in `src/shell/edition.ts`. Setup also asks the participant to confirm they are 18 or over.
 
 What the participant gets: one setup screen (what to expect, their code, whether they are a member), straight on to the scenarios with the onboarding tour on the first, and at the end a page where they add an optional note and **Save my results** (or **Copy instead**, for browsers that block downloads). They never see tabs, the shortcuts panel, the theme button, a hand-back screen or any moderator wording, and Ctrl+Shift+M does nothing. If they close the window part-way through, reopening the file carries on where they were; ending early (the End session link) goes to the same results page.
 

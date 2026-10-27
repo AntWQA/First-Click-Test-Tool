@@ -17,9 +17,9 @@ const zoneClick = (zone: string, at: number, kind: "other" | "nav-top" | "nav-le
 const apply = (s: Session, ...actions: Action[]) => actions.reduce(reduce, s);
 const ids = (s: Session) => s.order;
 
-test("the default content is the combined test: 11 core tasks, 2 reserves, 34 task minutes, valid and without em dashes", () => {
+test("the default content is the combined test: 12 core tasks, 2 reserves, 34 task minutes, valid and without em dashes", () => {
   assert.equal(validateContent(DEFAULT_CONTENT).ok, true);
-  assert.deepEqual(COMBINED_TASKS.filter((t) => !t.reserve).map((t) => t.id), ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11"]);
+  assert.deepEqual(COMBINED_TASKS.filter((t) => !t.reserve).map((t) => t.id), ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"]);
   assert.deepEqual(COMBINED_TASKS.filter((t) => t.reserve).map((t) => t.id), ["R1", "R2"]);
   const core = COMBINED_TASKS.filter((t) => !t.reserve).reduce((n, t) => n + t.minutes, 0);
   assert.equal(core, 34, "34 minutes of tasks plus 4 welcome, 4 debrief and 2 buffer make the plan's 44 core minutes");
@@ -31,12 +31,12 @@ test("the default content is the combined test: 11 core tasks, 2 reserves, 34 ta
 });
 
 test("the four navigation tasks are the plan's high-risk tasks, with their original targets", () => {
-  assert.deepEqual(COMBINED_TASKS.filter((t) => t.block === "navigation").map((t) => t.id), ["C8", "C9", "C10", "C11"]);
-  assert.equal(task("C8").primary[0]!.href, "/shop/goal/sleep-solutions");
-  assert.equal(task("C9").primary[0]!.href, "/shop/goal/respiratory-solutions");
-  assert.equal(task("C10").primary[0]!.href, "/rewards/wholesale-membership");
-  assert.equal(task("C11").primary[0]!.href, "/learn/business/business-opportunity");
-  assert.equal(task("C9").apartFrom, "C8");
+  assert.deepEqual(COMBINED_TASKS.filter((t) => t.block === "navigation").map((t) => t.id), ["C9", "C10", "C11", "C12"]);
+  assert.equal(task("C9").primary[0]!.href, "/shop/goal/sleep-solutions");
+  assert.equal(task("C10").primary[0]!.href, "/shop/goal/respiratory-solutions");
+  assert.equal(task("C11").primary[0]!.href, "/rewards/wholesale-membership");
+  assert.equal(task("C12").primary[0]!.href, "/learn/business/business-opportunity");
+  assert.equal(task("C10").apartFrom, "C9");
 });
 
 test("content validation: kinds, zones, codes, start pages and apartFrom are checked", () => {
@@ -45,12 +45,12 @@ test("content validation: kinds, zones, codes, start pages and apartFrom are che
   assert.ok(bad((c) => { c.tasks[0]!.kind = "banana" as never; }).some((e) => /kind/.test(e)));
   assert.ok(bad((c) => { c.tasks[1]!.primary = [{ zone: "Bad Zone" }]; }).some((e) => /zone/.test(e)));
   assert.ok(bad((c) => { c.tasks[0]!.primary = [{ href: "/shop" }]; }).some((e) => /observe task has no targets/.test(e)));
-  assert.ok(bad((c) => { c.tasks[7]!.primary = [{ zone: "quality" }]; }).some((e) => /only a click task/.test(e)));
+  assert.ok(bad((c) => { c.tasks[8]!.primary = [{ zone: "quality" }]; }).some((e) => /only a click task/.test(e)));
   assert.ok(bad((c) => { c.tasks[1]!.primary = [{ href: "/shop", zone: "quality" }]; }).some((e) => /not both/.test(e)));
   assert.ok(bad((c) => { c.tasks[0]!.codes.push({ ...c.tasks[0]!.codes[0]! }); }).some((e) => /used twice/.test(e)));
   assert.ok(bad((c) => { c.tasks[0]!.codes[0]!.options = ["only one"]; }).some((e) => /2 to 12/.test(e)));
   assert.ok(bad((c) => { c.tasks[3]!.start = "https://example.com"; }).some((e) => /start must be a path/.test(e)));
-  assert.ok(bad((c) => { c.tasks[8]!.apartFrom = "C99"; }).some((e) => /apartFrom/.test(e)));
+  assert.ok(bad((c) => { c.tasks[9]!.apartFrom = "C99"; }).some((e) => /apartFrom/.test(e)));
   assert.ok(bad((c) => { c.tasks[0]!.minutes = 99; }).some((e) => /minutes/.test(e)));
   assert.ok(bad((c) => { c.tasks[0]!.scenario = "a — b"; }).some((e) => /em dash/.test(e)));
   assert.ok(bad((c) => { c.debrief = ["x — y"]; }).some((e) => /debrief contains an em dash/.test(e)));
@@ -68,9 +68,9 @@ test("tasks written before the combined test read as navigation tasks starting o
 test("order: the homepage and product page tasks stay in order, the navigation tasks follow, and Sleep and Cough are never adjacent", () => {
   for (let i = 1; i <= 60; i++) {
     const o = sessionOrder(DEFAULT_CONTENT, "P" + i, undefined, deviceFor(DEFAULT_CONTENT, "P" + i));
-    assert.deepEqual(o.slice(0, 7), ["C1", "C2", "C3", "C4", "C5", "C6", "C7"], "P" + i);
-    assert.deepEqual([...o.slice(7)].sort(), ["C10", "C11", "C8", "C9"]);
-    assert.notEqual(Math.abs(o.indexOf("C8") - o.indexOf("C9")), 1, `P${i} has Sleep and Cough adjacent: ${o.join(",")}`);
+    assert.deepEqual(o.slice(0, 8), ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"], "P" + i);
+    assert.deepEqual([...o.slice(8)].sort(), ["C10", "C11", "C12", "C9"]);
+    assert.notEqual(Math.abs(o.indexOf("C9") - o.indexOf("C10")), 1, `P${i} has Sleep and Cough adjacent: ${o.join(",")}`);
   }
   assert.deepEqual(sessionOrder(DEFAULT_CONTENT, "P5"), sessionOrder(DEFAULT_CONTENT, "P5"), "repeatable for one participant");
 });
@@ -109,9 +109,9 @@ test("arrival routes: homepage, Google, shared link in turn, four each across tw
 test("wording: what a participant reads before the page appears names the item, never 'this', 'these' or 'here'", () => {
   const read = (t: (typeof COMBINED_TASKS)[number]) => [t.scenario, ...t.questions, t.confidence, t.notesPrompt, ...Object.values(t.leadIns ?? {})].join(" ");
   for (const t of COMBINED_TASKS) assert.doesNotMatch(read(t), /\b(this|these|that one|here|above|below)\b/i, `${t.id}: ${read(t)}`);
-  for (const id of ["C3", "C4", "C5", "C6", "C7"]) assert.match(read(task(id)), /dōTERRA MetaPWR Advantage/, id);
+  for (const id of ["C3", "C4", "C5", "C6", "C7", "C8"]) assert.match(read(task(id)), /dōTERRA MetaPWR Advantage/, id);
   assert.match(read(task("R2")), /PB Restore/);
-  assert.match(task("C5").confidence, /buying dōTERRA MetaPWR Advantage\?$/);
+  assert.match(task("C6").confidence, /buying dōTERRA MetaPWR Advantage\?$/);
   assert.match(task("R2").confidence, /buying PB Restore\?$/);
 });
 
@@ -143,16 +143,16 @@ test("scoring: a click task is scored on the FIRST click, by zone, with header r
   const none = suggest(c2, [ready(0)], "gave-up");
   assert.equal(none.tier, "X");
   assert.equal(none.code, 6);
-  const c7 = task("C7");
-  assert.equal(suggest(c7, [ready(0), zoneClick("option-account", 400)], "found").tier, "P");
-  assert.equal(suggest(c7, [ready(0), zoneClick("add-to-cart", 400)], "found").tier, "P");
-  assert.equal(suggest(c7, [ready(0), zoneClick("quantity", 400)], "found").tier, "A");
-  assert.equal(suggest(c7, [ready(0), zoneClick("option-one-time", 400)], "found").tier, "S", "either option is a valid choice, recorded on its own");
-  assert.equal(suggest(task("C6"), [ready(0), zoneClick("shipping", 400)], "found").tier, "P");
+  const c8 = task("C8");
+  assert.equal(suggest(c8, [ready(0), zoneClick("option-account", 400)], "found").tier, "P");
+  assert.equal(suggest(c8, [ready(0), zoneClick("add-to-cart", 400)], "found").tier, "S", "adding to the cart is not asked for, so it is recorded on its own");
+  assert.equal(suggest(c8, [ready(0), zoneClick("quantity", 400)], "found").tier, "A");
+  assert.equal(suggest(c8, [ready(0), zoneClick("option-one-time", 400)], "found").tier, "S", "the one time option is recorded on its own");
+  assert.equal(suggest(task("C7"), [ready(0), zoneClick("shipping", 400)], "found").tier, "P");
 });
 
 test("scoring: the navigation tasks inside the combined test still score on two levels", () => {
-  const sug = suggest(task("C8"), [ready(0), open("shop", 200), leaf("/shop/goal/sleep-solutions", "shop", "Shop by Goal", 1500)], "destination");
+  const sug = suggest(task("C9"), [ready(0), open("shop", 200), leaf("/shop/goal/sleep-solutions", "shop", "Shop by Goal", 1500)], "destination");
   assert.equal(sug.tier, "P");
   assert.equal(sug.level1, true);
   assert.equal(sug.level2, true);
@@ -251,4 +251,20 @@ test("a session started before the combined test (no arrival or device fields) s
   assert.ok(s);
   assert.equal(s!.arrival, "shared", "P3 arrives by shared link");
   assert.equal(s!.order.length, 12);
+});
+
+test("facilitator feedback: the shorter wording, the labels as their own task, and no choose-and-add part in the two ways task", () => {
+  assert.equal(task("C3").scenario, "You have heard about dōTERRA MetaPWR Advantage, a daily supplement, and want to find out more about it. Show me what you would do, starting from the homepage.");
+  assert.equal(task("C4").scenario, "Tell me what you think dōTERRA MetaPWR Advantage is for, how you would use it, and whether or not you would take it daily to support your energy.");
+  assert.deepEqual(task("C4").questions, [], "no bulleted follow-up on C4");
+  assert.equal(task("C5").title, "Can be used labels");
+  assert.equal(task("C5").block, "product");
+  assert.deepEqual(task("C5").codes.map((c) => c.id), ["labelEnergise", "labelBodyCare", "labelActive", "labelSeasons", "labelHelp"], "the label codes moved from C4 to C5");
+  assert.ok(!task("C4").codes.some((c) => c.id.startsWith("label")));
+  assert.deepEqual(task("C8").questions, [], "no bulleted part on the two ways to buy task");
+  assert.equal(task("C8").confidence, "", "and no confidence rating, since nobody is asked to choose");
+  assert.ok(!task("C8").codes.some((c) => c.id === "choice"));
+  assert.deepEqual(task("C1").questions.length, 3, "C1 keeps its three questions, which the notes screen repeats");
+  const titles = COMBINED_TASKS.map((t) => t.title);
+  assert.equal(new Set(titles).size, titles.length, "no two tasks share a title");
 });

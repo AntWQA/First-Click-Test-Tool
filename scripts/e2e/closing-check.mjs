@@ -14,13 +14,13 @@ import { leaf, open, ready } from "../../tests/helpers.ts";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const pfile = pathToFileURL(process.env.WC_PARTICIPANT_FILE ?? path.join(root, "dist-single", "wayfinding-check-participant.html")).href;
 const mfile = pathToFileURL(process.env.WC_FILE ?? path.join(root, "dist-single", "wayfinding-check.html")).href;
-const SEND_TO = process.env.WC_SEND_TO ?? "";
+import { SEND_TO } from "../../src/shell/edition.ts";
 const downloads = fs.mkdtempSync(path.join(os.tmpdir(), "wc-cl-"));
 const T0 = Date.now() - 120_000;
 
 function atHandBack(id, pid, selfRun = true) {
   let s = createSession({ id, now: T0, participantId: pid, selfRun, content: DEFAULT_CONTENT });
-  s = { ...s, order: ["C8"], plan: { C8: "desktop" } };
+  s = { ...s, order: ["C9"], plan: { C9: "desktop" } };
   s = reduce(s, { type: "start", at: T0 });
   s = reduce(s, { type: "present", at: T0, runId: "r" + id });
   s = reduce(s, { type: "begin", at: T0 + 1000, scale: 1 });

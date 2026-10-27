@@ -59,6 +59,7 @@ const SUPERSEDED_CONTENT = new Set<string>([
   "ae6200d7", // version 8 (22 Oct 2026): the moderator's spoken debrief as a follow-up, still the Lavender product page
   "121db427", // version 9 (26 Oct 2026): the MetaPWR Advantage product page, closing questions all typed answers and a ranking by number
   "10b43a6", // version 10 (27 Oct 2026): multiple choice closing questions, promo bar still shown (C1 notes mention it)
+  "19b8a542", // version 12 (27 Oct 2026): before the Can be used labels became their own task and C5 to C11 moved up one
   "345c3966", // version 11 (27 Oct 2026): promo bar hidden; the C9 and C10 notes still named the navigation-only test's tasks
 ]);
 
@@ -94,7 +95,8 @@ export function refreshSupersededWording(s: Session): Session {
   if (!isSuperseded(s.content)) return s;
   const started = new Set(s.runs.map((r) => r.taskId));
   const tasks = s.content.tasks.map((t) => {
-    const now = DEFAULT_CONTENT.tasks.find((d) => d.id === t.id);
+    // Matched by id and title: ids moved when a task was added, and a task must never take the wording of a different one.
+    const now = DEFAULT_CONTENT.tasks.find((d) => d.id === t.id && d.title === t.title);
     if (!now || started.has(t.id)) return t;
     return { ...t, scenario: now.scenario, questions: now.questions, leadIns: now.leadIns, confidence: now.confidence, notesPrompt: now.notesPrompt };
   });

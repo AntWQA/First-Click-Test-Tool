@@ -234,6 +234,12 @@ function Rating({ session }: { session: Session }) {
             <div className="p-scale-ends" aria-hidden="true"><span>Not at all sure</span><span>Completely sure</span></div>
           </fieldset>
         )}
+        {task && task.questions.length > 0 && (
+          <div className="p-recap" data-testid="questions-again">
+            <p className="p-recap-title">The questions again</p>
+            <ul>{task.questions.map((q) => <li key={q}>{q}</li>)}</ul>
+          </div>
+        )}
         <label className="p-field" htmlFor="ease-notes">{task?.notesPrompt ? `${task.notesPrompt} (optional)` : "What did you expect to find there? Was anything confusing or surprising? (optional)"}</label>
         <textarea id="ease-notes" rows={4} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} />
         <button type="submit" className="btn btn-primary btn-lg" disabled={ease === null || (asksConfidence && confidence === null)}>Done</button>

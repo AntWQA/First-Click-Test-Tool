@@ -82,7 +82,7 @@ export function Setup({ session }: { session: Session }) {
           <h2 id="order-h">Tasks and breakpoints ({session.order.length} tasks)</h2>
           {combined ? (
             <p className="m-hint">
-              The homepage tasks (C1 to C3) come first, then the product page tasks (C4 to C7), then the navigation tasks (C8 to C11) in a seeded order with Sleep and Cough never next to each other.
+              The homepage tasks (C1 to C3) come first, then the product page tasks (C4 to C8), then the navigation tasks (C9 to C12) in a seeded order with Sleep and Cough never next to each other.
               Every task runs on the one device above. Reserves are offered to the participant at the end, only if there is time (the plan says if the clock reads 40 minutes or less when navigation ends).
             </p>
           ) : (

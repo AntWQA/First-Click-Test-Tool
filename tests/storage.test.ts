@@ -69,7 +69,7 @@ test("a saved copy of an earlier shipped default is removed and the current defa
     const stale = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
     const loaded = createStore(stale, () => 1).loadContent();
     assert.equal(loaded.version, DEFAULT_CONTENT.version, f);
-    assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C7")!.scenario, /buy this/, f);
+    assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C8")!.scenario, /buy this/, f);
     assert.doesNotMatch(loaded.tasks.find((t) => t.id === "C4")!.scenario, /Lavender/, f);
     assert.equal(stale.getItem("wc.v1.content"), null, f);
   }
@@ -90,8 +90,8 @@ test("a session begun on an earlier default takes the current wording for tasks 
   const [loaded] = store.loadSessions().sessions;
   const by = (id: string) => loaded!.content.tasks.find((x) => x.id === id)!;
   assert.match(by("C1").scenario, /buy this|this website|this company/, "C1 was already shown, so it keeps the words the participant read");
-  assert.doesNotMatch(by("C4").scenario, /this product/, "C4 had not started");
-  assert.match(by("C3").scenario, /starting from the homepage/);
+  assert.equal(by("C3").scenario, DEFAULT_CONTENT.tasks.find((t) => t.id === "C3")!.scenario, "C3 had not started, and kept its title");
+  assert.match(by("C5").scenario, /Have a look around/, "C5 here is the old What makes you sure: its title is not the new C5's, so it is left as it was and never given another task's wording");
   assert.equal(by("C7").primary[0]!.zone, "option-account", "targets are untouched");
   assert.deepEqual(loaded!.order, s.order);
   assert.equal(loaded!.runs.length, 1);
