@@ -1,0 +1,925 @@
+{
+ "schemaVersion": 1,
+ "version": 13,
+ "updatedAt": "2026-10-27T00:00:00.000Z",
+ "tasks": [
+  {
+   "kind": "observe",
+   "block": "homepage",
+   "minutes": 3.5,
+   "start": "/",
+   "questions": [
+    "What does dōTERRA sell?",
+    "Who are its products for?",
+    "What makes dōTERRA different from other places you could buy the same kind of products?"
+   ],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "sells",
+     "label": "What it sells",
+     "options": [
+      "Correct",
+      "Partial",
+      "Not clear"
+     ]
+    },
+    {
+     "id": "different",
+     "label": "What makes it different",
+     "options": [
+      "Testing or purity",
+      "Sourcing",
+      "Plant-based",
+      "Offer or price",
+      "Generic",
+      "Nothing"
+     ]
+    }
+   ],
+   "confidence": "How confident are you that the products dōTERRA sells are safe and high quality?",
+   "notesPrompt": "Your answers to the three questions, in your own words.",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C1",
+   "title": "First view",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": true,
+   "hypotheses": [
+    "CH1",
+    "CH3",
+    "CH9"
+   ],
+   "scenario": "You have just arrived on the homepage of the dōTERRA website. Before you scroll or click, tell me what you notice and what you think dōTERRA sells.",
+   "primary": [],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Thinks it sells medicine, food or something else. \"I don't know.\" Existing customers: question 2 becomes \"What would you do first here, and is anything missing that you would expect?\" Code and report them apart.",
+   "needBack": [
+    "Spoken answers, word for word, and their codes",
+    "Confidence 1 to 7 (the first reading for CH3)",
+    "What they looked at before speaking (observed)",
+    "Any doubt moment, with its zone"
+   ]
+  },
+  {
+   "kind": "click",
+   "block": "homepage",
+   "minutes": 3,
+   "start": "/",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "noRatings",
+     "label": "Noticed there are no ratings or reviews, unprompted",
+     "options": [
+      "Yes, unprompted",
+      "Only when asked",
+      "No"
+     ]
+    }
+   ],
+   "confidence": "How confident are you that the products dōTERRA sells are safe and high quality?",
+   "notesPrompt": "",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C2",
+   "title": "Looking for proof",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": false,
+   "hypotheses": [
+    "CH2",
+    "CH3",
+    "CH9"
+   ],
+   "scenario": "A friend mentioned doTERRA and you are thinking about trying an essential oil for the first time. Before you buy anything, find what would help you decide whether you can trust what is in dōTERRA's essential oil bottles.",
+   "primary": [
+    {
+     "zone": "quality",
+     "note": "The quality block, or a link to it (How we test, How we source and test)"
+    }
+   ],
+   "acceptable": [
+    {
+     "zone": "why-value-cards",
+     "note": "Why dōTERRA value cards: Sourced at origin, Tested for purity"
+    },
+    {
+     "zone": "nav-learn",
+     "note": "Header > Learn > Essential Oils > Certified Pure Testing Grade, a route off the page"
+    }
+   ],
+   "separate": [],
+   "watchFor": "Product cards, looking for ratings. FAQ. Offers. Search. Scrolls the whole page, then leaves for the header. Looks for stars or a review count and says there are none.",
+   "needBack": [
+    "First click and its zone (scored)",
+    "Confidence 1 to 7 after reading, set against C1",
+    "What the content told them and what it did not",
+    "Unprompted reaction to a page with no ratings or reviews",
+    "Doubt log entries"
+   ]
+  },
+  {
+   "kind": "observe",
+   "block": "homepage",
+   "minutes": 3,
+   "start": "/",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "route",
+     "label": "First route",
+     "options": [
+      "Hero Shop best sellers",
+      "Best sellers carousel",
+      "Category carousel",
+      "Header Shop menu",
+      "Search",
+      "Offers",
+      "Other"
+     ]
+    },
+    {
+     "id": "action",
+     "label": "First action on a product",
+     "options": [
+      "Open the product page",
+      "Add to bag",
+      "Other",
+      "Not reached"
+     ]
+    }
+   ],
+   "confidence": "",
+   "notesPrompt": "How did you look for dōTERRA MetaPWR Advantage?",
+   "apartFrom": "",
+   "readsMenu": true,
+   "id": "C3",
+   "title": "First product",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": false,
+   "hypotheses": [
+    "CH4",
+    "CH9"
+   ],
+   "scenario": "You have heard about dōTERRA MetaPWR Advantage, a daily supplement, and want to find out more about it. Show me what you would do, starting from the homepage.",
+   "primary": [],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "MetaPWR Advantage is the first card in the Best sellers carousel, so this task is whether they find it there. Scrolls the whole page, then leaves for the header. Searches for it by name. Opens Offers first because it is the largest block. Opens a header menu without being prompted (also read for navigation H6). Add to bag is not built on the cards, so the add step cannot happen.",
+   "needBack": [
+    "First meaningful action, and its route code",
+    "The order of every route tried",
+    "Whether they reached the MetaPWR Advantage page, and how long it took",
+    "On mobile: whether the carousel was moved (observed)",
+    "Whether a header menu opened unprompted"
+   ]
+  },
+  {
+   "kind": "observe",
+   "block": "product",
+   "minutes": 3,
+   "start": "/shop/products/metapwr-advantage",
+   "questions": [],
+   "leadIns": {
+    "homepage": "You opened the dōTERRA MetaPWR Advantage page from the best sellers on the dōTERRA homepage.",
+    "google": "You searched for MetaPWR Advantage and opened the dōTERRA result.",
+    "shared": "A friend sent you a link to the dōTERRA MetaPWR Advantage page and said: \"MetaPWR Advantage is the one I take.\""
+   },
+   "codes": [
+    {
+     "id": "purpose",
+     "label": "What it is for",
+     "options": [
+      "Correct",
+      "Partial",
+      "Not clear",
+      "Wrong"
+     ]
+    },
+    {
+     "id": "howTo",
+     "label": "How to use it",
+     "options": [
+      "Names a way",
+      "Does not"
+     ]
+    },
+    {
+     "id": "suits",
+     "label": "Whether they would take it daily to support their energy",
+     "options": [
+      "Yes, with a reason from the page",
+      "Yes, without a reason",
+      "No",
+      "Cannot say"
+     ]
+    }
+   ],
+   "confidence": "",
+   "notesPrompt": "What is dōTERRA MetaPWR Advantage for, how would you use it, and would you take it daily to support your energy?",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C4",
+   "title": "Product first view",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": false,
+   "hypotheses": [
+    "CH5",
+    "CH7",
+    "CH9"
+   ],
+   "scenario": "Tell me what you think dōTERRA MetaPWR Advantage is for, how you would use it, and whether or not you would take it daily to support your energy.",
+   "primary": [],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Thinks it is a food or a drink rather than a supplement. Reads a badge (Best seller, 25% off) as the product claim. Cannot say anything about use. Answers without looking at the page, or scrolls before answering. The Google and shared link routes are text only for now: the page opens directly, with no search results or message mock-up.",
+   "needBack": [
+    "Spoken answers and codes: purpose, how to use, and whether they would take it daily",
+    "Arrival route, device and customer type",
+    "What they looked at before answering",
+    "Time to first answer",
+    "Doubt log entries, with seconds since arrival"
+   ]
+  },
+  {
+   "kind": "observe",
+   "block": "product",
+   "minutes": 2,
+   "start": "/shop/products/metapwr-advantage",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "labelEnergise",
+     "label": "Label: Energise",
+     "options": [
+      "Correct",
+      "Partial",
+      "Wrong",
+      "Cannot say"
+     ]
+    },
+    {
+     "id": "labelBodyCare",
+     "label": "Label: Body Care",
+     "options": [
+      "Correct",
+      "Partial",
+      "Wrong",
+      "Cannot say"
+     ]
+    },
+    {
+     "id": "labelActive",
+     "label": "Label: Active",
+     "options": [
+      "Correct",
+      "Partial",
+      "Wrong",
+      "Cannot say"
+     ]
+    },
+    {
+     "id": "labelSeasons",
+     "label": "Label: Seasons",
+     "options": [
+      "Correct",
+      "Partial",
+      "Wrong",
+      "Cannot say"
+     ]
+    },
+    {
+     "id": "labelHelp",
+     "label": "Hovered or tapped a label for help",
+     "options": [
+      "Yes",
+      "No"
+     ]
+    }
+   ],
+   "confidence": "",
+   "notesPrompt": "What does each of the Can be used labels mean?",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C5",
+   "title": "Can be used labels",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": false,
+   "hypotheses": [
+    "CH6"
+   ],
+   "scenario": "On the page for dōTERRA MetaPWR Advantage, find the labels under Can be used and tell me what each label means.",
+   "primary": [],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Cannot find the labels (they sit in Things to know, under Cautions). Guesses from the word alone. Hovers or taps a label for help (counted as help). Says a label is not a button. Thinks the labels are filters or product categories.",
+   "needBack": [
+    "Each label's spoken meaning, coded Correct, Partial, Wrong or Cannot say",
+    "Help taken on labels (hover or tap)",
+    "How long it took to find the labels",
+    "Doubt log entries, with seconds since arrival"
+   ]
+  },
+  {
+   "kind": "observe",
+   "block": "product",
+   "minutes": 3,
+   "start": "/shop/products/metapwr-advantage",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "firstSignal",
+     "label": "First signal they used",
+     "options": [
+      "Reviews",
+      "Rating",
+      "CPTG badge",
+      "Description or Things to know",
+      "Sourcing story",
+      "Recommended products",
+      "None"
+     ]
+    },
+    {
+     "id": "leftPage",
+     "label": "Left the page to check elsewhere",
+     "options": [
+      "Yes",
+      "No"
+     ]
+    }
+   ],
+   "confidence": "How sure are you about buying dōTERRA MetaPWR Advantage?",
+   "notesPrompt": "What made you more sure, and what made you less sure?",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C6",
+   "title": "What makes you sure",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": false,
+   "hypotheses": [
+    "CH8",
+    "CH9"
+   ],
+   "scenario": "You are thinking about buying dōTERRA MetaPWR Advantage. Have a look around its page and tell me, out loud, anything that makes you more sure or less sure.",
+   "primary": [],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Scrolls to the reviews and does not read them. Says they would search elsewhere to check. Leaves the page to compare, which is a doubt moment. Skips the CPTG badge. Reads repeated review text as fake. The reviews are prototype stand-ins.",
+   "needBack": [
+    "Signals touched, in order, with the words used",
+    "Unprompted doubt, logged with its zone and seconds since arrival",
+    "Confidence 1 to 7 at the end",
+    "Whether they left the page to check elsewhere"
+   ]
+  },
+  {
+   "kind": "click",
+   "block": "product",
+   "minutes": 2.5,
+   "start": "/shop/products/metapwr-advantage",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "total",
+     "label": "Total cost",
+     "options": [
+      "Correct",
+      "Price only",
+      "Wrong",
+      "Gave up"
+     ]
+    },
+    {
+     "id": "freeMisread",
+     "label": "Read the free shipping line as applying to them",
+     "options": [
+      "Yes",
+      "No"
+     ]
+    }
+   ],
+   "confidence": "",
+   "notesPrompt": "What would you pay in total, and how did you work it out?",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C7",
+   "title": "What would I pay",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": true,
+   "hypotheses": [
+    "CH10"
+   ],
+   "scenario": "You decide to buy one box of dōTERRA MetaPWR Advantage and have it delivered to your home. Without leaving its page, tell me what you would pay in total.",
+   "primary": [
+    {
+     "zone": "shipping",
+     "note": "Opens the Shipping options overlay from the shipping line"
+    }
+   ],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Says shipping is free (reads the loyalty line as applying to them). Gives the item price only. Adds to cart to find out. Leaves for the footer or Help. Cannot say. A correct total from the shipping line alone has no click: set the tier to Acceptable. Answer key: the item price plus the delivery cost for the method they choose, from the Shipping options table as built (MetaPWR Advantage $112.67, Economy $6.99, so $119.66).",
+   "needBack": [
+    "Spoken total, coded: Correct, Price only, Wrong, Gave up",
+    "Path: opened Shipping options, scrolled, left the page",
+    "Time to answer",
+    "Whether they read the free shipping line as applying to them"
+   ]
+  },
+  {
+   "kind": "click",
+   "block": "product",
+   "minutes": 3,
+   "start": "/shop/products/metapwr-advantage",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "whatItIs",
+     "label": "Says what the lower price is (a lower price for account holders)",
+     "options": [
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "id": "howToGet",
+     "label": "Says how to get it (create an account)",
+     "options": [
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "id": "costToJoin",
+     "label": "Says whether it costs anything to join",
+     "options": [
+      "Correct",
+      "Wrong",
+      "Not mentioned"
+     ]
+    },
+    {
+     "id": "saving",
+     "label": "Says the saving",
+     "options": [
+      "Correct",
+      "Wrong",
+      "Not mentioned"
+     ]
+    }
+   ],
+   "confidence": "",
+   "notesPrompt": "What is each way to buy, and how do they differ?",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C8",
+   "title": "Two ways to buy",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": true,
+   "hypotheses": [
+    "CH11"
+   ],
+   "scenario": "There is more than one way to buy dōTERRA MetaPWR Advantage on its page. Tell me what you think each way is and how they differ. What would you have to do to get the lower price, and how much would you save?",
+   "primary": [
+    {
+     "zone": "option-account",
+     "note": "Selects the account option to see its price"
+    }
+   ],
+   "acceptable": [
+    {
+     "zone": "quantity",
+     "note": "Changes the quantity first"
+    },
+    {
+     "zone": "price-info",
+     "note": "Opens the price tooltip (Did you know?) or its Show me the membership price action"
+    }
+   ],
+   "separate": [
+    {
+     "zone": "option-one-time",
+     "note": "Looks at the one time option first or again"
+    },
+    {
+     "zone": "add-to-cart",
+     "note": "Adds to the cart: the task does not ask for it, so it is recorded only"
+    }
+   ],
+   "watchFor": "Thinks the lower price is a sale or a coupon. Thinks it needs a subscription or a bigger order. Ignores the account option. Uses the info icon beside the price, or not. Adds to the cart without being asked. Leaves to compare.",
+   "needBack": [
+    "Click on the account option (scored)",
+    "Spoken answer, coded on the four elements. The saving to expect is $28.17 for one box",
+    "Hesitation before the first click, 5 seconds or more"
+   ]
+  },
+  {
+   "kind": "nav",
+   "block": "navigation",
+   "minutes": 2.75,
+   "start": "/",
+   "questions": [],
+   "leadIns": null,
+   "codes": [],
+   "confidence": "",
+   "notesPrompt": "",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C9",
+   "title": "Sleep",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": true,
+   "hypotheses": [
+    "CH12"
+   ],
+   "scenario": "You've been having trouble getting a good night's sleep and want to see what doTERRA offers to help.",
+   "primary": [
+    {
+     "href": "/shop/goal/sleep-solutions"
+    }
+   ],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Learn > Essential Oils > Discover Solutions (education reading). Shop by Category > Essential Oils (product reading). Search.",
+   "needBack": [
+    "Whether they read the Shop by Goal column title before choosing (observed, not inferred)",
+    "After the click, verbatim: what they expect to find on Sleep Solutions",
+    "Count of Learn and Essential Oils picks"
+   ]
+  },
+  {
+   "kind": "nav",
+   "block": "navigation",
+   "minutes": 2.75,
+   "start": "/",
+   "questions": [],
+   "leadIns": null,
+   "codes": [],
+   "confidence": "",
+   "notesPrompt": "",
+   "apartFrom": "C9",
+   "readsMenu": false,
+   "id": "C10",
+   "title": "Cough",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": true,
+   "hypotheses": [
+    "CH12"
+   ],
+   "scenario": "You've had a cough you can't shake and want to find products that could support your breathing.",
+   "primary": [
+    {
+     "href": "/shop/goal/respiratory-solutions"
+    }
+   ],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Learn > Essential Oils > Discover Solutions. Shop by Category > Essential Oils or Supplements. Search.",
+   "needBack": [
+    "Scan behaviour across the 11 goals: time from menu open to click, and whether the pointer passed over the target",
+    "Compare with C9: does symptom wording score lower than goal wording?"
+   ]
+  },
+  {
+   "kind": "nav",
+   "block": "navigation",
+   "minutes": 2.75,
+   "start": "/",
+   "questions": [],
+   "leadIns": null,
+   "codes": [],
+   "confidence": "",
+   "notesPrompt": "",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C11",
+   "title": "Savings",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": true,
+   "hypotheses": [
+    "CH13"
+   ],
+   "scenario": "You buy the same oils every month and wonder if there is a way to pay less as a regular customer.",
+   "primary": [
+    {
+     "href": "/rewards/wholesale-membership"
+    }
+   ],
+   "acceptable": [
+    {
+     "href": "/rewards/loyalty-rewards-program"
+    },
+    {
+     "href": "/rewards/enrollment-options"
+    }
+   ],
+   "separate": [],
+   "watchFor": "Shop > Collections & Enrollment. Shop > Highlights. Learn > Business. Search.",
+   "needBack": [
+    "Which Rewards link, and why. The closing question on screen asks what the Rewards links mean; do not explain them first",
+    "Whether the dropdown opened without a prompt",
+    "Member (WA, WC) and non-member results shown separately"
+   ]
+  },
+  {
+   "kind": "nav",
+   "block": "navigation",
+   "minutes": 2.75,
+   "start": "/",
+   "questions": [],
+   "leadIns": null,
+   "codes": [],
+   "confidence": "",
+   "notesPrompt": "",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "C12",
+   "title": "Income",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": false,
+   "highRisk": true,
+   "hypotheses": [
+    "CH13"
+   ],
+   "scenario": "A friend mentioned they earn money selling doTERRA. Find out how you could do the same.",
+   "primary": [
+    {
+     "href": "/learn/business/business-opportunity"
+    }
+   ],
+   "acceptable": [
+    {
+     "href": "/learn/business/path-to-500"
+    }
+   ],
+   "separate": [],
+   "watchFor": "Rewards > Wholesale Membership or Enrollment Options. Learn > Business > Business Hub or Resources. Our Story. Search.",
+   "needBack": [
+    "Whether the Business column was found",
+    "Verbatim: what Path to $500 means to them. Do not explain it",
+    "Member (WA, WC) and non-member results shown separately"
+   ]
+  },
+  {
+   "kind": "observe",
+   "block": "homepage",
+   "minutes": 1.5,
+   "start": "/",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "moved",
+     "label": "Moved the carousel to see a product that was not in view",
+     "options": [
+      "Arrow",
+      "Swipe or drag",
+      "Page scroll",
+      "Did not move it"
+     ]
+    }
+   ],
+   "confidence": "",
+   "notesPrompt": "Which two would you look at first?",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "R1",
+   "title": "Reserve: best sellers",
+   "breakpoints": [
+    "mobile"
+   ],
+   "reserve": true,
+   "highRisk": false,
+   "hypotheses": [
+    "CH4"
+   ],
+   "scenario": "You would like to see which dōTERRA products other people buy most. Look through those products and tell me which two you would look at first.",
+   "primary": [],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Taps a product card instead of moving the carousel. Taps the arrow and misses. Says there is only one product. Looks for dots. Mobile only: at desktop all five best sellers are in view.",
+   "needBack": [
+    "Reached a product that was not in view, yes or no, and how",
+    "Time to first movement",
+    "Dead taps, with coordinates"
+   ]
+  },
+  {
+   "kind": "observe",
+   "block": "product",
+   "minutes": 2.5,
+   "start": "/shop/products/pb-restore",
+   "questions": [],
+   "leadIns": null,
+   "codes": [
+    {
+     "id": "noticed",
+     "label": "Noticed there are no reviews",
+     "options": [
+      "Unprompted, before any question",
+      "Only when asked",
+      "Not noticed"
+     ]
+    },
+    {
+     "id": "wouldBuy",
+     "label": "Would buy",
+     "options": [
+      "Yes",
+      "No",
+      "Only if"
+     ]
+    }
+   ],
+   "confidence": "How sure are you about buying PB Restore?",
+   "notesPrompt": "What do you think of PB Restore, and would you buy it?",
+   "apartFrom": "",
+   "readsMenu": false,
+   "id": "R2",
+   "title": "Reserve: no reviews yet",
+   "breakpoints": [
+    "desktop",
+    "mobile"
+   ],
+   "reserve": true,
+   "highRisk": false,
+   "hypotheses": [
+    "CH9"
+   ],
+   "scenario": "You are looking at the page for PB Restore, a newer probiotic supplement from dōTERRA. You are thinking of buying PB Restore. Tell me what you think.",
+   "primary": [],
+   "acceptable": [],
+   "separate": [],
+   "watchFor": "Does not notice. Reads it as the site hiding reviews. Reads it as a good sign (new, exclusive). Asks whether it is safe. Goes back to Product A to compare. If this does not run, the debrief asks the question instead.",
+   "needBack": [
+    "Whether and when they mention the missing reviews unprompted, before any question",
+    "Then asked: what, if anything, is missing?",
+    "Confidence 1 to 7, set against Product A",
+    "What they say they would use instead"
+   ]
+  }
+ ],
+ "devicePerParticipant": true,
+ "debrief": [
+  "The participant has already answered the closing questions on screen (the video, the ranking, no reviews, Rewards and Solutions, what to change first). Their answers are listed below the table: ask about anything that is unclear.",
+  "Thank them. These are written opinions: read them beside what people did."
+ ],
+ "closingQuestions": [
+  {
+   "id": "video",
+   "kind": "choice",
+   "options": [
+    "Yes",
+    "No",
+    "Don't know"
+   ],
+   "follow": {
+    "Yes": "How would it have changed how sure you felt?",
+    "No": "Why would it not have changed how sure you felt?"
+   },
+   "prompt": "Imagine the gallery on the dōTERRA MetaPWR Advantage page also had a short video of the product. Would that have changed how sure you felt about buying it?"
+  },
+  {
+   "id": "rank",
+   "kind": "rank",
+   "hint": "Drag the cards into order, with the one that makes you most sure at the top and the one that makes you least sure at the bottom. The arrow buttons do the same.",
+   "prompt": "Four things can help someone feel sure about buying a product like dōTERRA MetaPWR Advantage. Put them in order.",
+   "items": [
+    "Customer reviews",
+    "The CPTG Certified Pure Tested Grade mark",
+    "The story of where the ingredients are sourced",
+    "A short video of the product (imagine it was on the page)"
+   ]
+  },
+  {
+   "id": "noReviews",
+   "kind": "choice",
+   "unlessRun": "R2",
+   "hint": "Choose the closest one.",
+   "other": true,
+   "options": [
+    "Look for reviews on another website",
+    "Buy it anyway",
+    "Read the product details more closely",
+    "Wait until it has reviews",
+    "Choose a different product"
+   ],
+   "prompt": "Imagine you were thinking of buying a product on the dōTERRA website and it had no reviews yet. What would you do?"
+  },
+  {
+   "id": "rewardsMeaning",
+   "kind": "choice",
+   "hint": "Choose the closest one.",
+   "other": true,
+   "options": [
+    "Ways to save money as a member",
+    "Earning points or rewards for buying",
+    "A way to earn income with dōTERRA",
+    "Current offers and promotions",
+    "I am not sure what they meant",
+    "I did not look at them"
+   ],
+   "prompt": "In the menu at the top of the dōTERRA website, what did the links under Rewards mean to you?"
+  },
+  {
+   "id": "solutionsMeaning",
+   "kind": "choice",
+   "hint": "Choose the closest one.",
+   "other": true,
+   "options": [
+    "Products for a health goal or concern",
+    "Answers to a problem I have",
+    "Bundles or kits",
+    "Advice or articles",
+    "I am not sure what it meant",
+    "I did not look at it"
+   ],
+   "prompt": "In the menu at the top of the dōTERRA website, what did the word Solutions mean to you?"
+  },
+  {
+   "id": "changeHome",
+   "kind": "choice",
+   "hint": "Choose the closest one.",
+   "other": true,
+   "options": [
+    "Make it clearer what dōTERRA sells",
+    "Make products easier to find",
+    "Show prices sooner",
+    "Show ratings and reviews",
+    "Make the offers easier to understand",
+    "Nothing, I would leave it as it is"
+   ],
+   "prompt": "What would you change first on the dōTERRA homepage?"
+  },
+  {
+   "id": "changeProduct",
+   "kind": "choice",
+   "hint": "Choose the closest one.",
+   "other": true,
+   "options": [
+    "Make the price and the ways to buy clearer",
+    "Show more product information",
+    "Show more photos or a video",
+    "Make the reviews easier to find",
+    "Make the shipping information clearer",
+    "Nothing, I would leave it as it is"
+   ],
+   "prompt": "What would you change first on the dōTERRA MetaPWR Advantage page?"
+  }
+ ]
+}

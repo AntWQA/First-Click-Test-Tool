@@ -64,7 +64,7 @@ test("removing a session removes it", () => {
 
 test("a saved copy of an earlier shipped default is removed and the current default is used", async () => {
   const { readFileSync } = await import("node:fs");
-  for (const f of ["combined-default-2026-10-22.json", "combined-default-v8.json"]) {
+  for (const f of ["combined-default-2026-10-22.json", "combined-default-v8.json", "combined-default-v13.json"]) {
     const old = JSON.parse(readFileSync(new URL("./fixtures/" + f, import.meta.url), "utf8"));
     const stale = memoryBacking({ "wc.v1.content": JSON.stringify(old) });
     const loaded = createStore(stale, () => 1).loadContent();

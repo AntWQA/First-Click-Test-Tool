@@ -60,6 +60,7 @@ const SUPERSEDED_CONTENT = new Set<string>([
   "121db427", // version 9 (26 Oct 2026): the MetaPWR Advantage product page, closing questions all typed answers and a ranking by number
   "10b43a6", // version 10 (27 Oct 2026): multiple choice closing questions, promo bar still shown (C1 notes mention it)
   "19b8a542", // version 12 (27 Oct 2026): before the Can be used labels became their own task and C5 to C11 moved up one
+  "80123bb7", // version 13 (27 Oct 2026): one device for the whole session, from the participant number
   "345c3966", // version 11 (27 Oct 2026): promo bar hidden; the C9 and C10 notes still named the navigation-only test's tasks
 ]);
 

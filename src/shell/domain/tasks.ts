@@ -102,7 +102,7 @@ export interface Content {
   version: number;
   updatedAt: string;
   tasks: Task[];
-  /** True when each participant uses one device (desktop or mobile, by participant number) for the whole session, instead of a device per task. */
+  /** True when each participant uses one device (desktop or mobile, by participant number) for the whole session. Off in the shipped test: each task runs at its own breakpoint. */
   devicePerParticipant?: boolean;
   /** Questions and steps for the debrief, shown to the moderator. */
   debrief?: string[];
@@ -473,10 +473,10 @@ export const DEFAULT_CONTENT: Content = {
   // Version 11: the global promo bar is hidden on the homepage, so the C1 notes no longer mention it.
   // Version 12: the moderator notes of C10 and C11 name the tasks of this test (C9, the closing question on screen) instead of the navigation-only test's.
   // Version 13: facilitator feedback. C3 no longer adds "and what you would do next". C4 is the shorter "Tell me what you think MetaPWR Advantage is for, how you would use it, and whether or not you would take it daily to support your energy". The Can be used labels are their own task (C5), so C5 to C11 became C6 to C12, and the two ways to buy task (now C8) no longer asks them to choose and add, so it has no confidence rating.
-  version: 13,
-  updatedAt: "2026-10-27T00:00:00.000Z",
+  // Version 14: every task runs at its own breakpoint again (rotated desktop and mobile by participant number, as in the navigation-only test), instead of one device for the whole session, which was introduced in version 4 without being agreed.
+  version: 14,
+  updatedAt: "2026-10-28T00:00:00.000Z",
   tasks: COMBINED_TASKS,
-  devicePerParticipant: true,
   debrief: COMBINED_DEBRIEF,
   closingQuestions: COMBINED_CLOSING_QUESTIONS,
 };

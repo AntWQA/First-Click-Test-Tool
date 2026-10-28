@@ -58,6 +58,15 @@ function SiteHeaderInner({ initialDrawerOpen = false }: Props) {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [drawerOpen]);
+  // While the menu is open the page behind it must not scroll: its scrollbar is the wide one at the edge of the frame, so a person who
+  // drags it moves the page and sees the menu stay still. The menu's own Scroller is the only thing that should move.
+  useEffect(() => {
+    if (!drawerOpen || isDesktop) return undefined;
+    const html = document.documentElement.style.overflow, body = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => { document.documentElement.style.overflow = html; document.body.style.overflow = body; };
+  }, [drawerOpen, isDesktop]);
   const closeSearch = () => setSearchOpen(false);
   const typeahead = (
     <Typeahead

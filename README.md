@@ -8,7 +8,7 @@ Participants see the name **Wayfinding Check**, which keeps the method out of vi
 
 ## The combined test
 
-One session, one device, three blocks in a fixed order: **homepage** (C1 to C3), **product page** (C4 to C8), **navigation** (C9 to C12). Task allowances add to 34 minutes; with the welcome, debrief and buffer the plan is 44 core minutes, and the setup screen shows the estimate.
+One session, three blocks in a fixed order: **homepage** (C1 to C3), **product page** (C4 to C8), **navigation** (C9 to C12). Task allowances add to 34 minutes; with the welcome, debrief and buffer the plan is 44 core minutes, and the setup screen shows the estimate.
 
 | Task | Block | Kind | What it reads |
 |---|---|---|---|
@@ -25,7 +25,7 @@ One session, one device, three blocks in a fixed order: **homepage** (C1 to C3),
 
 **Task kinds.** *nav* is scored on the link chosen (two levels). *click* is scored on the **first click**, by named zone of the page (the prototype tags each part of the homepage and product page with `data-zone`; the recorder reports the nearest one) or by a header route or the footer. *observe* is not scored: the first click is kept, and the participant's answers are coded by the moderator afterwards from short agreed lists (the Review screen). Observe tasks show only **Done** on screen, no "I found it" and no "I can't find it".
 
-**Per participant.** The **device** is set from the number: odd desktop, even mobile, so twelve participants split six and six and every task runs on the session device (the moderator can override at setup). The **arrival route** cycles homepage, Google, shared link (four each across twelve, two on each device), and members from the WA and WC groups arrive by shared link, never Google. Arrival is a **sentence read before the scenario** (for example "You searched for lavender oil and chose this result"); no search results page or message is mocked up. A task can start on its own page: the product tasks open the product page.
+**Per participant.** The **device is set per task**, not per session: each task runs at desktop or mobile, rotated by the participant number, so across twelve participants every task is seen six times on each and each person gets an even mix (the moderator can change any task at setup; see Breakpoints per task). A task that lists only mobile, the carousel reserve R1, always runs on mobile. The **arrival route** cycles homepage, Google, shared link (four each across twelve, two on each device for every task), and members from the WA and WC groups arrive by shared link, never Google. Arrival is a **sentence read before the scenario** (for example "You searched for lavender oil and chose this result"); no search results page or message is mocked up. A task can start on its own page: the product tasks open the product page.
 
 **Order.** Homepage then product page tasks keep their plan order; the four navigation tasks follow, shuffled by the participant's number with Sleep and Cough never adjacent.
 
@@ -63,7 +63,7 @@ Open the file in **Chrome or Edge** on a desktop machine. Make the window at lea
 ### Tabs
 - **Sessions**: every session, resume or view, delete, download all, import.
 - **Ledger**: per task and breakpoint, with a Reviewed column and a list for adding findings (each participant once per task, even if their ID was run more than once: the newest session wins; titles and targets come from what each session actually ran, so editing Content never drops or merges results, and a row says when it mixes content versions), the Level 1 and Level 2 counts, verdict, median time to first interaction, mean ease, confident-wrong count, prompts, final column (for duplicated answers) and misread sections. Exports Markdown, CSV (one row per run) and JSON.
-- **Tasks**: there is no Content tab. The 14 tasks of the combined test (12 core, 2 reserve), the closing questions and the one-device-per-participant switch are in `src/shell/domain/tasks.ts`; change them there and rebuild. The end-to-end checks open the short four task cut with `?wc-test=reduced-navigation` on the file address (nothing in the tool links to it).
+- **Tasks**: there is no Content tab. The 14 tasks of the combined test (12 core, 2 reserve), the closing questions and the optional one-device-per-participant switch (off in the shipped test) are in `src/shell/domain/tasks.ts`; change them there and rebuild. The end-to-end checks open the short four task cut with `?wc-test=reduced-navigation` on the file address (nothing in the tool links to it).
 - **Preview**: the prototype at each breakpoint with a live view of what the recorder reports. Use it to rehearse. Nothing is saved.
 
 ## Participant edition (self-run)
@@ -82,7 +82,7 @@ Differences to keep in mind when you read self-run results: nobody is there to p
 
 ## Breakpoints per task
 
-*Applies to the navigation-only test. The combined test runs every task on the participant's one device (see above).*
+*Applies to the navigation-only test and to the combined test.*
 
 Each participant does all their tasks in one session, and the frame **switches breakpoint per task**.
 

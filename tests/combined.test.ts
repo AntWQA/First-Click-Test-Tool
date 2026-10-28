@@ -24,7 +24,7 @@ test("the default content is the combined test: 12 core tasks, 2 reserves, 34 ta
   const core = COMBINED_TASKS.filter((t) => !t.reserve).reduce((n, t) => n + t.minutes, 0);
   assert.equal(core, 34, "34 minutes of tasks plus 4 welcome, 4 debrief and 2 buffer make the plan's 44 core minutes");
   assert.ok(!JSON.stringify(DEFAULT_CONTENT).includes("—"));
-  assert.equal(DEFAULT_CONTENT.devicePerParticipant, true);
+  assert.equal(DEFAULT_CONTENT.devicePerParticipant, undefined, "each task runs at its own breakpoint, not one device for the whole session");
   assert.equal((DEFAULT_CONTENT.debrief ?? []).length, 2, "the moderator's spoken debrief is two follow-ups now");
   assert.match(DEFAULT_CONTENT.debrief![0]!, /already answered the closing questions on screen/);
   assert.ok(!DEFAULT_CONTENT.debrief!.join(" ").includes("Rank four cards"), "it no longer repeats the questions the participant answers on screen");
@@ -75,21 +75,40 @@ test("order: the homepage and product page tasks stay in order, the navigation t
   assert.deepEqual(sessionOrder(DEFAULT_CONTENT, "P5"), sessionOrder(DEFAULT_CONTENT, "P5"), "repeatable for one participant");
 });
 
-test("devices: odd numbers desktop and even numbers mobile, six and six across twelve, and every task runs on the session device", () => {
-  const devices = Array.from({ length: 12 }, (_, i) => deviceFor(DEFAULT_CONTENT, "P" + (i + 1)));
+const ONE_DEVICE = { ...DEFAULT_CONTENT, devicePerParticipant: true };
+
+test("devices: each task runs at its own breakpoint, rotated by participant number, six and six across twelve for every task and an even mix for every person", () => {
+  assert.equal(deviceFor(DEFAULT_CONTENT, "P1"), undefined, "no session-wide device");
+  const plans = Array.from({ length: 12 }, (_, i) => createSession({ id: "p" + (i + 1), now: T0, participantId: "P" + (i + 1), content: DEFAULT_CONTENT }).plan);
+  for (const t of COMBINED_TASKS.filter((x) => !x.reserve)) {
+    assert.equal(plans.filter((p) => p[t.id] === "desktop").length, 6, t.id + " desktop");
+    assert.equal(plans.filter((p) => p[t.id] === "mobile").length, 6, t.id + " mobile");
+  }
+  for (const p of plans) {
+    const d = Object.values(p).filter((bp) => bp === "desktop").length;
+    assert.ok(d >= 5 && d <= 7, `an even mix for each person: ${d} desktop of ${Object.values(p).length}`);
+  }
+  const s = createSession({ id: "r", now: T0, participantId: "P1", content: DEFAULT_CONTENT });
+  assert.deepEqual(new Set(Object.values(s.plan)), new Set(["desktop", "mobile"]), "one session uses both");
+  const rs = reduce({ ...s, phase: "offer", cursor: s.order.length }, { type: "acceptReserve", at: T0 });
+  assert.equal(rs.plan["R1"], "mobile", "a mobile-only reserve runs on mobile for anyone");
+});
+
+test("devices: the one-device-per-session option still works when a content asks for it: odd numbers desktop, even mobile, and the moderator can choose", () => {
+  const devices = Array.from({ length: 12 }, (_, i) => deviceFor(ONE_DEVICE, "P" + (i + 1)));
   assert.equal(devices.filter((d) => d === "desktop").length, 6);
   assert.equal(devices.filter((d) => d === "mobile").length, 6);
-  assert.equal(deviceFor(NAVIGATION_CONTENT, "P1"), undefined, "the navigation-only test rotates devices per task");
+  assert.equal(deviceFor(NAVIGATION_CONTENT, "P1"), undefined);
   for (const id of ["P1", "P2"]) {
-    const s = createSession({ id: "s" + id, now: T0, participantId: id, content: DEFAULT_CONTENT });
+    const s = createSession({ id: "s" + id, now: T0, participantId: id, content: ONE_DEVICE });
     assert.ok(Object.values(s.plan).every((bp) => bp === sessionDevice(s)), id);
   }
-  const over = apply(createSession({ id: "o", now: T0, participantId: "P1", content: DEFAULT_CONTENT }), { type: "setup", at: T0, patch: { deviceOverride: "mobile" } });
+  const over = apply(createSession({ id: "o", now: T0, participantId: "P1", content: ONE_DEVICE }), { type: "setup", at: T0, patch: { deviceOverride: "mobile" } });
   assert.ok(Object.values(over.plan).every((bp) => bp === "mobile"), "the moderator can choose the device");
 });
 
-test("arrival routes: homepage, Google, shared link in turn, four each across twelve, two on each device, and never Google for an existing customer", () => {
-  const rows = Array.from({ length: 12 }, (_, i) => ({ route: arrivalFor("P" + (i + 1), ""), device: deviceFor(DEFAULT_CONTENT, "P" + (i + 1)) }));
+test("arrival routes: homepage, Google, shared link in turn, four each across twelve, two on each device for the product page tasks, and never Google for an existing customer", () => {
+  const rows = Array.from({ length: 12 }, (_, i) => ({ route: arrivalFor("P" + (i + 1), ""), device: createSession({ id: "q" + i, now: T0, participantId: "P" + (i + 1), content: DEFAULT_CONTENT }).plan["C4"] }));
   for (const route of ["homepage", "google", "shared"]) {
     assert.equal(rows.filter((r) => r.route === route).length, 4, route);
     assert.equal(rows.filter((r) => r.route === route && r.device === "desktop").length, 2, route + " desktop");
@@ -115,12 +134,12 @@ test("wording: what a participant reads before the page appears names the item, 
   assert.match(task("R2").confidence, /buying PB Restore\?$/);
 });
 
-test("reserves: the mobile-only carousel reserve is offered to mobile participants only", () => {
-  const desktop = createSession({ id: "d", now: T0, participantId: "P1", content: DEFAULT_CONTENT });
-  const mobile = createSession({ id: "m", now: T0, participantId: "P2", content: DEFAULT_CONTENT });
-  assert.deepEqual(reserveTasksLeft(desktop).map((t) => t.id), ["R2"]);
-  assert.deepEqual(reserveTasksLeft(mobile).map((t) => t.id), ["R1", "R2"]);
-  assert.ok(!ids(desktop).includes("R1"));
+test("reserves: with a device per task, the mobile-only carousel reserve is offered to everyone and always runs on mobile", () => {
+  for (const id of ["P1", "P2"]) {
+    const s = createSession({ id, now: T0, participantId: id, content: DEFAULT_CONTENT });
+    assert.deepEqual(reserveTasksLeft(s).map((t) => t.id), ["R1", "R2"], id);
+    assert.ok(!s.order.includes("R1"));
+  }
 });
 
 test("scoring: an observe task scores nothing, and keeps where the first click landed", () => {

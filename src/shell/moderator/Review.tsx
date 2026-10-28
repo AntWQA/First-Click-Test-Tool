@@ -55,7 +55,7 @@ export function Review({ session, runId, onBack, backLabel }: { session: Session
           <dl className="m-facts">
             <dt>Scenario</dt><dd><Cued text={task.scenario} /></dd>
             <dt>Breakpoint</dt><dd>{BREAKPOINTS[run.breakpoint].label}. Earlier tasks this session at another breakpoint: {session.runs.filter((r) => r.status === "completed" && r.position < run.position && r.breakpoint !== run.breakpoint).length} of {run.position}. The earlier someone meets the navigation, the less of it they have already seen.</dd>
-            {session.content.devicePerParticipant && <><dt>Route</dt><dd>Arrived by {ARRIVAL_LABELS[session.arrival]}{session.group ? ` · ${session.group}` : ""}</dd></>}
+            {session.content.tasks.some((t) => t.kind !== "nav") && <><dt>Route</dt><dd>Arrived by {ARRIVAL_LABELS[session.arrival]}{session.group ? ` · ${session.group}` : ""}</dd></>}
             <dt>Ended by</dt><dd>{run.end === "destination" ? "Chose a destination" : run.end === "found" ? (task.kind === "observe" ? "Pressed Done" : "Pressed I found it") : "Pressed I can't find it"}</dd>
             <dt>Time</dt><dd>reading {seconds(run.readingMs)} · to first interaction {seconds(sug.firstInteractionMs)} · total {seconds(run.durationMs)}{run.scale !== 1 ? ` · shown at ${Math.round(run.scale * 100)}% size` : ""}{run.windowResized ? " · window resized during the task" : ""}</dd>
             {!isNav && <><dt>First click</dt><dd>{sug.firstZone ? `${zoneLabel(sug.firstZone)} (${sug.finalKind ?? "click"})` : "nothing clicked"}{task.kind === "click" ? ` · ${lvl(sug.level2)}` : ""}</dd><dt>Zones clicked</dt><dd>{(sug.zonesClicked ?? []).length ? sug.zonesClicked.map(zoneLabel).join(", then ") : "none"}</dd></>}
